@@ -191,3 +191,24 @@ test('validate throws error if arg set to true', () => {
     model.spaceId = 0;
     expect(() => model.validate(true)).toThrowError();
 });
+
+
+test('defaultValue returns correct value for text', () => {
+    const model = new Attr().asText();
+    expect(model.defaultValue).toBe('');
+});
+
+test('defaultValue returns correct value for number', () => {
+    const model = new Attr().asNumber();
+    expect(model.defaultValue).toBe(0);
+});
+
+test('defaultValue returns correct value for boolean', () => {
+    const model = new Attr().asBoolean();
+    expect(model.defaultValue).toBe(false);
+});
+
+test('defaultValue returns correct value for date', () => {
+    const model = new Attr().asDate();
+    expect(model.defaultValue.getSeconds()).toBe(new Date().getSeconds());
+});

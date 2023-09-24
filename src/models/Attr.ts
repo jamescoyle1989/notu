@@ -108,4 +108,18 @@ export default class Attr extends ModelWithState<Attr> {
 
         return output == null;
     }
+
+
+    get defaultValue(): any {
+        switch (this.type) {
+            case 'TEXT':
+                return '';
+            case 'NUMBER':
+                return 0;
+            case 'BOOLEAN':
+                return false;
+            case 'DATE':
+                return new Date();
+        }
+    }
 }
