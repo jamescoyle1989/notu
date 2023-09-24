@@ -23,11 +23,15 @@ test('gets initiated with sensible defaults', () => {
 
 test('can duplicate itself', () => {
     const note = new Note().clean();
+    const space = new Space('hello');
+    space.id = 123;
+    note.space = space;
     const copy = note.duplicate();
     expect(copy.id).toBe(note.id);
     expect(copy.date).toBe(note.date);
     expect(copy.text).toBe(note.text);
     expect(copy.archived).toBe(note.archived);
+    expect(copy.space).toBe(note.space);
     expect(copy.spaceId).toBe(note.spaceId);
     expect(copy.state).toBe(note.state);
 });

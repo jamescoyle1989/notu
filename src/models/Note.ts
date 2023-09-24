@@ -135,7 +135,7 @@ export default class Note extends ModelWithState<Note> {
         output.date = this.date;
         output.text = this.text;
         output.archived = this.archived;
-        output.spaceId = this.spaceId;
+        output.space = this.space;
         output.state = this.state;
         return output;
     }
