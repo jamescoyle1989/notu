@@ -1,11 +1,17 @@
 {
   "name": "notu",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jamescoyle1989/notu.git"
+  },
+  "author": "James Coyle",
+  "license": "MIT",
   "scripts": {
     "test": "vitest",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "publish": "tsc && vite build && npm publish"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
