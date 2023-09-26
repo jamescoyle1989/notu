@@ -3,6 +3,8 @@
 import Note from './Note';
 import ModelWithState from './ModelWithState';
 import Tag from './Tag';
+import Attr from './Attr';
+import NoteAttr from './NoteAttr';
 
 
 export default class NoteTag extends ModelWithState<NoteTag> {
@@ -43,6 +45,19 @@ export default class NoteTag extends ModelWithState<NoteTag> {
     set tag(value: Tag) {
         this._tag = value;
         this.tagId = value?.id ?? 0;
+    }
+
+
+    get attrs(): Array<NoteAttr> {
+        return this.note.attrs.filter(x => x.tagId == this.tagId);
+    }
+
+    addAttr(attr: Attr): NoteAttr {
+        if (!this.note)
+            throw new Error('Cannot call addAttr on NoteTag where note property has not been set');
+        const na = this.note.addAttr(attr);
+        na.tag = this.tag;
+        return na;
     }
 
 

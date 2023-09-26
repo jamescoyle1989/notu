@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import Note from './Note';
 import Tag from './Tag';
 import Space from './Space';
+import Attr from './Attr';
 
 
 function newCleanTag(): Tag {
@@ -9,6 +10,13 @@ function newCleanTag(): Tag {
     tag.id = 123;
     tag.clean();
     return tag;
+}
+
+function newCleanAttr(): Attr {
+    const attr = new Attr();
+    attr.id = 234;
+    attr.clean();
+    return attr;
 }
 
 
@@ -245,6 +253,15 @@ test('validate calls validate on each added tag', () => {
     expect(note.validate()).toBe(false);
 });
 
+test('validate calls validate on each added attr', () => {
+    const note = new Note();
+    note.spaceId = 123;
+    const na = note.addAttr(newCleanAttr());
+    expect(note.validate()).toBe(true);
+    na.attrId = 0;
+    expect(note.validate()).toBe(false);
+});
+
 
 test('addTag adds new NoteTag object', () => {
     const tag = newCleanTag();
@@ -319,4 +336,72 @@ test('removeTag marks existing tag on note as deleted', () => {
 
     expect(note.tags.length).toBe(1);
     expect(note.tags[0].isDeleted).toBe(true);
+});
+
+
+test('addAttr adds new NoteAttr object', () => {
+    const attr = newCleanAttr();
+    const note = new Note();
+
+    note.addAttr(attr);
+    
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0].note).toBe(note);
+    expect(note.attrs[0].attr).toBe(attr);
+});
+
+test('addAttr returns existing NoteAttr object if trying to add duplicate attr', () => {
+    const attr = newCleanAttr();
+    const note = new Note();
+    note.addAttr(attr);
+
+    note.addAttr(attr);
+
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0].note).toBe(note);
+    expect(note.attrs[0].attr).toBe(attr);
+});
+
+test('addAttr undeletes existing NoteAttr if trying to add duplicate tag', () => {
+    const attr = newCleanAttr();
+    const note = new Note();
+    const na = note.addAttr(attr);
+    na.delete();
+
+    note.addAttr(attr);
+
+    expect(note.attrs.length).toBe(1);
+    expect(na.isDirty).toBe(true);
+});
+
+test('addAttr throws error if trying to add deleted attr', () => {
+    const attr = newCleanAttr().delete();
+    const note = new Note();
+    expect(() => note.addAttr(attr)).toThrowError();
+});
+
+test('addAttr prevents note from adding attr that hasnt been saved yet', () => {
+    const note = new Note();
+    expect(() => note.addAttr(new Attr())).toThrowError();
+});
+
+test('removeAttr removes newly added attr from note', () => {
+    const attr = newCleanAttr();
+    const note = new Note();
+    note.addAttr(attr);
+
+    note.removeAttr(attr);
+
+    expect(note.attrs.length).toBe(0);
+});
+
+test('removeAttr marks existing attr on note as deleted', () => {
+    const attr = newCleanAttr();
+    const note = new Note();
+    note.addAttr(attr).clean();
+
+    note.removeAttr(attr);
+
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0].isDeleted).toBe(true);
 });

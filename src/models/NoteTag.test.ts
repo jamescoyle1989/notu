@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import NoteTag from './NoteTag';
 import Note from './Note';
 import Tag from './Tag';
+import Attr from './Attr';
 
 
 test('Gets initiated as new', () => {
@@ -197,4 +198,48 @@ test('validate succeeds if noteId & tagId are both positive, different values', 
     nt.noteId = 123;
     nt.tagId = 234;
     expect(nt.validate()).toBe(true);
+});
+
+
+test('addAttr adds NoteAttr object to parent note', () => {
+    const note = new Note();
+    const tag = new Tag('hello').clean();
+    tag.id = 123;
+    const attr = new Attr().clean();
+    attr.id = 234;
+    const nt = note.addTag(tag);
+
+    nt.addAttr(attr);
+
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0].note).toBe(note);
+    expect(note.attrs[0].attr).toBe(attr);
+    expect(note.attrs[0].tag).toBe(tag);
+});
+
+test('addAttr throws error if note property not set', () => {
+    const nt = new NoteTag();
+    nt.noteId = 123;
+    nt.tag = new Tag('hello');
+    nt.tag.id = 234;
+    const attr = new Attr().clean();
+    attr.id = 345;
+    
+    expect(() => nt.addAttr(attr)).toThrowError();
+});
+
+test('attrs returns NoteAttr objects with matching tagId', () => {
+    const note = new Note();
+    const tag = new Tag('hello').clean();
+    tag.id = 123;
+    const attr1 = new Attr().clean();
+    attr1.id = 234;
+    const attr2 = new Attr().clean();
+    attr2.id = 345;
+    const nt = note.addTag(tag);
+    nt.addAttr(attr1);
+    note.addAttr(attr2);
+
+    expect(nt.attrs.length).toBe(1);
+    expect(nt.attrs[0].attr).toBe(attr1);
 });

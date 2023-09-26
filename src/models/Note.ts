@@ -1,9 +1,11 @@
 'use strict';
 
 import ModelWithState from './ModelWithState';
+import NoteAttr from './NoteAttr';
 import NoteTag from './NoteTag';
 import Space from './Space';
 import Tag from './Tag';
+import Attr from './Attr';
 
 
 export default class Note extends ModelWithState<Note> {
@@ -129,6 +131,40 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
+    private _attrs: Array<NoteAttr> = [];
+    get attrs(): Array<NoteAttr> { return this._attrs; }
+
+    addAttr(attr: Attr): NoteAttr {
+        if (attr.isDeleted)
+            throw Error('Cannot add an attribute marked as deleted to a note');
+        if (attr.isNew)
+            throw Error('Cannot add an attribute that hasn\'t yet been saved to a note');
+        let na = this.attrs.find(x => x.attrId == attr.id);
+        if (!!na) {
+            if (na.isDeleted)
+                na.dirty();
+            return na;
+        }
+        na = new NoteAttr();
+        na.note = this;
+        na.attr = attr;
+        this._attrs.push(na);
+        return na;
+    }
+
+    removeAttr(attr: Attr): Note {
+        const na = this.attrs.find(x => x.attrId == attr.id);
+        if (!na)
+            return this;
+
+        if (na.isNew)
+            this._attrs = this._attrs.filter(x => x !== na);
+        else
+            na.delete();
+        return this;
+    }
+
+
     duplicate(): Note {
         const output = new Note();
         output.id = this.id;
@@ -156,6 +192,10 @@ export default class Note extends ModelWithState<Note> {
             return false;
         for (const nt of this.tags) {
             if (!nt.validate(throwError))
+                return false;
+        }
+        for (const na of this.attrs) {
+            if (!na.validate(throwError))
                 return false;
         }
 
