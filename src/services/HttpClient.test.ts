@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import NotuClient from './NotuClient';
+import HttpClient from './HttpClient';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import Space from '../models/Space';
 
@@ -39,24 +39,24 @@ async function mockAxios(config: AxiosRequestConfig<any>): Promise<AxiosResponse
 
 
 test('constructor takes api root url', () => {
-    const client = new NotuClient('https://www.test.com');
+    const client = new HttpClient('https://www.test.com');
 
     expect(client.url).toBe('https://www.test.com');
 });
 
 test('constructor throws error if url not provided', () => {
-    expect(() => new NotuClient()).toThrowError();
+    expect(() => new HttpClient(null)).toThrowError();
 });
 
 test('If no httpRequester method passed in, then defaults to using axios', () => {
-    const client = new NotuClient('abcd');
+    const client = new HttpClient('abcd');
     
     expect(client['_httpRequester']).toBe(axios);
 });
 
 
 test('login asyncronously gets token from web service', async () => {
-    const client = new NotuClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockAxios);
     const loginResult = await client.login('ValidUser', 'ValidPassword');
 
     expect(loginResult.success).toBe(true);
@@ -65,7 +65,7 @@ test('login asyncronously gets token from web service', async () => {
 });
 
 test('login fails if username and password are invalid', async () => {
-    const client = new NotuClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockAxios);
     const loginResult = await client.login('InvalidUser', 'InvalidPassword');
 
     expect(loginResult.success).toBe(false);
@@ -74,14 +74,14 @@ test('login fails if username and password are invalid', async () => {
 });
 
 test('login sets token on the client', async () => {
-    const client = new NotuClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockAxios);
     await client.login('ValidUser', 'ValidPassword');
 
     expect(client.token).toBe('qwer.asdf.zxcv');
 });
 
 test('Token can be manually set if already known', () => {
-    const client = new NotuClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockAxios);
     client.token = 'qwer.asdf.zxcv';
 
     expect(client.token).toBe('qwer.asdf.zxcv');
@@ -90,7 +90,7 @@ test('Token can be manually set if already known', () => {
 
 test('getSpaces makes async call to correct URL endpoint, returns space objects', async () => {
     let request: AxiosRequestConfig<any> = null;
-    const client = new NotuClient('abcd', r => {
+    const client = new HttpClient('abcd', r => {
         request = r;
         return mockAxios(r);
     });

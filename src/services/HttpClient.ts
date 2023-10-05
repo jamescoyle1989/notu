@@ -12,7 +12,7 @@ interface NotuLoginResult {
 }
 
 
-export default class NotuClient {
+export default class HttpClient {
 
     private _url: string = null;
     get url(): string { return this._url; }
