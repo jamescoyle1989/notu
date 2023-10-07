@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import parseQuery, { splitQuery, identifyTags, identifyAttrs } from './QueryParser';
+import { splitQuery, identifyTags, identifyAttrs } from './QueryParser';
 
 
 test('splitQuery should split out string into where, order', () => {
