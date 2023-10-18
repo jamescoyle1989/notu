@@ -231,6 +231,34 @@ test('validate calls validate on each added attr', () => {
     expect(note.validate()).toBe(false);
 });
 
+test('validate ignores name if null', () => {
+    const note = new Note();
+    note.spaceId = 123;
+    note.name = null;
+    expect(note.validate()).toBe(true);
+});
+
+test('validate accepts name with letters, numbers and spaces', () => {
+    const note = new Note();
+    note.spaceId = 123;
+    note.name = 'My Tag 1';
+    expect(note.validate()).toBe(true);
+});
+
+test('validate prevents name with special characters', () => {
+    const note = new Note();
+    note.spaceId = 123;
+    note.name = 'Hello$';
+    expect(note.validate()).toBe(false);
+});
+
+test('validate prevents name starting with number', () => {
+    const note = new Note();
+    note.spaceId = 123;
+    note.name = '1he';
+    expect(note.validate()).toBe(false);
+});
+
 
 test('addTag adds new NoteTag object', () => {
     const tag = newTag(10, 'hello');

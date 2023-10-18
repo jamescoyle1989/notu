@@ -162,6 +162,8 @@ export default class Note extends ModelWithState<Note> {
             output = 'Note spaceId must be greater than zero.';
         else if (!this.isNew && this.id <= 0)
             output = 'Note id must be greater than zero if in non-new state.';
+        else if (!!this.name && !/^[a-zA-Z][a-zA-Z0-9 ]*[a-zA-Z0-9]?$/.test(this.name))
+            output = 'Note name is invalid, must only contain letters, numbers, and spaces, starting with a letter';
 
         if (throwError && output != null)
             throw Error(output);
