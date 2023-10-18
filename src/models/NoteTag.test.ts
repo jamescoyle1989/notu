@@ -5,6 +5,14 @@ import Tag from './Tag';
 import Attr from './Attr';
 
 
+function newTag(id: number, name: string): Tag {
+    const note = new Note();
+    note.id = id;
+    note.name = name;
+    return new Tag(note);
+}
+
+
 test('Gets initiated as new', () => {
     const nt = new NoteTag();
     expect(nt.isNew).toBe(true);
@@ -117,8 +125,7 @@ test('Setting tag with id different than current tagId updates state', () => {
     const nt = new NoteTag();
     nt.tagId = 123;
     nt.clean();
-    const tag = new Tag();
-    tag.id = 234;
+    const tag = newTag(234, 'hello');
 
     nt.tag = tag;
 
@@ -130,8 +137,7 @@ test('Setting tag with id same as current tagId preserves state', () => {
     const nt = new NoteTag();
     nt.tagId = 27;
     nt.clean();
-    const tag = new Tag();
-    tag.id = 27;
+    const tag = newTag(27, 'hello');
 
     nt.tag = tag;
 
@@ -141,8 +147,7 @@ test('Setting tag with id same as current tagId preserves state', () => {
 
 test('Setting tagId to new value removes tag object', () => {
     const nt = new NoteTag();
-    const tag = new Tag();
-    tag.id = 80;
+    const tag = newTag(80, 'hello');
     nt.tag = tag;
 
     nt.tagId = 81;
@@ -152,8 +157,7 @@ test('Setting tagId to new value removes tag object', () => {
 
 test('Setting tagId to same as current tag id preserves it', () => {
     const nt = new NoteTag();
-    const tag = new Tag();
-    tag.id = 80;
+    const tag = newTag(80, 'hello');
     nt.tag = tag;
 
     nt.tagId = 80;
@@ -203,8 +207,7 @@ test('validate succeeds if noteId & tagId are both positive, different values', 
 
 test('addAttr adds NoteAttr object to parent note', () => {
     const note = new Note();
-    const tag = new Tag('hello').clean();
-    tag.id = 123;
+    const tag = newTag(123, 'hello');
     const attr = new Attr().clean();
     attr.id = 234;
     const nt = note.addTag(tag);
@@ -220,8 +223,7 @@ test('addAttr adds NoteAttr object to parent note', () => {
 test('addAttr throws error if note property not set', () => {
     const nt = new NoteTag();
     nt.noteId = 123;
-    nt.tag = new Tag('hello');
-    nt.tag.id = 234;
+    nt.tag = newTag(234, 'hello');
     const attr = new Attr().clean();
     attr.id = 345;
     
@@ -230,8 +232,7 @@ test('addAttr throws error if note property not set', () => {
 
 test('attrs returns NoteAttr objects with matching tagId', () => {
     const note = new Note();
-    const tag = new Tag('hello').clean();
-    tag.id = 123;
+    const tag = newTag(123, 'hello');
     const attr1 = new Attr().clean();
     attr1.id = 234;
     const attr2 = new Attr().clean();
