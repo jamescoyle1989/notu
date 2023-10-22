@@ -5,14 +5,6 @@ import Attr from './Attr';
 import Tag from './Tag';
 
 
-function newTag(id: number, name: string): Tag {
-    const note = new Note();
-    note.id = id;
-    note.name = name;
-    return new Tag(note);
-}
-
-
 test('Gets initiated as new', () => {
     const na = new NoteAttr();
     expect(na.isNew).toBe(true);
@@ -252,7 +244,8 @@ test('Setting tag with id different than current tagId updates state', () => {
     const na = new NoteAttr();
     na.tagId = 123;
     na.clean();
-    const tag = newTag(234, 'hello');
+    const tag = new Tag();
+    tag.id = 234;
 
     na.tag = tag;
 
@@ -264,7 +257,8 @@ test('Setting tag with id same as current tagId preserves state', () => {
     const na = new NoteAttr();
     na.tagId = 27;
     na.clean();
-    const tag = newTag(27, 'hello');
+    const tag = new Tag();
+    tag.id = 27;
 
     na.tag = tag;
 
@@ -274,7 +268,8 @@ test('Setting tag with id same as current tagId preserves state', () => {
 
 test('Setting tagId to new value removes tag object', () => {
     const na = new NoteAttr();
-    const tag = newTag(80, 'hello');
+    const tag = new Tag();
+    tag.id = 80;
     na.tag = tag;
 
     na.tagId = 81;
@@ -284,7 +279,8 @@ test('Setting tagId to new value removes tag object', () => {
 
 test('Setting tagId to same as current tag id preserves it', () => {
     const na = new NoteAttr();
-    const tag = newTag(80, 'hello');
+    const tag = new Tag();
+    tag.id = 80;
     na.tag = tag;
 
     na.tagId = 80;
@@ -294,7 +290,8 @@ test('Setting tagId to same as current tag id preserves it', () => {
 
 test('Setting tag to null also nulls tagId', () => {
     const na = new NoteAttr();
-    const tag = newTag(80, 'hello');
+    const tag = new Tag();
+    tag.id = 80;
     na.tag = tag;
     expect(na.tagId).toBe(80);
 
@@ -310,7 +307,8 @@ test('Can duplicate itself', () => {
     note.id = 24;
     const attr = new Attr();
     attr.id = 25;
-    const tag = newTag(26, 'hello');
+    const tag = new Tag();
+    tag.id = 26;
     na.note = note;
     na.attr = attr;
     na.tag = tag;

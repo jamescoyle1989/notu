@@ -65,14 +65,33 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
-    private _name: string = '';
-    get name(): string { return this._name; }
-    set name(value: string) {
-        if (value !== this._name) {
-            this._name = value;
-            if (this.isClean)
-                this.dirty();
+    private _ownTag: Tag = null;
+    get ownTag(): Tag { return this._ownTag; }
+
+    setOwnTag(tag: string | Tag): Note {
+        if (typeof tag === 'string') {
+            if (this.ownTag == null)
+                this._ownTag = new Tag();
+            this.ownTag.name = tag;
+            this.ownTag.id = this.id;
         }
+        else {
+            if (!!this.ownTag)
+                throw new Error('Note has already had its tag set. If you would like to change the tag name, call setTag with just a string specifying the new tag name.');
+            if (tag.id != 0 && tag.id != this.id)
+                throw new Error('Attempted to set tag to note with non-matching ID. Added tag id must either match the note id, which indicates that the tag has already been added to the note. Otherwise the tag id must be zero, indicating that the tag still needs to be added.')
+            this._ownTag = tag;
+        }
+        return this;
+    }
+
+    removeOwnTag(): Note {
+        if (!this.ownTag)
+            return;
+        if (this.ownTag.isNew)
+            this._ownTag = null;
+        else
+            this.ownTag.delete();
     }
 
 
@@ -80,6 +99,10 @@ export default class Note extends ModelWithState<Note> {
     get tags(): Array<NoteTag> { return this._tags; }
 
     addTag(tag: Tag): NoteTag {
+        if (tag.isDeleted)
+            throw Error('Cannot add a tag marked as deleted to a note');
+        if (tag.isNew)
+            throw Error('Cannot add a tag that hasn\'t yet been saved to a note');
         if (tag.id == this.id)
             throw Error('Note cannot add its own tag as a linked tag');
         let nt = this.tags.find(x => x.tagId == tag.id);
@@ -149,7 +172,6 @@ export default class Note extends ModelWithState<Note> {
         output.text = this.text;
         output.archived = this.archived;
         output.space = this.space;
-        output.name = this.name;
         output.state = this.state;
         return output;
     }
@@ -168,6 +190,8 @@ export default class Note extends ModelWithState<Note> {
         if (throwError && output != null)
             throw Error(output);
 
+        if (!!this.ownTag && !this.ownTag.validate(throwError))
+            return false;
         for (const nt of this.tags) {
             if (!nt.validate(throwError))
                 return false;

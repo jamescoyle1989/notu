@@ -5,11 +5,11 @@ import Space from './Space';
 import Attr from './Attr';
 
 
-function newTag(id: number, name: string): Tag {
-    const note = new Note();
-    note.id = id;
-    note.name = name;
-    return new Tag(note);
+function newCleanTag(): Tag {
+    const tag = new Tag('hello');
+    tag.id = 123;
+    tag.clean();
+    return tag;
 }
 
 function newCleanAttr(): Attr {
@@ -125,25 +125,48 @@ test('Set spaceId doesnt change note state if value not different', () => {
     expect(note.isClean).toBe(true);
 });
 
-
-test('Set name marks note as dirty if currently clean', () => {
-    const note = new Note().clean();
-    note.name = 'asdf';
-    expect(note.isDirty).toBe(true);
-});
-
-test('Set name doesnt change note state if new', () => {
-    const note = new Note().new();
-    note.name = 'asdf';
-    expect(note.isNew).toBe(true);
-});
-
-test('Set name doesnt change note state if value not different', () => {
-    const note = new Note().clean();
-    note.name = '';
+test('setOwnTag doesnt mark note as dirty', () => {
+    const note = new Note().clean().setOwnTag('hello');
     expect(note.isClean).toBe(true);
 });
 
+test('setOwnTag with string creates tag with same id as note', () => {
+    const note = new Note();
+    note.id = 123;
+    note.setOwnTag('hello');
+    expect(note.ownTag.id).toBe(note.id);
+});
+
+test('setOwnTag can take tag object, rather than just name', () => {
+    const note = new Note().setOwnTag(new Tag('hello'));
+    expect(note.ownTag.name).toBe('hello');
+});
+
+test('setOwnTag with tag object will throw error if tag already set', () => {
+    const note = new Note().setOwnTag('hello');
+    expect(() => note.setOwnTag(new Tag('goodbye'))).toThrowError();
+});
+
+test('setOwnTag with tag object will throw error if tag id is non-zero and doesnt match note id', () => {
+    const note = new Note().clean();
+    note.id = 123;
+    const tag = new Tag('hello');
+    tag.id = 57;
+    expect(() => note.setOwnTag(tag)).toThrowError();
+});
+
+test('removeOwnTag marks existing tag as deleted if clean', () => {
+    const note = new Note().setOwnTag('hello');
+    note.ownTag.clean();
+    note.removeOwnTag();
+    expect(note.ownTag.isDeleted).toBe(true);
+});
+
+test('removeOwnTag nulls out new tag', () => {
+    const note = new Note().setOwnTag('hello');
+    note.removeOwnTag();
+    expect(note.ownTag).toBeNull();
+});
 
 test('Setting space with id different than current spaceId updates state', () => {
     const note = new Note();
@@ -213,10 +236,18 @@ test('validate throws error if arg set to true', () => {
     expect(() => model.validate(true)).toThrowError();
 });
 
+test('validate calls validate on ownTag', () => {
+    const note = new Note().setOwnTag('asdf');
+    note.spaceId = 123;
+    expect(note.validate()).toBe(true);
+    note.ownTag.clean();
+    expect(note.validate()).toBe(false);
+});
+
 test('validate calls validate on each added tag', () => {
     const note = new Note();
     note.spaceId = 123;
-    const nt = note.addTag(newTag(10, 'hello'));
+    const nt = note.addTag(newCleanTag());
     expect(note.validate()).toBe(true);
     nt.tagId = 0;
     expect(note.validate()).toBe(false);
@@ -261,7 +292,7 @@ test('validate prevents name starting with number', () => {
 
 
 test('addTag adds new NoteTag object', () => {
-    const tag = newTag(10, 'hello');
+    const tag = newCleanTag();
     const note = new Note();
 
     note.addTag(tag);
@@ -272,7 +303,7 @@ test('addTag adds new NoteTag object', () => {
 });
 
 test('addTag returns existing NoteTag object if trying to add duplicate tag', () => {
-    const tag = newTag(10, 'hello');
+    const tag = newCleanTag();
     const note = new Note();
     note.addTag(tag);
 
@@ -284,7 +315,7 @@ test('addTag returns existing NoteTag object if trying to add duplicate tag', ()
 });
 
 test('addTag undeletes existing NoteTag if trying to add duplicate tag', () => {
-    const tag = newTag(10, 'hello');
+    const tag = newCleanTag();
     const note = new Note();
     const nt = note.addTag(tag);
     nt.delete();
@@ -295,17 +326,27 @@ test('addTag undeletes existing NoteTag if trying to add duplicate tag', () => {
     expect(nt.isDirty).toBe(true);
 });
 
-test('addTag prevents note from adding its own tag', () => {
+test('addTag throws error if trying to add deleted tag', () => {
+    const tag = newCleanTag().delete();
     const note = new Note();
-    note.id = 123;
-    note.name = 'test';
-    const tag = new Tag(note);
-
     expect(() => note.addTag(tag)).toThrowError();
 });
 
+test('addTag prevents note from adding its own tag', () => {
+    const note = new Note();
+    note.id = 123;
+    note.setOwnTag('test');
+
+    expect(() => note.addTag(note.ownTag)).toThrowError();
+});
+
+test('addTag prevents note from adding tag that hasnt been saved yet', () => {
+    const note = new Note();
+    expect(() => note.addTag(new Tag())).toThrowError();
+});
+
 test('removeTag removes newly added tag from note', () => {
-    const tag = newTag(10, 'hello');
+    const tag = newCleanTag();
     const note = new Note();
     note.addTag(tag);
 
@@ -315,7 +356,7 @@ test('removeTag removes newly added tag from note', () => {
 });
 
 test('removeTag marks existing tag on note as deleted', () => {
-    const tag = newTag(10, 'hello');
+    const tag = newCleanTag();
     const note = new Note();
     note.addTag(tag).clean();
 
