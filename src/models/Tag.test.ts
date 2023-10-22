@@ -69,3 +69,27 @@ test('validate throws error if arg set to true', () => {
     model.id = 0;
     expect(() => model.validate(true)).toThrowError();
 });
+
+test('validate prevents empty name', () => {
+    const model = new Tag();
+    model.name = null;
+    expect(model.validate()).toBe(false);
+});
+
+test('validate accepts name with letters, numbers and spaces', () => {
+    const model = new Tag();
+    model.name = 'My Tag 1';
+    expect(model.validate()).toBe(true);
+});
+
+test('validate prevents name with special characters', () => {
+    const model = new Tag();
+    model.name = 'Hello$';
+    expect(model.validate()).toBe(false);
+});
+
+test('validate prevents name starting with number', () => {
+    const model = new Tag();
+    model.name = '1he';
+    expect(model.validate()).toBe(false);
+});
