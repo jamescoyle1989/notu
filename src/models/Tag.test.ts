@@ -50,6 +50,26 @@ test('Tag can be initiated with name in constructor', () => {
     expect(tag.name).toBe('hello');
 });
 
+
+test('Set color marks tag as dirty if currently clean', () => {
+    const tag = new Tag().clean();
+    tag.color = '112233';
+    expect(tag.isDirty).toBe(true);
+});
+
+test('Set color doesnt change tag state if new', () => {
+    const tag = new Tag().new();
+    tag.color = '112233';
+    expect(tag.isNew).toBe(true);
+});
+
+test('Set color doesnt change tag state if value not different', () => {
+    const tag = new Tag().clean();
+    tag.color = null;
+    expect(tag.isClean).toBe(true);
+});
+
+
 test('can duplicate itself', () => {
     const tag = new Tag('hello');
     const copy = tag.duplicate();
@@ -91,5 +111,23 @@ test('validate prevents name with special characters', () => {
 test('validate prevents name starting with number', () => {
     const model = new Tag();
     model.name = '1he';
+    expect(model.validate()).toBe(false);
+});
+
+test('validate allows null color value', () => {
+    const model = new Tag('hello');
+    model.color = null;
+    expect(model.validate()).toBe(true);
+});
+
+test('validate allows valid color value', () => {
+    const model = new Tag('hello');
+    model.color = '#a1B2F7';
+    expect(model.validate()).toBe(true);
+});
+
+test('validate throws error if color is not valid hex', () => {
+    const model = new Tag('hello');
+    model.color = 'A9C10G8';
     expect(model.validate()).toBe(false);
 });

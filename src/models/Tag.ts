@@ -26,6 +26,17 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
+    private _color: string = null;
+    get color(): string { return this._color; }
+    set color(value: string) {
+        if (value !== this._color) {
+            this._color = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -47,7 +58,9 @@ export default class Tag extends ModelWithState<Tag> {
         if (!this.isNew && this.id <= 0)
             output = 'Tag id must be greater than zero if in non-new state.';
         else if (!this.name || !/^[a-zA-Z][a-zA-Z0-9 ]*[a-zA-Z0-9]?$/.test(this.name))
-            output = 'Note name is invalid, must only contain letters, numbers, and spaces, starting with a letter';
+            output = 'Tag name is invalid, must only contain letters, numbers, and spaces, starting with a letter';
+        else if (!!this.color && !/^#?[A-z0-9]{6}$/.test(this.color))
+            output = 'Tag color is invalid, must be a 6 character hexadecimal.';
 
         if (throwError && output != null)
             throw Error(output);
