@@ -1,9 +1,12 @@
 {
   "name": "notu",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "main": "dist/notu.js",
   "unpkg": "dist/notu.js",
+  "files": [
+    "/dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/jamescoyle1989/notu.git"
