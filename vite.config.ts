@@ -6,6 +6,13 @@ export default defineConfig({
         lib: {
             name: 'notu',
             entry: './src/index.ts'
+        },
+        rollupOptions: {
+            output: {
+                entryFileNames: `[name].js`,
+                chunkFileNames: `[name].js`,
+                assetFileNames: `[name].[ext]`
+            }
         }
     },
     plugins: [

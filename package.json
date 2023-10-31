@@ -1,9 +1,9 @@
 {
   "name": "notu",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "type": "module",
-  "main": "dist/notu.js",
-  "unpkg": "dist/notu.js",
+  "main": "dist/index.js",
+  "unpkg": "dist/index.js",
   "files": [
     "/dist"
   ],
