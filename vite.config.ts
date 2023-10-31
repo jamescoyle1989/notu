@@ -14,5 +14,8 @@ export default defineConfig({
             outDir: './dist/types',
             exclude: '*/**/*.test.ts'
         })
-    ]
+    ],
+    esbuild: {
+        minifyIdentifiers: false
+    }
 });
