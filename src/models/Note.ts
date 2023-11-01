@@ -9,7 +9,13 @@ import Attr from './Attr';
 
 
 export default class Note extends ModelWithState<Note> {
-    id: number = 0;
+    private _id: number = 0;
+    get id(): number { return this._id; }
+    set id(value: number) {
+        this._id = value;
+        if (!!this.ownTag)
+            this.ownTag.id = value;
+    }
 
 
     private _date: Date = new Date();

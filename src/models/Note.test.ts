@@ -50,6 +50,16 @@ test('Gets initiated as new', () => {
 });
 
 
+test('Set id also sets id on ownTag', () => {
+    const note = new Note();
+    note.setOwnTag('test');
+
+    note.id = 456;
+
+    expect(note.ownTag.id).toBe(456);
+});
+
+
 test('Set date marks note as dirty if currently clean', () => {
     const note = new Note().clean();
     note.date = new Date();

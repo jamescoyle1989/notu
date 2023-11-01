@@ -66,4 +66,14 @@ export default class Tag extends ModelWithState<Tag> {
             throw Error(output);
         return output == null;
     }
+
+
+    getColorInt(): number {
+        let hex = this.color;
+        if (!hex)
+            return null;
+        if (hex.startsWith('#'))
+            hex = hex.substring(1);
+        return parseInt(hex, 16);
+    }
 }
