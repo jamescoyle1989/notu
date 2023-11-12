@@ -8,7 +8,7 @@ export class ParsedQuery {
     attrs: Array<ParsedAttr> = [];
 }
 
-class ParsedTag {
+export class ParsedTag {
     space: string = null;
     name: string = null;
     searchDepth: number = 0;
@@ -16,7 +16,7 @@ class ParsedTag {
     includeOwner: boolean = false;
 }
 
-class ParsedAttr {
+export class ParsedAttr {
     space: string = null;
     name: string = null;
     exists: boolean = false;
