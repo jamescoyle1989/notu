@@ -9,6 +9,13 @@ import Attr from './Attr';
 
 
 export default class Note extends ModelWithState<Note> {
+    constructor(text?: string) {
+        super();
+        if (!!text)
+            this.text = text;
+    }
+    
+    
     private _id: number = 0;
     get id(): number { return this._id; }
     set id(value: number) {
@@ -26,6 +33,11 @@ export default class Note extends ModelWithState<Note> {
             if (this.isClean)
                 this.dirty();
         }
+    }
+
+    at(value: Date): Note {
+        this.date = value;
+        return this;
     }
 
 
@@ -68,6 +80,14 @@ export default class Note extends ModelWithState<Note> {
     set space(value: Space) {
         this._space = value;
         this.spaceId = value?.id ?? 0;
+    }
+
+    in(space: number | Space): Note {
+        if (typeof(space) === 'number')
+            this.spaceId = space;
+        else
+            this.space = space;
+        return this;
     }
 
 

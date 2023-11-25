@@ -7,6 +7,25 @@ import Tag from './Tag';
 
 
 export default class NoteAttr extends ModelWithState<NoteAttr> {
+    constructor(note?: number | Note, attr?: number | Attr, value?: any) {
+        super();
+        if (note != null && note != undefined) {
+            if (typeof(note) === 'number')
+                this.noteId = note;
+            else
+                this.note = note;
+        }
+        if (attr != null && attr != undefined) {
+            if (typeof(attr) === 'number')
+                this.attrId = attr;
+            else
+                this.attr = attr;
+        }
+        if (value != null && value != undefined)
+            this.value = value;
+    }
+    
+    
     private _noteId: number = 0;
     get noteId(): number { return this._noteId; }
     set noteId(value: number) {
@@ -82,6 +101,14 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
     set tag(value: Tag) {
         this._tag = value;
         this.tagId = value?.id ?? null;
+    }
+
+    onTag(tag: number | Tag): NoteAttr {
+        if (typeof(tag) == 'number')
+            this.tagId = tag;
+        else
+            this.tag = tag;
+        return this;
     }
 
 

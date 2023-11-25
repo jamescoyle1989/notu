@@ -8,6 +8,23 @@ import NoteAttr from './NoteAttr';
 
 
 export default class NoteTag extends ModelWithState<NoteTag> {
+    constructor(note?: number | Note, tag?: number | Tag) {
+        super();
+        if (note != null && note != undefined) {
+            if (typeof(note) === 'number')
+                this.noteId = note;
+            else
+                this.note = note;
+        }
+        if (tag != null && tag != undefined) {
+            if (typeof(tag) === 'number')
+                this.tagId = tag;
+            else
+                this.tag = tag;
+        }
+    }
+    
+    
     private _noteId: number = 0;
     get noteId(): number { return this._noteId; }
     set noteId(value: number) {

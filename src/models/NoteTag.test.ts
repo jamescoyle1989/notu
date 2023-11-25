@@ -243,3 +243,18 @@ test('attrs returns NoteAttr objects with matching tagId', () => {
     expect(nt.attrs.length).toBe(1);
     expect(nt.attrs[0].attr).toBe(attr1);
 });
+
+
+test('constructor allows setting note & tag', () => {
+    const na = new NoteTag(123, 234);
+
+    expect(na.noteId).toBe(123);
+    expect(na.tagId).toBe(234);
+});
+
+test('constructor allows setting note & tag 2', () => {
+    const na = new NoteTag(new Note('test'), new Tag('blah'));
+
+    expect(na.note.text).toBe('test');
+    expect(na.tag.name).toBe('blah');
+});

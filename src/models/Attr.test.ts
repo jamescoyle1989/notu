@@ -111,9 +111,7 @@ test('Set spaceId doesnt change attr state if value not different', () => {
 });
 
 test('Setting space with id different than current spaceId updates state', () => {
-    const attr = new Attr();
-    attr.spaceId = 57;
-    attr.clean();
+    const attr = new Attr().in(57).clean();
     const space = new Space('hello');
     space.id = 60;
 
@@ -124,9 +122,7 @@ test('Setting space with id different than current spaceId updates state', () =>
 });
 
 test('Setting space with id same as current spaceId preserves state', () => {
-    const attr = new Attr();
-    attr.spaceId = 80;
-    attr.clean();
+    const attr = new Attr().in(80).clean();
     const space = new Space('hello');
     space.id = 80;
 
@@ -137,10 +133,9 @@ test('Setting space with id same as current spaceId preserves state', () => {
 });
 
 test('Setting spaceId to new value removes space object', () => {
-    const attr = new Attr();
     const space = new Space('hello');
     space.id = 80;
-    attr.space = space;
+    const attr = new Attr().in(space);
 
     attr.spaceId = 81;
 
@@ -148,10 +143,9 @@ test('Setting spaceId to new value removes space object', () => {
 });
 
 test('Setting spaceId to same as current space id preserves it', () => {
-    const attr = new Attr();
     const space = new Space('hello');
     space.id = 80;
-    attr.space = space;
+    const attr = new Attr().in(space);
     
     attr.spaceId = 80;
 
@@ -160,11 +154,12 @@ test('Setting spaceId to same as current space id preserves it', () => {
 
 
 test('Can duplicate itself', () => {
-    const attr = new Attr();
     const space = new Space('hello');
     space.id = 123;
-    attr.space = space;
+    const attr = new Attr().in(space);
+
     const copy = attr.duplicate();
+
     expect(copy.id).toBe(attr.id);
     expect(copy.name).toBe(attr.name);
     expect(copy.type).toBe(attr.type);
@@ -174,21 +169,21 @@ test('Can duplicate itself', () => {
 
 
 test('validate fails if spaceId is 0', () => {
-    const model = new Attr();
-    model.spaceId = 0;
+    const model = new Attr().in(0);
+    
     expect(model.validate()).toBe(false);
 });
 
 test('validate fails if not new and id <= 0', () => {
-    const model = new Attr().clean();
+    const model = new Attr().in(123).clean();
     model.id = 0;
-    model.spaceId = 123;
+    
     expect(model.validate()).toBe(false);
 });
 
 test('validate throws error if arg set to true', () => {
-    const model = new Attr();
-    model.spaceId = 0;
+    const model = new Attr().in(0);
+    
     expect(() => model.validate(true)).toThrowError();
 });
 
@@ -211,4 +206,24 @@ test('defaultValue returns correct value for boolean', () => {
 test('defaultValue returns correct value for date', () => {
     const model = new Attr().asDate();
     expect(model.defaultValue.getSeconds()).toBe(new Date().getSeconds());
+});
+
+
+test('constructor accepts optional name value', () => {
+    const model = new Attr('Test');
+
+    expect(model.name).toBe('Test');
+});
+
+test('in method allows chained space setting', () => {
+    const model = new Attr('Hello').in(3);
+
+    expect(model.spaceId).toBe(3);
+});
+
+test('in method allows chained space setting 2', () => {
+    const space = new Space('Test');
+    const model = new Attr('Hello').in(space);
+
+    expect(model.space).toBe(space);
 });

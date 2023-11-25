@@ -415,3 +415,28 @@ test('removeAttr marks existing attr on note as deleted', () => {
     expect(note.attrs.length).toBe(1);
     expect(note.attrs[0].isDeleted).toBe(true);
 });
+
+test('constructor accepts optional text value', () => {
+    const note = new Note('Hello');
+    
+    expect(note.text).toBe('Hello');
+});
+
+test('at method allows chained date setting', () => {
+    const note = new Note('Hello').at(new Date(2023, 11, 25));
+
+    expect(note.date.getTime()).toBe(new Date(2023, 11, 25).getTime());
+});
+
+test('in method allows chained space setting', () => {
+    const note = new Note('Hello').in(3);
+
+    expect(note.spaceId).toBe(3);
+});
+
+test('in method allows chained space setting 2', () => {
+    const space = new Space('Test');
+    const note = new Note('Hello').in(space);
+
+    expect(note.space).toBe(space);
+});

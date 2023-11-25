@@ -15,6 +15,13 @@ export type AttrType = keyof typeof ATTR_TYPE;
 
 
 export default class Attr extends ModelWithState<Attr> {
+    constructor(name?: string) {
+        super();
+        if (!!name)
+            this.name = name;
+    }
+    
+    
     id: number = 0;
 
     
@@ -82,6 +89,14 @@ export default class Attr extends ModelWithState<Attr> {
     set space(value: Space) {
         this._space = value;
         this.spaceId = value?.id ?? 0;
+    }
+
+    in(space: number | Space): Attr {
+        if (typeof(space) === 'number')
+            this.spaceId = space;
+        else
+            this.space = space;
+        return this;
     }
 
 

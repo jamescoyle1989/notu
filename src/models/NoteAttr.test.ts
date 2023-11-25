@@ -356,3 +356,32 @@ test('validate succeeds if noteId & attrId are both positive values', () => {
     nt.attrId = 234;
     expect(nt.validate()).toBe(true);
 });
+
+
+test('constructor allows setting note, attr & value', () => {
+    const na = new NoteAttr(123, 234, 345);
+
+    expect(na.noteId).toBe(123);
+    expect(na.attrId).toBe(234);
+    expect(na.value).toBe(345);
+});
+
+test('constructor allows setting note, attr & value 2', () => {
+    const na = new NoteAttr(new Note('test'), new Attr('blah'), 'hello');
+
+    expect(na.note.text).toBe('test');
+    expect(na.attr.name).toBe('blah');
+    expect(na.value).toBe('hello');
+});
+
+test('onTag allows chained setting of tag', () => {
+    const na = new NoteAttr().onTag(234);
+
+    expect(na.tagId).toBe(234);
+});
+
+test('onTag allows chained setting of tag 2', () => {
+    const na = new NoteAttr().onTag(new Tag('Test Tag'));
+
+    expect(na.tag.name).toBe('Test Tag');
+});
