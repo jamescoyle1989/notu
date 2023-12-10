@@ -14,6 +14,10 @@ export default class Tag extends ModelWithState<Tag> {
         }
     }
 
+
+    private _spaceId: number = 0;
+    get spaceId(): number { return this._spaceId; }
+
     
     private _name: string = '';
     get name(): string { return this._name; }
@@ -37,16 +41,15 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    constructor(name: string = '') {
+    constructor(name: string = '', spaceId: number = 0) {
         super();
         this._name = name;
     }
 
 
     duplicate(): Tag {
-        const output = new Tag();
+        const output = new Tag(this.name, this.spaceId);
         output.id = this.id;
-        output.name = this.name;
         output.state = this.state;
         return output;
     }
