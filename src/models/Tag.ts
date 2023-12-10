@@ -44,6 +44,7 @@ export default class Tag extends ModelWithState<Tag> {
     constructor(name: string = '', spaceId: number = 0) {
         super();
         this._name = name;
+        this._spaceId = spaceId;
     }
 
 
