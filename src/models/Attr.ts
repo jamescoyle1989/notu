@@ -137,4 +137,15 @@ export default class Attr extends ModelWithState<Attr> {
                 return new Date();
         }
     }
+
+
+    toJSON() {
+        return {
+            state: this.state,
+            id: this.id,
+            name: this.name,
+            type: this.type,
+            spaceId: this.spaceId
+        };
+    }
 }

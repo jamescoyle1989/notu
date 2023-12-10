@@ -203,6 +203,21 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
+    toJSON() {
+        return {
+            state: this.state,
+            id: this.id,
+            date: this.date,
+            text: this.text,
+            archived: this.archived,
+            spaceId: this.spaceId,
+            ownTag: this.ownTag,
+            tags: this.tags,
+            attrs: this.attrs
+        }
+    }
+
+
     validate(throwError: boolean = false): boolean {
         let output = null;
 

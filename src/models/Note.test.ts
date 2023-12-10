@@ -440,3 +440,11 @@ test('in method allows chained space setting 2', () => {
 
     expect(note.space).toBe(space);
 });
+
+test('stringifying shouldnt throw error', () => {
+    const tag = new Tag('test', 1).clean();
+    tag.id = 1;
+    const note = new Note('Hello');
+    note.addTag(tag);
+    JSON.stringify(note);
+});

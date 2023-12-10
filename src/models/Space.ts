@@ -43,4 +43,13 @@ export default class Space extends ModelWithState<Space> {
             throw Error(output);
         return output == null;
     }
+
+
+    toJSON() {
+        return {
+            state: this.state,
+            id: this.id,
+            name: this.name
+        }
+    }
 }

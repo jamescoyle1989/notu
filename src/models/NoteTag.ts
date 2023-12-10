@@ -100,4 +100,13 @@ export default class NoteTag extends ModelWithState<NoteTag> {
             throw Error(output);
         return output == null;
     }
+
+
+    toJSON() {
+        return {
+            state: this.state,
+            noteId: this.noteId,
+            tagId: this.tagId
+        };
+    }
 }

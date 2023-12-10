@@ -80,4 +80,15 @@ export default class Tag extends ModelWithState<Tag> {
             hex = hex.substring(1);
         return parseInt(hex, 16);
     }
+
+
+    toJSON() {
+        return {
+            state: this.state,
+            id: this.id,
+            name: this.name,
+            spaceId: this.spaceId,
+            color: this.color
+        };
+    }
 }

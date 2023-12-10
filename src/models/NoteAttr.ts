@@ -137,4 +137,15 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
             throw Error(output);
         return output == null;
     }
+
+
+    toJSON() {
+        return {
+            state: this.state,
+            noteId: this.noteId,
+            attrId: this.attrId,
+            tagId: this.tagId,
+            value: this.value
+        };
+    }
 }
