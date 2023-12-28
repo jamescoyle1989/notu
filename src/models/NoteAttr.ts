@@ -83,6 +83,11 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
         }
     }
 
+    withValue(value: any): NoteAttr {
+        this.value = value;
+        return this;
+    }
+
 
     private _tagId: number = null;
     get tagId(): number { return this._tagId; }
