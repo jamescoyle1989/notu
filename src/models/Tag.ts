@@ -1,5 +1,6 @@
 'use strict';
 
+import { Space } from '..';
 import ModelWithState from './ModelWithState';
 
 
@@ -17,6 +18,18 @@ export default class Tag extends ModelWithState<Tag> {
 
     private _spaceId: number = 0;
     get spaceId(): number { return this._spaceId; }
+
+    private _space: Space = null;
+    get space(): Space { return this._space; }
+    set space(value: Space) {
+        if (value === null) {
+            this._space = null;
+            return;
+        }
+        if (value.id !== this.spaceId)
+            throw Error('Attempted to set space on Tag where spaceId doesnt match');
+        this._space = value;
+    }
 
     
     private _name: string = '';
@@ -52,6 +65,8 @@ export default class Tag extends ModelWithState<Tag> {
         const output = new Tag(this.name, this.spaceId);
         output.id = this.id;
         output.state = this.state;
+        output.color = this.color;
+        output.space = this.space;
         return output;
     }
 

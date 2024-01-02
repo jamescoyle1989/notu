@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import Tag from './Tag';
+import { Space } from '..';
 
 
 test('Gets initiated as new', () => {
@@ -24,6 +25,28 @@ test('Set id doesnt change tag state if value not different', () => {
     const tag = new Tag().clean();
     tag.id = 0;
     expect(tag.isClean).toBe(true);
+});
+
+
+test('Set space property throws error if id doesnt match spaceId', () => {
+    const tag = new Tag('Test', 1).clean();
+    const space = new Space('My Space').clean();
+    space.id = 2;
+    expect(() => tag.space = space).to.toThrowError();
+});
+
+test('Set space property updates space value if id matches', () => {
+    const tag = new Tag('Test', 1).clean();
+    const space = new Space('My Space').clean();
+    space.id = 1;
+    tag.space = space;
+    expect(tag.space).toBe(space);
+});
+
+test('Set space property handles null value being passed in', () => {
+    const tag = new Tag('Test', 1).clean();
+    tag.space = null;
+    expect(tag.space).toBe(null);
 });
 
 
