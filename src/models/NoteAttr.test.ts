@@ -385,3 +385,23 @@ test('onTag allows chained setting of tag 2', () => {
 
     expect(na.tag.name).toBe('Test Tag');
 });
+
+test('fromJSON reconstructs NoteAttr correctly', () => {
+    const note = new Note('Sample text');
+    note.id = 123;
+    const attr = new Attr('Testat').asText().clean();
+    attr.id = 234;
+    const tag = new Tag('Testag', 345);
+    tag.id = 456;
+    const na = new NoteAttr(note, attr, 'Hello!').dirty();
+    na.tag = tag;
+
+    const naCopy = NoteAttr.fromJSON(na.toJSON());
+
+    expect(naCopy).toBeInstanceOf(NoteAttr);
+    expect(naCopy.state).toBe(na.state);
+    expect(naCopy.noteId).toBe(na.noteId);
+    expect(naCopy.attrId).toBe(na.attrId);
+    expect(naCopy.tagId).toBe(na.tagId);
+    expect(naCopy.value).toBe(na.value);
+});

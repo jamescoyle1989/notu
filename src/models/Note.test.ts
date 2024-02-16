@@ -3,6 +3,7 @@ import Note from './Note';
 import Tag from './Tag';
 import Space from './Space';
 import Attr from './Attr';
+import { NoteAttr, NoteTag } from '..';
 
 
 function newCleanTag(): Tag {
@@ -447,4 +448,46 @@ test('stringifying shouldnt throw error', () => {
     const note = new Note('Hello');
     note.addTag(tag);
     JSON.stringify(note);
+});
+
+test('fromJSON reconstructs note correctly', () => {
+    const note = new Note('Hello')
+        .at(new Date(2024, 1, 15))
+        .in(234)
+        .setOwnTag('Taggy')
+        .dirty();
+    note.id = 123;
+    note.archived = false;
+    const tag = new Tag('Testag', 234).clean();
+    tag.id = 345;
+    note.addTag(tag);
+    const attr = new Attr('Testat')
+        .asNumber()
+        .in(234).clean();
+    attr.id = 456;
+    note.addAttr(attr);
+
+    const noteCopy = Note.fromJSON(note.toJSON());
+
+    expect(noteCopy).toBeInstanceOf(Note);
+    expect(noteCopy.state).toBe(note.state);
+    expect(noteCopy.id).toBe(note.id);
+    expect(noteCopy.date).toBe(note.date);
+    expect(noteCopy.text).toBe(note.text);
+    expect(noteCopy.archived).toBe(note.archived);
+    expect(noteCopy.spaceId).toBe(note.spaceId);
+
+    expect(noteCopy.ownTag).toBeInstanceOf(Tag);
+    expect(noteCopy.ownTag.id).toBe(note.ownTag.id);
+    expect(noteCopy.ownTag.state).toBe(note.ownTag.state);
+
+    expect(noteCopy.tags.length).toBe(1);
+    expect(noteCopy.tags[0]).toBeInstanceOf(NoteTag);
+    expect(noteCopy.tags[0].state).toBe(note.tags[0].state);
+    expect(noteCopy.tags[0].tagId).toBe(note.tags[0].tagId);
+
+    expect(noteCopy.attrs.length).toBe(1);
+    expect(noteCopy.attrs[0]).toBeInstanceOf(NoteAttr);
+    expect(noteCopy.attrs[0].state).toBe(note.attrs[0].state);
+    expect(noteCopy.attrs[0].attrId).toBe(note.attrs[0].attrId);
 });

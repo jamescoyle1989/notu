@@ -153,4 +153,12 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
             value: this.value
         };
     }
+
+
+    static fromJSON(json: any): NoteAttr {
+        const output = new NoteAttr(json.noteId, json.attrId, json.value);
+        output.tagId = json.tagId;
+        output.state = json.state;
+        return output;
+    }
 }

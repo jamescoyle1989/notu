@@ -106,4 +106,13 @@ export default class Tag extends ModelWithState<Tag> {
             color: this.color
         };
     }
+
+
+    static fromJSON(json: any) {
+        const output = new Tag(json.name, json.spaceId);
+        output.id = json.id;
+        output.color = json.color;
+        output.state = json.state;
+        return output;
+    }
 }

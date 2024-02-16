@@ -109,4 +109,10 @@ export default class NoteTag extends ModelWithState<NoteTag> {
             tagId: this.tagId
         };
     }
+
+    static fromJSON(json: any): NoteTag {
+        const output = new NoteTag(json.noteId, json.tagId);
+        output.state = json.state;
+        return output;
+    }
 }

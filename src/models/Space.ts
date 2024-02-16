@@ -52,4 +52,12 @@ export default class Space extends ModelWithState<Space> {
             name: this.name
         }
     }
+
+
+    static fromJSON(json: any): Space {
+        const output = new Space(json.name);
+        output.id = json.id;
+        output.state = json.state;
+        return output;
+    }
 }

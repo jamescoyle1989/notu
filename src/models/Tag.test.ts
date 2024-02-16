@@ -173,3 +173,19 @@ test('getColorInt returns null if color is null', () => {
     model.color = null;
     expect(model.getColorInt()).toBe(null);
 });
+
+test('fromJSON reconstructs Tag correctly', () => {
+    const tag = new Tag('Tag', 234)
+        .dirty();
+    tag.id = 123;
+    tag.color = '#FFDDAA';
+
+    const tagCopy = Tag.fromJSON(tag.toJSON());
+
+    expect(tagCopy).toBeInstanceOf(Tag);
+    expect(tagCopy.state).toBe(tag.state);
+    expect(tagCopy.id).toBe(tag.id);
+    expect(tagCopy.name).toBe(tag.name);
+    expect(tagCopy.spaceId).toBe(tag.spaceId);
+    expect(tagCopy.color).toBe(tag.color);
+});

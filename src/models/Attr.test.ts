@@ -227,3 +227,17 @@ test('in method allows chained space setting 2', () => {
 
     expect(model.space).toBe(space);
 });
+
+test('fromJSON reconstructs Attr correctly', () => {
+    const attr = new Attr('Test').asDate().in(234).clean();
+    attr.id = 123;
+
+    const attrCopy = Attr.fromJSON(attr.toJSON());
+
+    expect(attrCopy).toBeInstanceOf(Attr);
+    expect(attrCopy.state).toBe(attrCopy.state);
+    expect(attrCopy.id).toBe(attrCopy.id);
+    expect(attrCopy.name).toBe(attrCopy.name);
+    expect(attrCopy.type).toBe(attrCopy.type);
+    expect(attrCopy.spaceId).toBe(attrCopy.spaceId);
+});

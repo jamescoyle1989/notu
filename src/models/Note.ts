@@ -218,6 +218,21 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
+    static fromJSON(json: any): Note {
+        const output = new Note(json.text);
+        output.id = json.id;
+        output.date = json.date;
+        output.archived = json.archived;
+        output.spaceId = json.spaceId;
+        if (json.ownTag != undefined)
+            output.setOwnTag(Tag.fromJSON(json.ownTag));
+        output._tags = json.tags.map(x => NoteTag.fromJSON(x));
+        output._attrs = json.attrs.map(x => NoteAttr.fromJSON(x));
+        output.state = json.state;
+        return output;
+    }
+
+
     validate(throwError: boolean = false): boolean {
         let output = null;
 
