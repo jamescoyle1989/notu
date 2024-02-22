@@ -467,12 +467,13 @@ test('fromJSON reconstructs note correctly', () => {
     attr.id = 456;
     note.addAttr(attr);
 
-    const noteCopy = Note.fromJSON(note.toJSON());
+    const noteCopy = Note.fromJSON(JSON.parse(JSON.stringify(note)));
 
     expect(noteCopy).toBeInstanceOf(Note);
     expect(noteCopy.state).toBe(note.state);
     expect(noteCopy.id).toBe(note.id);
-    expect(noteCopy.date).toBe(note.date);
+    expect(noteCopy.date).toBeInstanceOf(Date);
+    expect(noteCopy.date.getTime()).toBe(note.date.getTime());
     expect(noteCopy.text).toBe(note.text);
     expect(noteCopy.archived).toBe(note.archived);
     expect(noteCopy.spaceId).toBe(note.spaceId);

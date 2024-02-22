@@ -180,7 +180,7 @@ test('fromJSON reconstructs Tag correctly', () => {
     tag.id = 123;
     tag.color = '#FFDDAA';
 
-    const tagCopy = Tag.fromJSON(tag.toJSON());
+    const tagCopy = Tag.fromJSON(JSON.parse(JSON.stringify(tag)));
 
     expect(tagCopy).toBeInstanceOf(Tag);
     expect(tagCopy.state).toBe(tag.state);

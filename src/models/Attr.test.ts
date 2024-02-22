@@ -232,7 +232,7 @@ test('fromJSON reconstructs Attr correctly', () => {
     const attr = new Attr('Test').asDate().in(234).clean();
     attr.id = 123;
 
-    const attrCopy = Attr.fromJSON(attr.toJSON());
+    const attrCopy = Attr.fromJSON(JSON.parse(JSON.stringify(attr)));
 
     expect(attrCopy).toBeInstanceOf(Attr);
     expect(attrCopy.state).toBe(attrCopy.state);

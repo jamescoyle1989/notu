@@ -266,7 +266,7 @@ test('fromJSON reconstructs NoteTag properly', () => {
     tag.id = 345;
     const nt = new NoteTag(note, tag).dirty();
 
-    const ntCopy = NoteTag.fromJSON(nt.toJSON());
+    const ntCopy = NoteTag.fromJSON(JSON.parse(JSON.stringify(nt)));
 
     expect(ntCopy).toBeInstanceOf(NoteTag);
     expect(ntCopy.state).toBe(nt.state);

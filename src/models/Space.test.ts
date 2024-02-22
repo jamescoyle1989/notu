@@ -56,7 +56,7 @@ test('fromJSON reconstructs Space correctly', () => {
     const space = new Space('Test').clean();
     space.id = 123;
 
-    const spaceCopy = Space.fromJSON(space.toJSON());
+    const spaceCopy = Space.fromJSON(JSON.parse(JSON.stringify(space)));
 
     expect(spaceCopy).toBeInstanceOf(Space);
     expect(spaceCopy.state).toBe(space.state);

@@ -221,7 +221,7 @@ export default class Note extends ModelWithState<Note> {
     static fromJSON(json: any): Note {
         const output = new Note(json.text);
         output.id = json.id;
-        output.date = json.date;
+        output.date = new Date(json.date);
         output.archived = json.archived;
         output.spaceId = json.spaceId;
         if (json.ownTag != undefined)

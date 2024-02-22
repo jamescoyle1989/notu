@@ -396,7 +396,7 @@ test('fromJSON reconstructs NoteAttr correctly', () => {
     const na = new NoteAttr(note, attr, 'Hello!').dirty();
     na.tag = tag;
 
-    const naCopy = NoteAttr.fromJSON(na.toJSON());
+    const naCopy = NoteAttr.fromJSON(JSON.parse(JSON.stringify(na)));
 
     expect(naCopy).toBeInstanceOf(NoteAttr);
     expect(naCopy.state).toBe(na.state);
