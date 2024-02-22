@@ -1,38 +1,22 @@
 import { expect, test } from 'vitest';
 import HttpClient from './HttpClient';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import Space from '../models/Space';
 
 
-function mockAxiosResponse(status: number, data: any): AxiosResponse<any, any> {
-    const response = {
-        data,
-        status,
-        statusText: 'hello',
-        headers: null,
-        config: null
-    };
-    if (status < 200 || status >= 300) {
-        const error = new Error('Something went wrong');
-        error['response'] = response;
-        throw error;
+async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    if (init.method == 'POST' && input.toString().endsWith('/login')) {
+        const body = JSON.parse(init.body.toString());
+        if (body.username == 'ValidUser' && body.password == 'ValidPassword')
+            return new Response(JSON.stringify({token: 'qwer.asdf.zxcv'}), {status: 200});
+        return new Response(null, {status: 401});
     }
-    return response;
-}
-
-async function mockAxios(config: AxiosRequestConfig<any>): Promise<AxiosResponse<any, any>> {
-    if (config.method == 'post' && config.url.endsWith('/login')) {
-        if (config.data.username == 'ValidUser' && config.data.password == 'ValidPassword')
-            return mockAxiosResponse(200, 'qwer.asdf.zxcv');
-        return mockAxiosResponse(401, null);
-    }
-    if (config.method == 'get' && config.url.endsWith('/spaces')) {
-        return mockAxiosResponse(200, [
+    if (init.method == 'GET' && input.toString().endsWith('/spaces')) {
+        return new Response(JSON.stringify([
             new Space('Space 1'),
             new Space('Space 2')
-        ]);
+        ]), {status: 200});
     }
-    return mockAxiosResponse(404, null);
+    return new Response(null, {status: 404});
 }
 
 
@@ -51,12 +35,12 @@ test('constructor throws error if url not provided', () => {
 test('If no httpRequester method passed in, then defaults to using axios', () => {
     const client = new HttpClient('abcd');
     
-    expect(client['_httpRequester']).toBe(axios);
+    expect(client['_fetch']).toBe(fetch);
 });
 
 
 test('login asyncronously gets token from web service', async () => {
-    const client = new HttpClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockFetch);
     const loginResult = await client.login('ValidUser', 'ValidPassword');
 
     expect(loginResult.success).toBe(true);
@@ -65,7 +49,7 @@ test('login asyncronously gets token from web service', async () => {
 });
 
 test('login fails if username and password are invalid', async () => {
-    const client = new HttpClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockFetch);
     const loginResult = await client.login('InvalidUser', 'InvalidPassword');
 
     expect(loginResult.success).toBe(false);
@@ -74,14 +58,14 @@ test('login fails if username and password are invalid', async () => {
 });
 
 test('login sets token on the client', async () => {
-    const client = new HttpClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockFetch);
     await client.login('ValidUser', 'ValidPassword');
 
     expect(client.token).toBe('qwer.asdf.zxcv');
 });
 
 test('Token can be manually set if already known', () => {
-    const client = new HttpClient('abcd', mockAxios);
+    const client = new HttpClient('abcd', mockFetch);
     client.token = 'qwer.asdf.zxcv';
 
     expect(client.token).toBe('qwer.asdf.zxcv');
@@ -89,19 +73,21 @@ test('Token can be manually set if already known', () => {
 
 
 test('getSpaces makes async call to correct URL endpoint, returns space objects', async () => {
-    let request: AxiosRequestConfig<any> = null;
-    const client = new HttpClient('abcd', r => {
-        request = r;
-        return mockAxios(r);
+    let input: string;
+    let init: RequestInit;
+    const client = new HttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockFetch(inp, ini);
     });
     client.token = 'qwer.asdf.zxcv';
 
     const result = await client.getSpaces();
 
-    expect(request.method).toBe('get');
-    expect(request.url).toBe('abcd/spaces');
-    expect(request.data).toBeFalsy();
-    expect(request.headers.Authorization).toBe('Bearer qwer.asdf.zxcv');
+    expect(init.method).toBe('GET');
+    expect(input).toBe('abcd/spaces');
+    expect(init.body).toBeFalsy();
+    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
     expect(result.length).toBe(2);
     expect(result[0].name).toBe('Space 1');
     expect(result[1].name).toBe('Space 2');
