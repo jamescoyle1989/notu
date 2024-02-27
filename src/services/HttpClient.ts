@@ -1,7 +1,7 @@
 'use strict';
 
 import Space from "../models/Space";
-import { Note } from "..";
+import { Note, Attr } from "..";
 
 
 export interface NotuLoginResult {
@@ -17,6 +17,10 @@ export interface NotuClient {
     getSpaces(): Promise<Array<Space>>;
 
     saveSpace(space: Space): Promise<Space>;
+
+    getAttrs(): Promise<Array<Attr>>;
+
+    saveAttr(attr: Attr): Promise<Attr>;
 
     getNotes(query: string, spaceId: number): Promise<Array<Note>>;
 
@@ -49,7 +53,7 @@ export default class HttpClient {
         if (url.endsWith('/'))
             url = url.substring(0, url.length - 1);
         this._url = url;
-        this._fetch = fetchMethod ?? fetch;
+        this._fetch = fetchMethod ?? window.fetch.bind(window);
     }
 
 
@@ -90,11 +94,32 @@ export default class HttpClient {
     }
 
 
-    async getNotes(query: string, spaceId: number): Promise<Array<Note>> {
-        const result = await this._fetch(this.url + '/notes',
+    async getAttrs(): Promise<Array<Attr>> {
+        const result = await this._fetch(this.url + '/attrs',
             {
                 method: 'GET',
-                body: JSON.stringify({ query, spaceId }),
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        return await result.json();
+    }
+
+    async saveAttr(attr: Attr): Promise<Attr> {
+        const result = await this._fetch(this.url + '/attrs',
+            {
+                method: 'POST',
+                body: JSON.stringify(attr),
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        return await result.json();
+    }
+
+
+    async getNotes(query: string, spaceId: number): Promise<Array<Note>> {
+        const result = await this._fetch(this.url + `/notes?space=${spaceId}&query=${encodeURIComponent(query)}`,
+            {
+                method: 'GET',
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
@@ -102,14 +127,13 @@ export default class HttpClient {
     }
 
     async getNoteCount(query: string, spaceId: number): Promise<number> {
-        const result = await this._fetch(this.url + '/notes',
+        const result = await this._fetch(this.url + `/notes?count=true&space=${spaceId}&query=${encodeURIComponent(query)}`,
             {
                 method: 'GET',
-                body: JSON.stringify({ query, spaceId }),
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return (await result.json()).count;
     }
 
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {

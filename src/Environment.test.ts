@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import Environment from './Environment';
 import { NotuClient, NotuLoginResult } from './services/HttpClient';
 import Space from './models/Space';
-import { Note } from '.';
+import { Attr, Note } from '.';
 
 
 class TestClient implements NotuClient {
@@ -24,6 +24,20 @@ class TestClient implements NotuClient {
 
     saveSpace(space: Space): Promise<Space> {
         return Promise.resolve(space.duplicate());
+    }
+
+    getAttrs(): Promise<Array<Attr>> {
+        const output = [
+            new Attr('Attr 1').in(1).clean(),
+            new Attr('Attr 2').in(2).clean()
+        ];
+        output[0].id = 1;
+        output[1].id = 2;
+        return Promise.resolve(output);
+    }
+
+    saveAttr(attr: Attr): Promise<Attr> {
+        return Promise.resolve(attr.duplicate());
     }
 
     getNotes(query: string, spaceId: number): Promise<Array<Note>> {

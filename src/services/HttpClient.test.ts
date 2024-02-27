@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import HttpClient from './HttpClient';
 import Space from '../models/Space';
+import { Attr, Note } from '..';
 
 
 async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
@@ -16,6 +17,23 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
             new Space('Space 2')
         ]), {status: 200});
     }
+    if (init.method == 'GET' && input.toString().endsWith('/attrs')) {
+        return new Response(JSON.stringify([
+            new Attr('Attr 1'),
+            new Attr('Attr 2')
+        ]), {status: 200});
+    }
+    if (init.method == 'GET' && input.toString().includes('/notes?')) {
+        if (input.toString().includes('count=true')) {
+            return new Response(JSON.stringify({count: 2}), {status: 200});
+        }
+        else {
+            return new Response(JSON.stringify([
+                new Note('test1'),
+                new Note('test2')
+            ]), {status: 200});
+        }
+    }
     return new Response(null, {status: 404});
 }
 
@@ -23,19 +41,13 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
 
 
 test('constructor takes api root url', () => {
-    const client = new HttpClient('https://www.test.com');
+    const client = new HttpClient('https://www.test.com', mockFetch);
 
     expect(client.url).toBe('https://www.test.com');
 });
 
 test('constructor throws error if url not provided', () => {
     expect(() => new HttpClient(null)).toThrowError();
-});
-
-test('If no httpRequester method passed in, then defaults to using axios', () => {
-    const client = new HttpClient('abcd');
-    
-    expect(client['_fetch']).toBe(fetch);
 });
 
 
@@ -91,4 +103,68 @@ test('getSpaces makes async call to correct URL endpoint, returns space objects'
     expect(result.length).toBe(2);
     expect(result[0].name).toBe('Space 1');
     expect(result[1].name).toBe('Space 2');
+});
+
+
+test('getAttrs makes async call to correct URL endpoint, returns attr objects', async () => {
+    let input: string;
+    let init: RequestInit;
+    const client = new HttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockFetch(inp, ini);
+    });
+    client.token = 'qwer.asdf.zxcv';
+
+    const result = await client.getAttrs();
+
+    expect(init.method).toBe('GET');
+    expect(input).toBe('abcd/attrs');
+    expect(init.body).toBeFalsy();
+    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
+    expect(result.length).toBe(2);
+    expect(result[0].name).toBe('Attr 1');
+    expect(result[1].name).toBe('Attr 2');
+});
+
+
+test('getNotes passes spaceId and query in URL', async () => {
+    let input: string;
+    let init: RequestInit;
+    const client = new HttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockFetch(inp, ini);
+    });
+    client.token = 'qwer.asdf.zxcv';
+
+    const result = await client.getNotes('#Tag AND @Attr = 100', 1);
+
+    expect(init.method).toBe('GET');
+    expect(input).toBe('abcd/notes?space=1&query=%23Tag%20AND%20%40Attr%20%3D%20100');
+    expect(init.body).toBeFalsy();
+    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
+    expect(result.length).toBe(2);
+    expect(result[0].text).toBe('test1');
+    expect(result[1].text).toBe('test2');
+});
+
+
+test('getNoteCount passes spaceId and query in URL', async () => {
+    let input: string;
+    let init: RequestInit;
+    const client = new HttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockFetch(inp, ini);
+    });
+    client.token = 'qwer.asdf.zxcv';
+
+    const result = await client.getNoteCount('#Tag AND @Attr = 100', 1);
+
+    expect(init.method).toBe('GET');
+    expect(input).toBe('abcd/notes?count=true&space=1&query=%23Tag%20AND%20%40Attr%20%3D%20100');
+    expect(init.body).toBeFalsy();
+    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
+    expect(result).toBe(2);
 });
