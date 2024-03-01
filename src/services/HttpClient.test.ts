@@ -147,6 +147,7 @@ test('getNotes passes spaceId and query in URL', async () => {
     expect(result.length).toBe(2);
     expect(result[0].text).toBe('test1');
     expect(result[1].text).toBe('test2');
+    expect(result[0]).toBeInstanceOf(Note);
 });
 
 

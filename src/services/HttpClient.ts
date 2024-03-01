@@ -79,7 +79,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return (await result.json()).map(x => Space.fromJSON(x));
     }
 
     async saveSpace(space: Space): Promise<Space> {
@@ -90,7 +90,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return Space.fromJSON(await result.json());
     }
 
 
@@ -101,7 +101,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return (await result.json()).map(x => Attr.fromJSON(x));
     }
 
     async saveAttr(attr: Attr): Promise<Attr> {
@@ -112,7 +112,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return Attr.fromJSON(await result.json());
     }
 
 
@@ -123,7 +123,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return (await result.json()).map(x => Note.fromJSON(x));
     }
 
     async getNoteCount(query: string, spaceId: number): Promise<number> {
@@ -144,7 +144,7 @@ export default class HttpClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
-        return await result.json();
+        return (await result.json()).map(x => Note.fromJSON(x));
     }
 
 
