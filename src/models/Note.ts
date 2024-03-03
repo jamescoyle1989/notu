@@ -224,10 +224,12 @@ export default class Note extends ModelWithState<Note> {
         output.date = new Date(json.date);
         output.archived = json.archived;
         output.spaceId = json.spaceId;
-        if (json.ownTag != undefined)
+        if (!!json.ownTag)
             output.setOwnTag(Tag.fromJSON(json.ownTag));
-        output._tags = json.tags.map(x => NoteTag.fromJSON(x));
-        output._attrs = json.attrs.map(x => NoteAttr.fromJSON(x));
+        if (!!json.tags)
+            output._tags = json.tags.map(x => NoteTag.fromJSON(x));
+        if (!!json.attrs)
+            output._attrs = json.attrs.map(x => NoteAttr.fromJSON(x));
         output.state = json.state;
         return output;
     }

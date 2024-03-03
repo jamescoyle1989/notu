@@ -492,3 +492,29 @@ test('fromJSON reconstructs note correctly', () => {
     expect(noteCopy.attrs[0].state).toBe(note.attrs[0].state);
     expect(noteCopy.attrs[0].attrId).toBe(note.attrs[0].attrId);
 });
+
+test('fromJSON reconstructs note correctly 2', () => {
+    const noteJson = {
+        state: 'NEW',
+        id: 0,
+        date: '2024-03-03T15:36:04.511Z',
+        text: 'I plan to do something very important at some specific moment in the near future',
+        archived: false,
+        spaceId: 2,
+        ownTag: null,
+        tags: undefined,
+        attrs: undefined
+    };
+    const note = Note.fromJSON(noteJson);
+
+    expect(note).toBeInstanceOf(Note);
+    expect(note.state).toBe('NEW');
+    expect(note.id).toBe(0);
+    expect(note.date).toBeInstanceOf(Date);
+    expect(note.text).toBe('I plan to do something very important at some specific moment in the near future');
+    expect(note.archived).toBe(false);
+    expect(note.spaceId).toBe(2);
+    expect(note.ownTag).toBe(null);
+    expect(note.tags.length).toBe(0);
+    expect(note.attrs.length).toBe(0);
+});
