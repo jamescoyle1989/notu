@@ -152,7 +152,7 @@ export default class Attr extends ModelWithState<Attr> {
 
     static fromJSON(json: any): Attr {
         const output = new Attr(json.name);
-        output.type = json.id;
+        output.type = json.type;
         output.spaceId = json.spaceId;
         output.id = json.id;
         output.state = json.state;
