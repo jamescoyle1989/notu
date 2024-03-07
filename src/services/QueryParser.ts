@@ -17,7 +17,6 @@ export class ParsedTag {
 }
 
 export class ParsedAttr {
-    space: string = null;
     name: string = null;
     exists: boolean = false;
     tagNameFilters: Array<ParsedTag> = null;
@@ -87,8 +86,8 @@ export function identifyTags(query: string, parsedQuery: ParsedQuery): string {
 
 export function identifyAttrs(query: string, parsedQuery: ParsedQuery): string {
     const regexes: Array<RegExp> = [
-        /@([\w\d]+\.(?!Exists\(|On\())?([\w\d]+)/,
-        /@\[([\w\d\s]+\.)?([\w\d\s]+)\]/
+        /@([\w\d]+)/,
+        /@\[([\w\d\s]+)\]/
     ];
     for (const regex of regexes) {
         while (true) {
@@ -99,8 +98,7 @@ export function identifyAttrs(query: string, parsedQuery: ParsedQuery): string {
             
             //Build up basic properties of ParsedAttr object
             const parsedAttr = new ParsedAttr();
-            parsedAttr.space = !!match[1] ? match[1].substring(0, match[1].length - 1) : null;
-            parsedAttr.name = match[2];
+            parsedAttr.name = match[1];
             
             //Record the positions of where the match starts and ends
             const matchStart = query.indexOf(match[0]);

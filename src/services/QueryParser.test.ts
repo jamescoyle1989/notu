@@ -84,23 +84,18 @@ test('identifyAttrs can correctly identify multiple attrs in query', () => {
     result.where = identifyAttrs(result.where, result);
 
     expect(result.where).toBe('{attr0} > 3 AND {attr1} < 4');
-    expect(result.attrs[0].space).toBeNull();
     expect(result.attrs[0].name).toBe('Count');
     expect(result.attrs[0].exists).toBe(false);
-    expect(result.attrs[1].space).toBeNull();
     expect(result.attrs[1].name).toBe('Depth');
     expect(result.attrs[1].exists).toBe(false);
 });
 
-test('identifyAttrs can identify space names', () => {
+test('identifyAttrs improperly parses attributes that try to specify space', () => {
     const result = splitQuery('@MySpace.Count = 123');
     
     result.where = identifyAttrs(result.where, result);
 
-    expect(result.where).toBe('{attr0} = 123');
-    expect(result.attrs[0].space).toBe('MySpace');
-    expect(result.attrs[0].name).toBe('Count');
-    expect(result.attrs[0].exists).toBe(false);
+    expect(result.where).toBe('{attr0}.Count = 123');
 });
 
 test('identifyAttrs can identify exists queries', () => {
@@ -109,7 +104,6 @@ test('identifyAttrs can identify exists queries', () => {
     result.where = identifyAttrs(result.where, result);
 
     expect(result.where).toBe('{attr0}');
-    expect(result.attrs[0].space).toBeNull();
     expect(result.attrs[0].name).toBe('Help');
     expect(result.attrs[0].exists).toBe(true);
 });
@@ -125,13 +119,12 @@ test('identifyAttrs can identify on tag filters', () => {
     expect(result.attrs[0].tagNameFilters[0].name).toBe('MyTag');
 });
 
-test('identifyAttrs can handle attr and space names with spaces in them', () => {
-    const result = splitQuery('@[My Space.Test Test] = 123');
+test('identifyAttrs can handle attr names with spaces in them', () => {
+    const result = splitQuery('@[Test Test] = 123');
 
     result.where = identifyAttrs(result.where, result);
 
     expect(result.where).toBe('{attr0} = 123');
-    expect(result.attrs[0].space).toBe('My Space');
     expect(result.attrs[0].name).toBe('Test Test');
 });
 
@@ -141,6 +134,7 @@ test('identifyAttrs can support multiple pipe-separated on(tag) filters', () => 
     result.where = identifyAttrs(result.where, result);
 
     expect(result.where).toBe('{attr0}');
+    expect(result.attrs.length).toBe(1);
     expect(result.attrs[0].name).toBe('Abc');
     expect(result.attrs[0].exists).toBe(true);
     expect(result.attrs[0].tagNameFilters.length).toBe(2);
