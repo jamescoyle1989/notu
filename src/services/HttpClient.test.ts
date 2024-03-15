@@ -5,19 +5,19 @@ import { Attr, Note } from '..';
 
 
 async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    if (init.method == 'POST' && input.toString().endsWith('/login')) {
+    if (init.method == 'POST' && input.toString().includes('/login')) {
         const body = JSON.parse(init.body.toString());
         if (body.username == 'ValidUser' && body.password == 'ValidPassword')
             return new Response(JSON.stringify({token: 'qwer.asdf.zxcv'}), {status: 200});
         return new Response(null, {status: 401});
     }
-    if (init.method == 'GET' && input.toString().endsWith('/spaces')) {
+    if (init.method == 'GET' && input.toString().includes('/spaces')) {
         return new Response(JSON.stringify([
             new Space('Space 1'),
             new Space('Space 2')
         ]), {status: 200});
     }
-    if (init.method == 'GET' && input.toString().endsWith('/attrs')) {
+    if (init.method == 'GET' && input.toString().includes('/attrs')) {
         return new Response(JSON.stringify([
             new Attr('Attr 1'),
             new Attr('Attr 2')
@@ -119,7 +119,7 @@ test('getAttrs makes async call to correct URL endpoint, returns attr objects', 
     const result = await client.getAttrs();
 
     expect(init.method).toBe('GET');
-    expect(input).toBe('abcd/attrs');
+    expect(input).toBe('abcd/attrs?space=0');
     expect(init.body).toBeFalsy();
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
     expect(result.length).toBe(2);

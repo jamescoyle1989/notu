@@ -18,7 +18,7 @@ export interface NotuClient {
 
     saveSpace(space: Space): Promise<Space>;
 
-    getAttrs(): Promise<Array<Attr>>;
+    getAttrs(spaceId: number): Promise<Array<Attr>>;
 
     saveAttr(attr: Attr): Promise<Attr>;
 
@@ -94,8 +94,8 @@ export default class HttpClient {
     }
 
 
-    async getAttrs(): Promise<Array<Attr>> {
-        const result = await this._fetch(this.url + '/attrs',
+    async getAttrs(spaceId: number = 0): Promise<Array<Attr>> {
+        const result = await this._fetch(this.url + `/attrs?space=${spaceId}`,
             {
                 method: 'GET',
                 headers: { Authorization: 'Bearer ' + this.token }
