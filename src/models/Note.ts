@@ -52,17 +52,6 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
-    private _archived: boolean = false;
-    get archived(): boolean { return this._archived; }
-    set archived(value: boolean) {
-        if (value !== this._archived) {
-            this._archived = value;
-            if (this.isClean)
-                this.dirty();
-        }
-    }
-
-
     private _spaceId: number = 0;
     get spaceId(): number { return this._spaceId; }
     set spaceId(value: number) {
@@ -196,7 +185,6 @@ export default class Note extends ModelWithState<Note> {
         output.id = this.id;
         output.date = this.date;
         output.text = this.text;
-        output.archived = this.archived;
         output.space = this.space;
         output.state = this.state;
         return output;
@@ -209,7 +197,6 @@ export default class Note extends ModelWithState<Note> {
             id: this.id,
             date: this.date,
             text: this.text,
-            archived: this.archived,
             spaceId: this.spaceId,
             ownTag: this.ownTag,
             tags: this.tags,
@@ -222,7 +209,6 @@ export default class Note extends ModelWithState<Note> {
         const output = new Note(json.text);
         output.id = json.id;
         output.date = new Date(json.date);
-        output.archived = json.archived;
         output.spaceId = json.spaceId;
         if (!!json.ownTag)
             output.setOwnTag(Tag.fromJSON(json.ownTag));

@@ -26,7 +26,6 @@ test('gets initiated with sensible defaults', () => {
     expect(note.id).toBe(0);
     expect(note.date.getTime() / 1000).toBeCloseTo(new Date().getTime() / 1000);
     expect(note.text).toBe('');
-    expect(note.archived).toBe(false);
     expect(note.spaceId).toBe(0);
 });
 
@@ -39,7 +38,6 @@ test('can duplicate itself', () => {
     expect(copy.id).toBe(note.id);
     expect(copy.date).toBe(note.date);
     expect(copy.text).toBe(note.text);
-    expect(copy.archived).toBe(note.archived);
     expect(copy.space).toBe(note.space);
     expect(copy.spaceId).toBe(note.spaceId);
     expect(copy.state).toBe(note.state);
@@ -95,25 +93,6 @@ test('Set text doesnt change note state if new', () => {
 test('Set text doesnt change note state if value not different', () => {
     const note = new Note().clean();
     note.text = '';
-    expect(note.isClean).toBe(true);
-});
-
-
-test('Set archived marks note as dirty if currently clean', () => {
-    const note = new Note().clean();
-    note.archived = !note.archived;
-    expect(note.isDirty).toBe(true);
-});
-
-test('Set archived doesnt change note state if new', () => {
-    const note = new Note().new();
-    note.archived = !note.archived;
-    expect(note.isNew).toBe(true);
-});
-
-test('Set archived doesnt change note state if value not different', () => {
-    const note = new Note().clean();
-    note.archived = note.archived;
     expect(note.isClean).toBe(true);
 });
 
@@ -457,7 +436,6 @@ test('fromJSON reconstructs note correctly', () => {
         .setOwnTag('Taggy')
         .dirty();
     note.id = 123;
-    note.archived = false;
     const tag = new Tag('Testag', 234).clean();
     tag.id = 345;
     note.addTag(tag);
@@ -475,7 +453,6 @@ test('fromJSON reconstructs note correctly', () => {
     expect(noteCopy.date).toBeInstanceOf(Date);
     expect(noteCopy.date.getTime()).toBe(note.date.getTime());
     expect(noteCopy.text).toBe(note.text);
-    expect(noteCopy.archived).toBe(note.archived);
     expect(noteCopy.spaceId).toBe(note.spaceId);
 
     expect(noteCopy.ownTag).toBeInstanceOf(Tag);
@@ -499,7 +476,6 @@ test('fromJSON reconstructs note correctly 2', () => {
         id: 0,
         date: '2024-03-03T15:36:04.511Z',
         text: 'I plan to do something very important at some specific moment in the near future',
-        archived: false,
         spaceId: 2,
         ownTag: null,
         tags: undefined,
@@ -512,7 +488,6 @@ test('fromJSON reconstructs note correctly 2', () => {
     expect(note.id).toBe(0);
     expect(note.date).toBeInstanceOf(Date);
     expect(note.text).toBe('I plan to do something very important at some specific moment in the near future');
-    expect(note.archived).toBe(false);
     expect(note.spaceId).toBe(2);
     expect(note.ownTag).toBe(null);
     expect(note.tags.length).toBe(0);
