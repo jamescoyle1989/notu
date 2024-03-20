@@ -1,7 +1,7 @@
 'use strict';
 
 import Space from "../models/Space";
-import { Note, Attr } from "..";
+import { Note, Attr, Tag } from "..";
 
 
 export interface NotuLoginResult {
@@ -21,6 +21,8 @@ export interface NotuClient {
     getAttrs(spaceId: number): Promise<Array<Attr>>;
 
     saveAttr(attr: Attr): Promise<Attr>;
+
+    getTags(): Promise<Array<Tag>>;
 
     getNotes(query: string, spaceId: number): Promise<Array<Note>>;
 
@@ -113,6 +115,17 @@ export default class HttpClient {
             }
         );
         return Attr.fromJSON(await result.json());
+    }
+
+
+    async getTags(): Promise<Array<Tag>> {
+        const result = await this._fetch(this.url + '/tags',
+            {
+                method: 'GET',
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        return (await result.json()).map(x => Tag.fromJSON(x));
     }
 
 
