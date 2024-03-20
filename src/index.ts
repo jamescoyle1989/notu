@@ -1,6 +1,5 @@
 import Attr from './models/Attr';
 import { CachedClient } from './services/CachedClient';
-import Environment from './Environment';
 import HttpClient from './services/HttpClient';
 import Note from './models/Note';
 import NoteAttr from './models/NoteAttr';
@@ -12,7 +11,6 @@ import Tag from './models/Tag';
 export {
     Attr,
     CachedClient,
-    Environment,
     HttpClient,
     Note,
     NoteAttr,
