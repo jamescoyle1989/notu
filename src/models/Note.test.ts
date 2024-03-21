@@ -4,6 +4,7 @@ import Tag from './Tag';
 import Space from './Space';
 import Attr from './Attr';
 import { NoteAttr, NoteTag } from '..';
+import { newAttr, newSpace, newTag } from '../TestHelpers';
 
 
 function newCleanTag(): Tag {
@@ -30,17 +31,24 @@ test('gets initiated with sensible defaults', () => {
 });
 
 test('can duplicate itself', () => {
-    const note = new Note().clean();
-    const space = new Space('hello');
-    space.id = 123;
-    note.space = space;
+    const space = newSpace('hello', 123).clean();
+    const attr = newAttr('Attr1', 234).asText().clean();
+    const tag = newTag('Tag1', 345).clean();
+    const note = new Note().in(space).setOwnTag('My Tag').clean();
+    note.addAttr(attr).withValue('hotpot');
+    note.addTag(tag);
+
     const copy = note.duplicate();
+
     expect(copy.id).toBe(note.id);
     expect(copy.date).toBe(note.date);
     expect(copy.text).toBe(note.text);
     expect(copy.space).toBe(note.space);
     expect(copy.spaceId).toBe(note.spaceId);
     expect(copy.state).toBe(note.state);
+    expect(copy.tags.length).toBe(note.tags.length);
+    expect(copy.attrs.length).toBe(note.attrs.length);
+    expect(copy.ownTag.name).toBe(note.ownTag.name);
 });
 
 test('Gets initiated as new', () => {

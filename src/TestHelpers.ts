@@ -18,8 +18,8 @@ export function newAttr(name?: string, id: number = null): Attr {
     return output;
 }
 
-export function newTag(name?: string, spaceId?: number, id: number = null): Tag {
-    const output = new Tag(name).in(spaceId);
+export function newTag(name?: string, id: number = null): Tag {
+    const output = new Tag(name);
     output.id = id;
     return output;
 }

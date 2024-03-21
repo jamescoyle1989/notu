@@ -316,7 +316,6 @@ test('Can duplicate itself', () => {
 
     const copy = na.duplicate();
 
-    expect(copy.note).toBe(na.note);
     expect(copy.noteId).toBe(na.noteId);
     expect(copy.attr).toBe(na.attr);
     expect(copy.attrId).toBe(na.attrId);

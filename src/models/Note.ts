@@ -188,7 +188,22 @@ export default class Note extends ModelWithState<Note> {
         output.id = this.id;
         output.date = this.date;
         output.text = this.text;
-        output.space = this.space;
+        if (!!this.space)
+            output.space = this.space;
+        else
+            output.spaceId = this.spaceId;
+        output._tags = this.tags.map(x => { 
+            const ntCopy = x.duplicate();
+            ntCopy.note = output;
+            return ntCopy;
+        });
+        output._attrs = this.attrs.map(x => {
+            const naCopy = x.duplicate();
+            naCopy.note = output;
+            return naCopy;
+        });
+        if (!!this.ownTag)
+            output.setOwnTag(this.ownTag.duplicate());
         output.state = this.state;
         return output;
     }

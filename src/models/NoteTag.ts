@@ -81,7 +81,10 @@ export default class NoteTag extends ModelWithState<NoteTag> {
     duplicate(): NoteTag {
         const output = new NoteTag();
         output.noteId = this.noteId;
-        output.tagId = this.tagId;
+        if (!!this.tag)
+            output.tag = this.tag;
+        else
+            output.tagId = this.tagId;
         return output;
     }
 

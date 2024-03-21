@@ -39,8 +39,8 @@ class MockClient implements NotuClient {
     getTags(): Promise<Array<Tag>> {
         this.log.push('getTags');
         return Promise.resolve([
-            newTag('Tag1', _spaceId, 123),
-            newTag('Tag2', _spaceId, _noteId)
+            newTag('Tag1', 123),
+            newTag('Tag2', _noteId)
         ]);
     }
 

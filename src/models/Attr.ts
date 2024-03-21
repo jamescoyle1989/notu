@@ -105,7 +105,11 @@ export default class Attr extends ModelWithState<Attr> {
         output.id = this.id;
         output.name = this.name;
         output.type = this.type;
-        output.space = this.space;
+        if (!!this.space)
+            output.space = this.space;
+        else
+            output.spaceId = this.spaceId;
+        output.state = this.state;
         return output;
     }
 

@@ -120,12 +120,16 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
     duplicate(): NoteAttr {
         const output = new NoteAttr();
         output.noteId = this.noteId;
-        output.note = this.note;
-        output.attrId = this.attrId;
-        output.attr = this.attr;
-        output.tagId = this.tagId;
-        output.tag = this.tag;
+        if (!!this.attr)
+            output.attr = this.attr;
+        else
+            output.attrId = this.attrId;
+        if (!!this.tag)
+            output.tag = this.tag;
+        else
+            output.tagId = this.tagId;
         output.value = this.value;
+        output.state = this.state;
         return output;
     }
 
