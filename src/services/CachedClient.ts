@@ -118,6 +118,11 @@ export class CachedClient implements NotuClient {
         }
         if (this._tags != null) {
             for (const note of results) {
+                {
+                    const tag = this._tags.get(note.id);
+                    if (!!tag)
+                        note.setOwnTag(tag);
+                }
                 for (const nt of note.tags) {
                     const tag = this._tags.get(nt.tagId);
                     if (!!tag)
@@ -162,10 +167,10 @@ export class CachedClient implements NotuClient {
 
     //Make sure this method has been called before any of the other methods in this section
 
-    async cacheAll(): Promise<void> {
+    async cacheAll(spaceId: number = 0): Promise<void> {
         await this.getSpaces();
         const tagsPromise = this.getTags();
-        const attrsPromise = this.getAttrs(0);
+        const attrsPromise = this.getAttrs(spaceId);
         await Promise.all([tagsPromise, attrsPromise]);
     }
 
