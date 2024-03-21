@@ -19,7 +19,7 @@ export function newAttr(name?: string, id: number = null): Attr {
 }
 
 export function newTag(name?: string, spaceId?: number, id: number = null): Tag {
-    const output = new Tag(name, spaceId);
+    const output = new Tag(name).in(spaceId);
     output.id = id;
     return output;
 }

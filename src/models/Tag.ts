@@ -18,17 +18,29 @@ export default class Tag extends ModelWithState<Tag> {
 
     private _spaceId: number = 0;
     get spaceId(): number { return this._spaceId; }
+    set spaceId(value: number) {
+        if (value !== this._spaceId) {
+            this._spaceId = value;
+            if (value !== this.space?.id ?? 0)
+                this._space = null;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
 
     private _space: Space = null;
     get space(): Space { return this._space; }
     set space(value: Space) {
-        if (value === null) {
-            this._space = null;
-            return;
-        }
-        if (value.id !== this.spaceId)
-            throw Error('Attempted to set space on Tag where spaceId doesnt match');
         this._space = value;
+        this.spaceId = value?.id ?? 0;
+    }
+
+    in(space: number | Space): Tag {
+        if (typeof(space) === 'number')
+            this.spaceId = space;
+        else
+            this.space = space;
+        return this;
     }
 
     
@@ -40,6 +52,12 @@ export default class Tag extends ModelWithState<Tag> {
             if (this.isClean)
                 this.dirty();
         }
+    }
+
+    getQualifiedName(contextSpaceId: number): string {
+        if (contextSpaceId == this.spaceId)
+            return this.name;
+        return `${this.space.name}.${this.name}`;
     }
 
 
@@ -54,15 +72,14 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    constructor(name: string = '', spaceId: number = 0) {
+    constructor(name: string = '') {
         super();
         this._name = name;
-        this._spaceId = spaceId;
     }
 
 
     duplicate(): Tag {
-        const output = new Tag(this.name, this.spaceId);
+        const output = new Tag(this.name);
         output.id = this.id;
         output.state = this.state;
         output.color = this.color;
@@ -109,8 +126,9 @@ export default class Tag extends ModelWithState<Tag> {
 
 
     static fromJSON(json: any) {
-        const output = new Tag(json.name, json.spaceId);
+        const output = new Tag(json.name);
         output.id = json.id;
+        output.spaceId = json.spaceId;
         output.color = json.color;
         output.state = json.state;
         return output;

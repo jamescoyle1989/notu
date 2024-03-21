@@ -28,15 +28,8 @@ test('Set id doesnt change tag state if value not different', () => {
 });
 
 
-test('Set space property throws error if id doesnt match spaceId', () => {
-    const tag = new Tag('Test', 1).clean();
-    const space = new Space('My Space').clean();
-    space.id = 2;
-    expect(() => tag.space = space).to.toThrowError();
-});
-
 test('Set space property updates space value if id matches', () => {
-    const tag = new Tag('Test', 1).clean();
+    const tag = new Tag('Test').clean();
     const space = new Space('My Space').clean();
     space.id = 1;
     tag.space = space;
@@ -44,7 +37,7 @@ test('Set space property updates space value if id matches', () => {
 });
 
 test('Set space property handles null value being passed in', () => {
-    const tag = new Tag('Test', 1).clean();
+    const tag = new Tag('Test').clean();
     tag.space = null;
     expect(tag.space).toBe(null);
 });
@@ -175,7 +168,7 @@ test('getColorInt returns null if color is null', () => {
 });
 
 test('fromJSON reconstructs Tag correctly', () => {
-    const tag = new Tag('Tag', 234)
+    const tag = new Tag('Tag')
         .dirty();
     tag.id = 123;
     tag.color = '#FFDDAA';

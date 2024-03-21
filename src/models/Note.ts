@@ -61,6 +61,7 @@ export default class Note extends ModelWithState<Note> {
                 this._space = null;
             if (this.isClean)
                 this.dirty();
+            this._setOwnTagSpace();
         }
     }
 
@@ -89,6 +90,7 @@ export default class Note extends ModelWithState<Note> {
                 this._ownTag = new Tag();
             this.ownTag.name = tag;
             this.ownTag.id = this.id;
+            this._setOwnTagSpace();
         }
         else {
             if (!!this.ownTag)
@@ -107,6 +109,15 @@ export default class Note extends ModelWithState<Note> {
             this._ownTag = null;
         else
             this.ownTag.delete();
+    }
+
+    private _setOwnTagSpace(): void {
+        if (!this.ownTag)
+            return;
+        if (!!this.space)
+            this.ownTag.space = this.space;
+        else
+            this.ownTag.spaceId = this.spaceId;
     }
 
 
@@ -220,6 +231,8 @@ export default class Note extends ModelWithState<Note> {
             output = 'Note spaceId must be greater than zero.';
         else if (!this.isNew && this.id <= 0)
             output = 'Note id must be greater than zero if in non-new state.';
+        else if (!!this.ownTag && this.ownTag.spaceId != this.spaceId)
+            output = 'Note cannot belong to a different space than its own tag';
 
         const survivingAttrs = this.attrs.filter(x => !x.isDeleted);
         for (let i = 0; i < survivingAttrs.length; i++) {

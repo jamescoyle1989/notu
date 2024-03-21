@@ -262,7 +262,7 @@ test('constructor allows setting note & tag 2', () => {
 test('fromJSON reconstructs NoteTag properly', () => {
     const note = new Note('Sample text');
     note.id = 123;
-    const tag = new Tag('Testag', 234).clean();
+    const tag = new Tag('Testag').in(234).clean();
     tag.id = 345;
     const nt = new NoteTag(note, tag).dirty();
 

@@ -237,6 +237,13 @@ test('validate fails if same attr has been added to tag twice', () => {
     expect(model.validate()).toBe(false);
 });
 
+test('validate fails if ownTag set to different space', () => {
+    const model = new Note('Hello').in(123);
+    model.setOwnTag('My Tag');
+    model.ownTag.in(234);
+    expect(model.validate()).toBe(false);
+});
+
 test('validate passes if same attr has been added on note and tag', () => {
     const model = new Note().in(1);
     const attr = newCleanAttr();
@@ -253,8 +260,7 @@ test('validate throws error if arg set to true', () => {
 });
 
 test('validate calls validate on ownTag', () => {
-    const note = new Note().setOwnTag('asdf');
-    note.spaceId = 123;
+    const note = new Note().in(123).setOwnTag('asdf');
     expect(note.validate()).toBe(true);
     note.ownTag.clean();
     expect(note.validate()).toBe(false);
@@ -464,7 +470,7 @@ test('in method allows chained space setting 2', () => {
 });
 
 test('stringifying shouldnt throw error', () => {
-    const tag = new Tag('test', 1).clean();
+    const tag = new Tag('test').in(1).clean();
     tag.id = 1;
     const note = new Note('Hello');
     note.addTag(tag);
@@ -478,7 +484,7 @@ test('fromJSON reconstructs note correctly', () => {
         .setOwnTag('Taggy')
         .dirty();
     note.id = 123;
-    const tag = new Tag('Testag', 234).clean();
+    const tag = new Tag('Testag').in(234).clean();
     tag.id = 345;
     note.addTag(tag);
     const attr = new Attr('Testat')
