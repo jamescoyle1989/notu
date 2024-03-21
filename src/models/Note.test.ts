@@ -14,7 +14,7 @@ function newCleanTag(): Tag {
 }
 
 function newCleanAttr(): Attr {
-    const attr = new Attr();
+    const attr = new Attr('Height');
     attr.id = 234;
     attr.clean();
     return attr;
@@ -220,6 +220,32 @@ test('validate fails if not new and id <= 0', () => {
     expect(model.validate()).toBe(false);
 });
 
+test('validate fails if same attr has been added to note twice', () => {
+    const model = new Note();
+    const attr = newCleanAttr();
+    model.addAttr(attr);
+    model.addAttr(attr);
+    expect(model.validate()).toBe(false);
+});
+
+test('validate fails if same attr has been added to tag twice', () => {
+    const model = new Note();
+    const attr = newCleanAttr();
+    const tag = newCleanTag();
+    model.addAttr(attr).onTag(tag);
+    model.addAttr(attr).onTag(tag);
+    expect(model.validate()).toBe(false);
+});
+
+test('validate passes if same attr has been added on note and tag', () => {
+    const model = new Note().in(1);
+    const attr = newCleanAttr();
+    const tag = newCleanTag();
+    model.addAttr(attr);
+    model.addAttr(attr).onTag(tag);
+    expect(model.validate()).toBe(true);
+});
+
 test('validate throws error if arg set to true', () => {
     const model = new Note();
     model.spaceId = 0;
@@ -340,28 +366,31 @@ test('addAttr adds new NoteAttr object', () => {
     expect(note.attrs[0].attr).toBe(attr);
 });
 
-test('addAttr returns existing NoteAttr object if trying to add duplicate attr', () => {
+test('addAttr creates new NoteAttr object even if trying to add duplicate attr', () => {
     const attr = newCleanAttr();
     const note = new Note();
     note.addAttr(attr);
 
     note.addAttr(attr);
 
-    expect(note.attrs.length).toBe(1);
+    expect(note.attrs.length).toBe(2);
     expect(note.attrs[0].note).toBe(note);
     expect(note.attrs[0].attr).toBe(attr);
+    expect(note.attrs[1].note).toBe(note);
+    expect(note.attrs[1].attr).toBe(attr);
 });
 
-test('addAttr undeletes existing NoteAttr if trying to add duplicate tag', () => {
+test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr', () => {
     const attr = newCleanAttr();
     const note = new Note();
-    const na = note.addAttr(attr);
-    na.delete();
+    const na1 = note.addAttr(attr);
+    na1.delete();
 
-    note.addAttr(attr);
+    const na2 = note.addAttr(attr);
 
-    expect(note.attrs.length).toBe(1);
-    expect(na.isDirty).toBe(true);
+    expect(note.attrs.length).toBe(2);
+    expect(na1.isDeleted).toBe(true);
+    expect(na2.isNew).toBe(true);
 });
 
 test('addAttr throws error if trying to add deleted attr', () => {
@@ -394,6 +423,19 @@ test('removeAttr marks existing attr on note as deleted', () => {
 
     expect(note.attrs.length).toBe(1);
     expect(note.attrs[0].isDeleted).toBe(true);
+});
+
+test('removeAttr can remove attr thats been added on tag', () => {
+    const attr = newCleanAttr();
+    const tag = newCleanTag();
+    const note = new Note();
+    const na1 = note.addAttr(attr);
+    note.addAttr(attr).onTag(tag);
+
+    note.removeAttr(attr, tag);
+
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0]).toBe(na1);
 });
 
 test('constructor accepts optional text value', () => {

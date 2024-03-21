@@ -154,21 +154,13 @@ export default class Note extends ModelWithState<Note> {
             throw Error('Cannot add an attribute marked as deleted to a note');
         if (attr.isNew)
             throw Error('Cannot add an attribute that hasn\'t yet been saved to a note');
-        let na = this.attrs.find(x => x.attrId == attr.id);
-        if (!!na) {
-            if (na.isDeleted)
-                na.dirty();
-            return na;
-        }
-        na = new NoteAttr();
-        na.note = this;
-        na.attr = attr;
+        const na = new NoteAttr(this, attr);
         this._attrs.push(na);
         return na;
     }
 
-    removeAttr(attr: Attr): Note {
-        const na = this.attrs.find(x => x.attrId == attr.id);
+    removeAttr(attr: Attr, tag: Tag = null): Note {
+        const na = this.attrs.find(x => x.attrId == attr.id && x.tagId == tag?.id);
         if (!na)
             return this;
 
@@ -228,6 +220,16 @@ export default class Note extends ModelWithState<Note> {
             output = 'Note spaceId must be greater than zero.';
         else if (!this.isNew && this.id <= 0)
             output = 'Note id must be greater than zero if in non-new state.';
+
+        const survivingAttrs = this.attrs.filter(x => !x.isDeleted);
+        for (let i = 0; i < survivingAttrs.length; i++) {
+            const na = survivingAttrs[i];
+            for (let j = i + 1; j < survivingAttrs.length; j++) {
+                const na2 = survivingAttrs[j];
+                if (na.attrId == na2.attrId && na.tagId == na2.tagId)
+                    output = `Attr '${na.attr.name}' is duplicated.`;
+            }
+        }
 
         if (throwError && output != null)
             throw Error(output);
