@@ -368,6 +368,20 @@ test('removeTag marks existing tag on note as deleted', () => {
     expect(note.tags[0].isDeleted).toBe(true);
 });
 
+test('removeTag removes any attributes that have been added on the tag', () => {
+    const tag = newCleanTag();
+    const attr = newCleanAttr();
+    const note = new Note();
+    note.addTag(tag);
+    const attrToStay = note.addAttr(attr);
+    const attrToGo = note.addAttr(attr).onTag(tag);
+
+    note.removeTag(tag);
+
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0]).toBe(attrToStay);
+});
+
 
 test('addAttr adds new NoteAttr object', () => {
     const attr = newCleanAttr();

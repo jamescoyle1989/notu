@@ -153,6 +153,8 @@ export default class Note extends ModelWithState<Note> {
             this._tags = this._tags.filter(x => x !== nt);
         else
             nt.delete();
+        for (const na of this.attrs.filter(x => !x.isDeleted && x.tagId == tag.id))
+            this.removeAttr(na.attr, na.tag);
         return this;
     }
 
