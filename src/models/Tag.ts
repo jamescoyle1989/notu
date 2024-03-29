@@ -72,6 +72,26 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
+    private _isPublic: boolean = true;
+    get isPublic(): boolean { return this._isPublic; }
+    set isPublic(value: boolean) {
+        if (value !== this._isPublic) {
+            this._isPublic = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+    asPublic(): Tag {
+        this.isPublic = true;
+        return this;
+    }
+    asPrivate(): Tag {
+        this.isPublic = false;
+        return this;
+    }
+
+
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -84,6 +104,7 @@ export default class Tag extends ModelWithState<Tag> {
         output.state = this.state;
         output.color = this.color;
         output.space = this.space;
+        output.isPublic = this.isPublic;
         return output;
     }
 
@@ -120,7 +141,8 @@ export default class Tag extends ModelWithState<Tag> {
             id: this.id,
             name: this.name,
             spaceId: this.spaceId,
-            color: this.color
+            color: this.color,
+            isPublic: this.isPublic
         };
     }
 
@@ -131,6 +153,7 @@ export default class Tag extends ModelWithState<Tag> {
         output.spaceId = json.spaceId;
         output.color = json.color;
         output.state = json.state;
+        output.isPublic = json.isPublic;
         return output;
     }
 }

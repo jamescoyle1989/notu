@@ -87,11 +87,12 @@ test('Set color doesnt change tag state if value not different', () => {
 
 
 test('can duplicate itself', () => {
-    const tag = new Tag('hello');
+    const tag = new Tag('hello').asPrivate();
     const copy = tag.duplicate();
     expect(copy.id).toBe(tag.id);
     expect(copy.name).toBe(tag.name);
     expect(copy.state).toBe(tag.state);
+    expect(copy.isPublic).toBe(tag.isPublic);
 });
 
 test('validate fails if not new and id <= 0', () => {
@@ -168,8 +169,8 @@ test('getColorInt returns null if color is null', () => {
 });
 
 test('fromJSON reconstructs Tag correctly', () => {
-    const tag = new Tag('Tag')
-        .dirty();
+    const tag = new Tag('Tag').asPrivate()
+        .dirty()
     tag.id = 123;
     tag.color = '#FFDDAA';
 
@@ -181,4 +182,5 @@ test('fromJSON reconstructs Tag correctly', () => {
     expect(tagCopy.name).toBe(tag.name);
     expect(tagCopy.spaceId).toBe(tag.spaceId);
     expect(tagCopy.color).toBe(tag.color);
+    expect(tagCopy.isPublic).toBe(tag.isPublic);
 });
