@@ -131,6 +131,8 @@ export default class Note extends ModelWithState<Note> {
             throw Error('Cannot add a tag that hasn\'t yet been saved to a note');
         if (tag.id == this.id)
             throw Error('Note cannot add its own tag as a linked tag');
+        if (!tag.isPublic && tag.spaceId != this.spaceId)
+            throw Error('Cannot add a private tag from another space');
         let nt = this.tags.find(x => x.tagId == tag.id);
         if (!!nt) {
             if (nt.isDeleted)

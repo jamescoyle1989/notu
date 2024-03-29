@@ -334,6 +334,13 @@ test('addTag throws error if trying to add deleted tag', () => {
     expect(() => note.addTag(tag)).toThrowError();
 });
 
+test('addTag throws error if trying to add private tag from different space', () => {
+    const tag = newCleanTag().in(newSpace('Space1', 1)).asPrivate().clean();
+    tag.id = 123;
+    const note = new Note().in(newSpace('Space2', 2));
+    expect(() => note.addTag(tag)).toThrowError();
+});
+
 test('addTag prevents note from adding its own tag', () => {
     const note = new Note();
     note.id = 123;
