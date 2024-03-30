@@ -67,8 +67,11 @@ export default class HttpClient {
             }
         );
         if (result.body != null) {
-            this._token = (await result.json()).token;
-            return { success: true, error: null, token: this._token };
+            const token = (await result.json()).token;
+            if (!!token) {
+                this._token = token;
+                return { success: true, error: null, token: this._token };
+            }
         }
         return { success: false, error: 'Invalid username & password.', token: null };
     }
