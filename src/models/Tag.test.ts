@@ -184,3 +184,20 @@ test('fromJSON reconstructs Tag correctly', () => {
     expect(tagCopy.color).toBe(tag.color);
     expect(tagCopy.isPublic).toBe(tag.isPublic);
 });
+
+test('fromJSON reconstructs private clean Tag correctly', () => {
+    const tag = new Tag('Tag').asPrivate();
+    tag.id = 123;
+    tag.color = '#123456';
+    tag.clean();
+
+    const tagCopy = Tag.fromJSON(JSON.parse(JSON.stringify(tag)));
+
+    expect(tagCopy).toBeInstanceOf(Tag);
+    expect(tagCopy.state).toBe(tag.state);
+    expect(tagCopy.id).toBe(tag.id);
+    expect(tagCopy.name).toBe(tag.name);
+    expect(tagCopy.spaceId).toBe(tag.spaceId);
+    expect(tagCopy.color).toBe(tag.color);
+    expect(tagCopy.isPublic).toBe(tag.isPublic);
+});

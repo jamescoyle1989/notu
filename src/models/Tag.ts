@@ -152,8 +152,8 @@ export default class Tag extends ModelWithState<Tag> {
         output.id = json.id;
         output.spaceId = json.spaceId;
         output.color = json.color;
-        output.state = json.state;
         output.isPublic = json.isPublic;
+        output.state = json.state;
         return output;
     }
 }
