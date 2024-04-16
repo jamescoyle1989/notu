@@ -540,11 +540,13 @@ test('fromJSON reconstructs note correctly', () => {
     expect(noteCopy.tags[0]).toBeInstanceOf(NoteTag);
     expect(noteCopy.tags[0].state).toBe(note.tags[0].state);
     expect(noteCopy.tags[0].tagId).toBe(note.tags[0].tagId);
+    expect(noteCopy.tags[0].note).toBe(noteCopy);
 
     expect(noteCopy.attrs.length).toBe(1);
     expect(noteCopy.attrs[0]).toBeInstanceOf(NoteAttr);
     expect(noteCopy.attrs[0].state).toBe(note.attrs[0].state);
     expect(noteCopy.attrs[0].attrId).toBe(note.attrs[0].attrId);
+    expect(noteCopy.attrs[0].note).toBe(noteCopy);
 });
 
 test('fromJSON reconstructs note correctly 2', () => {

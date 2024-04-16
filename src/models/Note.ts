@@ -234,10 +234,16 @@ export default class Note extends ModelWithState<Note> {
         output.spaceId = json.spaceId;
         if (!!json.ownTag)
             output.setOwnTag(Tag.fromJSON(json.ownTag));
-        if (!!json.tags)
+        if (!!json.tags) {
             output._tags = json.tags.map(x => NoteTag.fromJSON(x));
-        if (!!json.attrs)
+            for (const nt of output._tags)
+                nt.note = output;
+        }
+        if (!!json.attrs) {
             output._attrs = json.attrs.map(x => NoteAttr.fromJSON(x));
+            for (const na of output._attrs)
+                na.note = output;
+        }
         output.state = json.state;
         return output;
     }
