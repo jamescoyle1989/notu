@@ -111,8 +111,10 @@ export class CachedClient implements NotuClient {
             for (const note of results) {
                 for (const na of note.attrs) {
                     const attr = this._attrs.get(na.attrId);
-                    if (!!attr)
+                    if (!!attr) {
                         na.attr = attr;
+                        na.clean();
+                    }
                 }
             }
         }
@@ -120,18 +122,25 @@ export class CachedClient implements NotuClient {
             for (const note of results) {
                 {
                     const tag = this._tags.get(note.id);
-                    if (!!tag)
+                    if (!!tag) {
                         note.setOwnTag(tag);
+                        note.clean();
+                        note.ownTag.clean();
+                    }
                 }
                 for (const nt of note.tags) {
                     const tag = this._tags.get(nt.tagId);
-                    if (!!tag)
+                    if (!!tag) {
                         nt.tag = tag;
+                        nt.clean();
+                    }
                 }
                 for (const na of note.attrs.filter(x => x.tagId != null)) {
                     const tag = this._tags.get(na.tagId);
-                    if (!!tag)
+                    if (!!tag) {
                         na.tag = tag;
+                        na.clean();
+                    }
                 }
             }
         }

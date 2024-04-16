@@ -137,7 +137,20 @@ test('getNotes will populate related tags & attrs', async () => {
     expect(note.tags[0].tag.name).toBe('Tag1');
     expect(note.attrs[0].attr.name).toBe('Attr1');
     expect(note.ownTag.name).toBe('Tag2');
+});
+
+test('getNotes returns clean objects', async () => {
+    const client = new CachedClient(new MockClient());
+    await client.getSpaces();
+    await client.getTags();
+    await client.getAttrs(0);
+
+    const note = (await client.getNotes('some query', _spaceId))[0];
+
     expect(note.isClean).toBeTruthy();
+    expect(note.tags[0].isClean).toBeTruthy();
+    expect(note.attrs[0].isClean).toBeTruthy();
+    expect(note.ownTag.isClean).toBeTruthy();
 });
 
 test('cacheAll allows for specifying a spaceId to limit attrs that are retrieved', async () => {
