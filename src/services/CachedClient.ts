@@ -113,7 +113,7 @@ export class CachedClient implements NotuClient {
                     const attr = this._attrs.get(na.attrId);
                     if (!!attr) {
                         na.attr = attr;
-                        if (!(na.value instanceof Date))
+                        if (attr.isDate && !(na.value instanceof Date))
                             na.value = new Date(na.value);
                         na.clean();
                     }

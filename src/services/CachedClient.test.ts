@@ -7,6 +7,7 @@ import { newAttr, newSpace, newTag, newNote } from '../TestHelpers';
 const _spaceId = 100;
 const _attrId1 = 200;
 const _attrId2 = 201;
+const _attrId3 = 202;
 const _noteId = 300;
 
 class MockClient implements NotuClient {
@@ -31,7 +32,8 @@ class MockClient implements NotuClient {
         this.log.push(`getAttrs(${spaceId})`);
         return Promise.resolve([
             newAttr('Attr1', _attrId1).in(_spaceId).asText().clean(),
-            newAttr('Attr2', _attrId2).in(_spaceId).asDate().clean()
+            newAttr('Attr2', _attrId2).in(_spaceId).asDate().clean(),
+            newAttr('Attr3', _attrId3).in(_spaceId).asNumber().clean()
         ]);
     }
 
@@ -54,6 +56,7 @@ class MockClient implements NotuClient {
         note.tags.push(new NoteTag(note, 123));
         note.attrs.push(new NoteAttr(note, _attrId1, 'hello'));
         note.attrs.push(new NoteAttr(note, _attrId2, '2024-04-17'));
+        note.attrs.push(new NoteAttr(note, _attrId3, 123));
         note.clean();
         return Promise.resolve([note]);
     }
@@ -167,6 +170,7 @@ test('getNotes ensures NoteAttr values for date attrs are actually dates', async
     const note = (await client.getNotes('some query', _spaceId))[0];
 
     expect(note.attrs.find(x => x.attr.isDate).value.getTime()).toBe(new Date('2024-04-17').getTime());
+    expect(note.attrs.find(x => x.attr.isNumber).value).toBe(123);
 });
 
 test('cacheAll allows for specifying a spaceId to limit attrs that are retrieved', async () => {
