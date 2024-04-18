@@ -163,6 +163,16 @@ test('Setting attr updates the default value', () => {
     expect(na.value).toBe(0);
 });
 
+test('Setting attr leaves value unchanged if ID has not changed', () => {
+    const na = new NoteAttr(null, 1).withValue(123);
+    const attr1 = new Attr().asNumber();
+    attr1.id = 1;
+
+    na.attr = attr1;
+
+    expect(na.value).toBe(123);
+});
+
 test('Setting attr to null clears out value', () => {
     const na = new NoteAttr();
     const attr = new Attr().asNumber();

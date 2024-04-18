@@ -64,7 +64,7 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
         const oldAttr = this._attr;
         this._attr = newAttr;
         if (!!newAttr) {
-            if (!oldAttr || newAttr.type != oldAttr.type)
+            if ((newAttr.id != this.attrId) && (!oldAttr || newAttr.type != oldAttr.type))
                 this.value = newAttr.defaultValue;
         }
         else
