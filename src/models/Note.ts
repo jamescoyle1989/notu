@@ -160,6 +160,18 @@ export default class Note extends ModelWithState<Note> {
         return this;
     }
 
+    getTag(tag: string | Tag, space: number | Space = null): NoteTag {
+        if (tag instanceof Tag)
+            tag = tag.name;
+        if (!!space && (space instanceof Space))
+            space = space.id;
+
+        if (space != null)
+            return this.tags.find(x => x.tag.name == tag && x.tag.spaceId == space);
+
+        return this.tags.find(x => x.tag.name == tag && x.tag.spaceId == this.spaceId);
+    }
+
 
     private _attrs: Array<NoteAttr> = [];
     get attrs(): Array<NoteAttr> { return this._attrs; }
@@ -184,6 +196,20 @@ export default class Note extends ModelWithState<Note> {
         else
             na.delete();
         return this;
+    }
+
+    getValue(attr: string | Attr): any {
+        if (attr instanceof Attr)
+            attr = attr.name;
+
+        return this.attrs.find(x => !x.tag && x.attr.name == attr)?.value;
+    }
+
+    getAttr(attr: string | Attr): NoteAttr {
+        if (attr instanceof Attr)
+            attr = attr.name;
+
+        return this.attrs.find(x => !x.tag && x.attr.name == attr);
     }
 
 

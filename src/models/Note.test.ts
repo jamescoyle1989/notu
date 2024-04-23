@@ -389,6 +389,35 @@ test('removeTag removes any attributes that have been added on the tag', () => {
     expect(note.attrs[0]).toBe(attrToStay);
 });
 
+test('hasTag returns correct value for tags in same space as it', () => {
+    const tag = newCleanTag();
+    tag.name = 'Test';
+    const note = new Note();
+    note.addTag(tag);
+
+    expect(note.getTag('Test')).toBeTruthy();
+    expect(note.getTag(tag)).toBeTruthy();
+    expect(note.getTag('Willy')).toBeFalsy();
+});
+
+test('hasTag returns correct value for tags in different space as it', () => {
+    const space1 = new Space('Space 1').clean();
+    space1.id = 1;
+    const space2 = new Space('Space 2').clean();
+    space2.id = 2;
+    const tag = newCleanTag().in(space2).clean();
+    tag.name = 'Hello';
+    tag.id = 3;
+    const note = new Note().in(space1);
+    note.addTag(tag);
+
+    expect(note.getTag('Hello')).toBeFalsy();
+    expect(note.getTag('Hello', 2)).toBeTruthy();
+    expect(note.getTag('Hello', space2)).toBeTruthy();
+    expect(note.getTag('Hello', space1)).toBeFalsy();
+    expect(note.getTag('Goodbye', space2)).toBeFalsy();
+});
+
 
 test('addAttr adds new NoteAttr object', () => {
     const attr = newCleanAttr();
@@ -472,6 +501,30 @@ test('removeAttr can remove attr thats been added on tag', () => {
     expect(note.attrs.length).toBe(1);
     expect(note.attrs[0]).toBe(na1);
 });
+
+test('getValue returns correct value for attrs directly on note', () => {
+    const attr = newCleanAttr();
+    attr.name = 'Rumpy';
+    const note = new Note();
+    note.addAttr(attr).withValue('Pumpy');
+
+    expect(note.getValue('Rumpy')).toBe('Pumpy');
+    expect(note.getValue(attr)).toBe('Pumpy');
+
+    expect(note.getValue('Lumpy')).toBeUndefined();
+});
+
+test('hasValue returns correct value for attrs directly on note', () => {
+    const attr = newCleanAttr();
+    attr.name = 'Rumpy';
+    const note = new Note();
+    note.addAttr(attr).withValue('Pumpy');
+
+    expect(note.getAttr('Rumpy')).toBeTruthy();
+    expect(note.getAttr(attr)).toBeTruthy();
+    expect(note.getAttr('Lumpy')).toBeFalsy();
+});
+
 
 test('constructor accepts optional text value', () => {
     const note = new Note('Hello');
