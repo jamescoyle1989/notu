@@ -156,12 +156,13 @@ test('Setting spaceId to same as current space id preserves it', () => {
 test('Can duplicate itself', () => {
     const space = new Space('hello');
     space.id = 123;
-    const attr = new Attr().in(space);
+    const attr = new Attr('Howdy', 'I say nice things').in(space);
 
     const copy = attr.duplicate();
 
     expect(copy.id).toBe(attr.id);
     expect(copy.name).toBe(attr.name);
+    expect(copy.description).toBe(attr.description);
     expect(copy.type).toBe(attr.type);
     expect(copy.space).toBe(attr.space);
     expect(copy.spaceId).toBe(attr.spaceId);
@@ -229,15 +230,16 @@ test('in method allows chained space setting 2', () => {
 });
 
 test('fromJSON reconstructs Attr correctly', () => {
-    const attr = new Attr('Test').asDate().in(234).clean();
+    const attr = new Attr('Test', 'I test things').asDate().in(234).clean();
     attr.id = 123;
 
     const attrCopy = Attr.fromJSON(JSON.parse(JSON.stringify(attr)));
 
     expect(attrCopy).toBeInstanceOf(Attr);
-    expect(attrCopy.state).toBe(attrCopy.state);
-    expect(attrCopy.id).toBe(attrCopy.id);
-    expect(attrCopy.name).toBe(attrCopy.name);
-    expect(attrCopy.type).toBe(attrCopy.type);
-    expect(attrCopy.spaceId).toBe(attrCopy.spaceId);
+    expect(attrCopy.state).toBe(attr.state);
+    expect(attrCopy.id).toBe(attr.id);
+    expect(attrCopy.name).toBe(attr.name);
+    expect(attrCopy.description).toBe(attr.description);
+    expect(attrCopy.type).toBe(attr.type);
+    expect(attrCopy.spaceId).toBe(attr.spaceId);
 });

@@ -15,10 +15,12 @@ export type AttrType = keyof typeof ATTR_TYPE;
 
 
 export default class Attr extends ModelWithState<Attr> {
-    constructor(name?: string) {
+    constructor(name?: string, description?: string) {
         super();
         if (!!name)
             this.name = name;
+        if (!!description)
+            this.description = description;
     }
     
     
@@ -30,6 +32,16 @@ export default class Attr extends ModelWithState<Attr> {
     set name(value: string) {
         if (value !== this._name) {
             this._name = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+    private _description: string = '';
+    get description(): string { return this._description; }
+    set description(value: string) {
+        if (value !== this._description) {
+            this._description = value;
             if (this.isClean)
                 this.dirty();
         }
@@ -104,6 +116,7 @@ export default class Attr extends ModelWithState<Attr> {
         const output = new Attr();
         output.id = this.id;
         output.name = this.name;
+        output.description = this.description;
         output.type = this.type;
         if (!!this.space)
             output.space = this.space;
@@ -148,6 +161,7 @@ export default class Attr extends ModelWithState<Attr> {
             state: this.state,
             id: this.id,
             name: this.name,
+            description: this.description,
             type: this.type,
             spaceId: this.spaceId
         };
@@ -155,7 +169,7 @@ export default class Attr extends ModelWithState<Attr> {
 
 
     static fromJSON(json: any): Attr {
-        const output = new Attr(json.name);
+        const output = new Attr(json.name, json.description);
         output.type = json.type;
         output.spaceId = json.spaceId;
         output.id = json.id;
