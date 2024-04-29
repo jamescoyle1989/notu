@@ -371,8 +371,9 @@ test('removeTag marks existing tag on note as deleted', () => {
 
     note.removeTag(tag);
 
-    expect(note.tags.length).toBe(1);
-    expect(note.tags[0].isDeleted).toBe(true);
+    expect(note.tags.length).toBe(0);
+    expect(note['_tags'].length).toBe(1);
+    expect(note['_tags'][0].isDeleted).toBe(true);
 });
 
 test('removeTag removes any attributes that have been added on the tag', () => {
@@ -452,7 +453,8 @@ test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr'
 
     const na2 = note.addAttr(attr);
 
-    expect(note.attrs.length).toBe(2);
+    expect(note.attrs.length).toBe(1);
+    expect(note['_attrs'].length).toBe(2);
     expect(na1.isDeleted).toBe(true);
     expect(na2.isNew).toBe(true);
 });
@@ -485,8 +487,9 @@ test('removeAttr marks existing attr on note as deleted', () => {
 
     note.removeAttr(attr);
 
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0].isDeleted).toBe(true);
+    expect(note.attrs.length).toBe(0);
+    expect(note['_attrs'].length).toBe(1)
+    expect(note['_attrs'][0].isDeleted).toBe(true);
 });
 
 test('removeAttr can remove attr thats been added on tag', () => {

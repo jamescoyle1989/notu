@@ -53,10 +53,10 @@ class MockClient implements NotuClient {
     getNotes(query: string, spaceId: number): Promise<Array<Note>> {
         this.log.push(`getNotes('${query}', ${spaceId})`);
         const note = newNote('ghi', _noteId).in(_spaceId);
-        note.tags.push(new NoteTag(note, 123));
-        note.attrs.push(new NoteAttr(note, _attrId1, 'hello'));
-        note.attrs.push(new NoteAttr(note, _attrId2, '2024-04-17'));
-        note.attrs.push(new NoteAttr(note, _attrId3, 123));
+        note['_tags'].push(new NoteTag(note, 123));
+        note['_attrs'].push(new NoteAttr(note, _attrId1, 'hello'));
+        note['_attrs'].push(new NoteAttr(note, _attrId2, '2024-04-17'));
+        note['_attrs'].push(new NoteAttr(note, _attrId3, 123));
         note.clean();
         return Promise.resolve([note]);
     }

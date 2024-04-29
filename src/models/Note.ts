@@ -122,7 +122,7 @@ export default class Note extends ModelWithState<Note> {
 
 
     private _tags: Array<NoteTag> = [];
-    get tags(): Array<NoteTag> { return this._tags; }
+    get tags(): Array<NoteTag> { return this._tags.filter(x => !x.isDeleted); }
 
     addTag(tag: Tag): NoteTag {
         if (tag.isDeleted)
@@ -133,7 +133,7 @@ export default class Note extends ModelWithState<Note> {
             throw Error('Note cannot add its own tag as a linked tag');
         if (!tag.isPublic && tag.spaceId != this.spaceId)
             throw Error('Cannot add a private tag from another space');
-        let nt = this.tags.find(x => x.tagId == tag.id);
+        let nt = this._tags.find(x => x.tagId == tag.id);
         if (!!nt) {
             if (nt.isDeleted)
                 nt.dirty();
@@ -147,7 +147,7 @@ export default class Note extends ModelWithState<Note> {
     }
 
     removeTag(tag: Tag): Note {
-        const nt = this.tags.find(x => x.tagId == tag.id);
+        const nt = this._tags.find(x => x.tagId == tag.id);
         if (!nt)
             return this;
 
@@ -155,7 +155,7 @@ export default class Note extends ModelWithState<Note> {
             this._tags = this._tags.filter(x => x !== nt);
         else
             nt.delete();
-        for (const na of this.attrs.filter(x => !x.isDeleted && x.tagId == tag.id))
+        for (const na of this._attrs.filter(x => !x.isDeleted && x.tagId == tag.id))
             this.removeAttr(na.attr, na.tag);
         return this;
     }
@@ -174,7 +174,7 @@ export default class Note extends ModelWithState<Note> {
 
 
     private _attrs: Array<NoteAttr> = [];
-    get attrs(): Array<NoteAttr> { return this._attrs; }
+    get attrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
 
     addAttr(attr: Attr): NoteAttr {
         if (attr.isDeleted)
@@ -187,7 +187,7 @@ export default class Note extends ModelWithState<Note> {
     }
 
     removeAttr(attr: Attr, tag: Tag = null): Note {
-        const na = this.attrs.find(x => x.attrId == attr.id && x.tagId == tag?.id);
+        const na = this._attrs.find(x => x.attrId == attr.id && x.tagId == tag?.id);
         if (!na)
             return this;
 
@@ -285,7 +285,7 @@ export default class Note extends ModelWithState<Note> {
         else if (!!this.ownTag && this.ownTag.spaceId != this.spaceId)
             output = 'Note cannot belong to a different space than its own tag';
 
-        const survivingAttrs = this.attrs.filter(x => !x.isDeleted);
+        const survivingAttrs = this._attrs.filter(x => !x.isDeleted);
         for (let i = 0; i < survivingAttrs.length; i++) {
             const na = survivingAttrs[i];
             for (let j = i + 1; j < survivingAttrs.length; j++) {
@@ -300,11 +300,11 @@ export default class Note extends ModelWithState<Note> {
 
         if (!!this.ownTag && !this.ownTag.validate(throwError))
             return false;
-        for (const nt of this.tags) {
+        for (const nt of this._tags) {
             if (!nt.validate(throwError))
                 return false;
         }
-        for (const na of this.attrs) {
+        for (const na of this._attrs) {
             if (!na.validate(throwError))
                 return false;
         }
