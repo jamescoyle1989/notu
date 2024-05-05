@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import Attr from './Attr';
 import Space from './Space';
+import { newSpace } from '../TestHelpers';
 
 
 test('Gets initiated as new', () => {
@@ -92,64 +93,40 @@ test('asDate sets type', () => {
 });
 
 
-test('Set spaceId marks attr as dirty if currently clean', () => {
+test('Set space marks attr as dirty if currently clean', () => {
     const attr = new Attr().clean();
-    attr.spaceId = 123;
+    attr.space = newSpace('Space', 123);
     expect(attr.isDirty).toBe(true);
 });
 
 test('Set spaceId doesnt change attr state if new', () => {
     const attr = new Attr().new();
-    attr.spaceId = 123;
+    attr.space = newSpace('Space', 123);
     expect(attr.isNew).toBe(true);
 });
 
 test('Set spaceId doesnt change attr state if value not different', () => {
     const attr = new Attr().clean();
-    attr.spaceId = attr.spaceId;
+    attr.space = attr.space;
     expect(attr.isClean).toBe(true);
 });
 
 test('Setting space with id different than current spaceId updates state', () => {
-    const attr = new Attr().in(57).clean();
-    const space = new Space('hello');
-    space.id = 60;
+    const attr = new Attr().in(newSpace('Space', 123)).clean();
+    const space = newSpace('Space2', 124);
 
     attr.space = space;
 
-    expect(attr.spaceId).toBe(60);
     expect(attr.isDirty).toBe(true);
 });
 
 test('Setting space with id same as current spaceId preserves state', () => {
-    const attr = new Attr().in(80).clean();
-    const space = new Space('hello');
-    space.id = 80;
+    const attr = new Attr().in(newSpace('Space', 123)).clean();
+    const space = newSpace('Space', 123);
 
     attr.space = space;
 
-    expect(attr.spaceId).toBe(80);
     expect(attr.isClean).toBe(true);
-});
-
-test('Setting spaceId to new value removes space object', () => {
-    const space = new Space('hello');
-    space.id = 80;
-    const attr = new Attr().in(space);
-
-    attr.spaceId = 81;
-
-    expect(attr.space).toBeNull();
-});
-
-test('Setting spaceId to same as current space id preserves it', () => {
-    const space = new Space('hello');
-    space.id = 80;
-    const attr = new Attr().in(space);
-    
-    attr.spaceId = 80;
-
-    expect(attr.space.name).toBe('hello');
 });
 
 
@@ -165,25 +142,24 @@ test('Can duplicate itself', () => {
     expect(copy.description).toBe(attr.description);
     expect(copy.type).toBe(attr.type);
     expect(copy.space).toBe(attr.space);
-    expect(copy.spaceId).toBe(attr.spaceId);
 });
 
 
-test('validate fails if spaceId is 0', () => {
-    const model = new Attr().in(0);
+test('validate fails if space is not set', () => {
+    const model = new Attr();
     
     expect(model.validate()).toBe(false);
 });
 
 test('validate fails if not new and id <= 0', () => {
-    const model = new Attr().in(123).clean();
+    const model = new Attr().in(newSpace('Space', 123)).clean();
     model.id = 0;
     
     expect(model.validate()).toBe(false);
 });
 
 test('validate throws error if arg set to true', () => {
-    const model = new Attr().in(0);
+    const model = new Attr();
     
     expect(() => model.validate(true)).toThrowError();
 });
@@ -217,9 +193,9 @@ test('constructor accepts optional name value', () => {
 });
 
 test('in method allows chained space setting', () => {
-    const model = new Attr('Hello').in(3);
+    const model = new Attr('Hello').in(newSpace('Space', 123));
 
-    expect(model.spaceId).toBe(3);
+    expect(model.space.id).toBe(123);
 });
 
 test('in method allows chained space setting 2', () => {
@@ -227,19 +203,4 @@ test('in method allows chained space setting 2', () => {
     const model = new Attr('Hello').in(space);
 
     expect(model.space).toBe(space);
-});
-
-test('fromJSON reconstructs Attr correctly', () => {
-    const attr = new Attr('Test', 'I test things').asDate().in(234).clean();
-    attr.id = 123;
-
-    const attrCopy = Attr.fromJSON(JSON.parse(JSON.stringify(attr)));
-
-    expect(attrCopy).toBeInstanceOf(Attr);
-    expect(attrCopy.state).toBe(attr.state);
-    expect(attrCopy.id).toBe(attr.id);
-    expect(attrCopy.name).toBe(attr.name);
-    expect(attrCopy.description).toBe(attr.description);
-    expect(attrCopy.type).toBe(attr.type);
-    expect(attrCopy.spaceId).toBe(attr.spaceId);
 });

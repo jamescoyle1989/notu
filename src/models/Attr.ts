@@ -84,30 +84,19 @@ export default class Attr extends ModelWithState<Attr> {
     }
 
 
-    private _spaceId: number = 0;
-    get spaceId(): number { return this._spaceId; }
-    set spaceId(value: number) {
-        if (value !== this._spaceId) {
-            this._spaceId = value;
-            if (value !== this.space?.id ?? 0)
-                this._space = null;
-            if (this.isClean)
+    private _space: Space = null;
+    get space(): Space { return this._space; }
+    set space(value: Space) {
+        if (value !== this._space) {
+            const idChanged = value?.id != this._space?.id;
+            this._space = value;
+            if (this.isClean && idChanged)
                 this.dirty();
         }
     }
 
-    private _space: Space = null;
-    get space(): Space { return this._space; }
-    set space(value: Space) {
-        this._space = value;
-        this.spaceId = value?.id ?? 0;
-    }
-
-    in(space: number | Space): Attr {
-        if (typeof(space) === 'number')
-            this.spaceId = space;
-        else
-            this.space = space;
+    in(space: Space): Attr {
+        this.space = space;
         return this;
     }
 
@@ -118,10 +107,7 @@ export default class Attr extends ModelWithState<Attr> {
         output.name = this.name;
         output.description = this.description;
         output.type = this.type;
-        if (!!this.space)
-            output.space = this.space;
-        else
-            output.spaceId = this.spaceId;
+        output.space = this.space;
         output.state = this.state;
         return output;
     }
@@ -130,8 +116,8 @@ export default class Attr extends ModelWithState<Attr> {
     validate(throwError: boolean = false): boolean {
         let output = null;
 
-        if (this.spaceId <= 0)
-            output = 'Note spaceId must be greater than zero.';
+        if (!this.space)
+            output = 'Note must belong to a space.';
         else if (!this.isNew && this.id <= 0)
             output = 'Attr id must be greater than zero if in non-new state.';
 
@@ -163,17 +149,7 @@ export default class Attr extends ModelWithState<Attr> {
             name: this.name,
             description: this.description,
             type: this.type,
-            spaceId: this.spaceId
+            spaceId: this.space?.id
         };
-    }
-
-
-    static fromJSON(json: any): Attr {
-        const output = new Attr(json.name, json.description);
-        output.type = json.type;
-        output.spaceId = json.spaceId;
-        output.id = json.id;
-        output.state = json.state;
-        return output;
     }
 }
