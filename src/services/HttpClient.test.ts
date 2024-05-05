@@ -34,6 +34,9 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
             ]), {status: 200});
         }
     }
+    if (input.toString().includes('customjob')) {
+        return new Response(JSON.stringify({}), {status: 200});
+    }
     return new Response(null, {status: 404});
 }
 
@@ -168,4 +171,25 @@ test('getNoteCount passes spaceId and query in URL', async () => {
     expect(init.body).toBeFalsy();
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
     expect(result).toBe(2);
+});
+
+
+test('customJob makes async call to correct URL endpoint', async () => {
+    let input: string;
+    let init: RequestInit;
+    const client = new HttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockFetch(inp, ini);
+    });
+    client.token = 'qwer.asdf.zxcv';
+
+    const result = await client.customJob('DoSomething', 'xyz');
+
+    expect(init.method).toBe('POST');
+    expect(input).toBe('abcd/customjob');
+    const body = JSON.parse(init.body.toString());
+    expect(body.name).toBe('DoSomething');
+    expect(body.data).toBe('xyz');
+    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
 });

@@ -165,7 +165,7 @@ export default class HttpClient {
 
 
     async customJob(name: string, data: any): Promise<any> {
-        const result = await this._fetch(this.url + 'customjob',
+        const result = await this._fetch(this.url + '/customjob',
             {
                 method: 'POST',
                 body: JSON.stringify({ name, data }),
