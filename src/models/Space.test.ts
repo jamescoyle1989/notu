@@ -33,11 +33,12 @@ test('Space can be initiated with name in constructor', () => {
 });
 
 test('can duplicate itself', () => {
-    const space = new Space('hello').clean();
+    const space = new Space('hello').v('1.2.3').clean();
     const copy = space.duplicate();
     expect(copy.id).toBe(space.id);
     expect(copy.name).toBe(space.name);
     expect(copy.state).toBe(space.state);
+    expect(copy.version).toBe(space.version);
 });
 
 test('validate fails if not new and id <= 0', () => {
@@ -53,7 +54,7 @@ test('validate throws error if arg set to true', () => {
 });
 
 test('fromJSON reconstructs Space correctly', () => {
-    const space = new Space('Test').clean();
+    const space = new Space('Test').v('1.2.3').clean();
     space.id = 123;
 
     const spaceCopy = Space.fromJSON(JSON.parse(JSON.stringify(space)));
@@ -62,4 +63,5 @@ test('fromJSON reconstructs Space correctly', () => {
     expect(spaceCopy.state).toBe(space.state);
     expect(spaceCopy.id).toBe(space.id);
     expect(spaceCopy.name).toBe(space.name);
+    expect(spaceCopy.version).toBe(space.version);
 });
