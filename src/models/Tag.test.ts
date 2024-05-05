@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import Tag from './Tag';
 import { Space } from '..';
+import { newTag } from '../TestHelpers';
 
 
 test('Gets initiated as new', () => {
@@ -9,22 +10,15 @@ test('Gets initiated as new', () => {
 });
 
 
-test('Set id marks tag as dirty if currently clean', () => {
-    const tag = new Tag().clean();
-    tag.id = 123;
-    expect(tag.isDirty).toBe(true);
-});
-
 test('Set id doesnt change tag state if new', () => {
     const tag = new Tag().new();
     tag.id = 123;
     expect(tag.isNew).toBe(true);
 });
 
-test('Set id doesnt change tag state if value not different', () => {
-    const tag = new Tag().clean();
-    tag.id = 0;
-    expect(tag.isClean).toBe(true);
+test('Set id throws error if tag not new', () => {
+    const tag = newTag('Test', 1).clean();
+    expect(() => tag.id = 2).toThrow();
 });
 
 
@@ -96,14 +90,12 @@ test('can duplicate itself', () => {
 });
 
 test('validate fails if not new and id <= 0', () => {
-    const model = new Tag().clean();
-    model.id = 0;
+    const model = newTag('Test', 0).clean();
     expect(model.validate()).toBe(false);
 });
 
 test('validate throws error if arg set to true', () => {
-    const model = new Tag().clean();
-    model.id = 0;
+    const model = newTag('Test', 0).clean();
     expect(() => model.validate(true)).toThrowError();
 });
 
@@ -166,38 +158,4 @@ test('getColorInt returns null if color is null', () => {
     const model = new Tag('hello');
     model.color = null;
     expect(model.getColorInt()).toBe(null);
-});
-
-test('fromJSON reconstructs Tag correctly', () => {
-    const tag = new Tag('Tag').asPrivate()
-        .dirty()
-    tag.id = 123;
-    tag.color = '#FFDDAA';
-
-    const tagCopy = Tag.fromJSON(JSON.parse(JSON.stringify(tag)));
-
-    expect(tagCopy).toBeInstanceOf(Tag);
-    expect(tagCopy.state).toBe(tag.state);
-    expect(tagCopy.id).toBe(tag.id);
-    expect(tagCopy.name).toBe(tag.name);
-    expect(tagCopy.spaceId).toBe(tag.spaceId);
-    expect(tagCopy.color).toBe(tag.color);
-    expect(tagCopy.isPublic).toBe(tag.isPublic);
-});
-
-test('fromJSON reconstructs private clean Tag correctly', () => {
-    const tag = new Tag('Tag').asPrivate();
-    tag.id = 123;
-    tag.color = '#123456';
-    tag.clean();
-
-    const tagCopy = Tag.fromJSON(JSON.parse(JSON.stringify(tag)));
-
-    expect(tagCopy).toBeInstanceOf(Tag);
-    expect(tagCopy.state).toBe(tag.state);
-    expect(tagCopy.id).toBe(tag.id);
-    expect(tagCopy.name).toBe(tag.name);
-    expect(tagCopy.spaceId).toBe(tag.spaceId);
-    expect(tagCopy.color).toBe(tag.color);
-    expect(tagCopy.isPublic).toBe(tag.isPublic);
 });
