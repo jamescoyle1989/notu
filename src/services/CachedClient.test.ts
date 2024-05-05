@@ -143,7 +143,7 @@ test('getNotes will populate related tags & attrs', async () => {
 
     expect(note.space.name).toBe('Space1');
     expect(note.tags[0].tag.name).toBe('Tag1');
-    expect(note.attrs[0].attr.name).toBe('Attr1');
+    expect(note.allAttrs[0].attr.name).toBe('Attr1');
     expect(note.ownTag.name).toBe('Tag2');
 });
 
@@ -157,7 +157,7 @@ test('getNotes returns clean objects', async () => {
 
     expect(note.isClean).toBeTruthy();
     expect(note.tags[0].isClean).toBeTruthy();
-    expect(note.attrs[0].isClean).toBeTruthy();
+    expect(note.allAttrs[0].isClean).toBeTruthy();
     expect(note.ownTag.isClean).toBeTruthy();
 });
 
@@ -169,8 +169,8 @@ test('getNotes ensures NoteAttr values for date attrs are actually dates', async
 
     const note = (await client.getNotes('some query', _spaceId))[0];
 
-    expect(note.attrs.find(x => x.attr.isDate).value.getTime()).toBe(new Date('2024-04-17').getTime());
-    expect(note.attrs.find(x => x.attr.isNumber).value).toBe(123);
+    expect(note.allAttrs.find(x => x.attr.isDate).value.getTime()).toBe(new Date('2024-04-17').getTime());
+    expect(note.allAttrs.find(x => x.attr.isNumber).value).toBe(123);
 });
 
 test('cacheAll allows for specifying a spaceId to limit attrs that are retrieved', async () => {

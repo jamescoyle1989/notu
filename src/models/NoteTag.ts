@@ -68,7 +68,7 @@ export default class NoteTag extends ModelWithState<NoteTag> {
     get attrs(): Array<NoteAttr> {
         if (!this.note)
             return [];
-        return this.note.attrs.filter(x => x.tagId == this.tagId);
+        return this.note.allAttrs.filter(x => x.tagId == this.tagId);
     }
 
     addAttr(attr: Attr): NoteAttr {

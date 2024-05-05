@@ -104,11 +104,12 @@ export default class Note extends ModelWithState<Note> {
 
     removeOwnTag(): Note {
         if (!this.ownTag)
-            return;
+            return this;
         if (this.ownTag.isNew)
             this._ownTag = null;
         else
             this.ownTag.delete();
+        return this;
     }
 
     private _setOwnTagSpace(): void {
@@ -174,7 +175,9 @@ export default class Note extends ModelWithState<Note> {
 
 
     private _attrs: Array<NoteAttr> = [];
-    get attrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
+    get allAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
+    get noteAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted && !x.tag); }
+    get allAttrsPendingDeletion(): Array<NoteAttr> { return this._attrs.filter(x => x.isDeleted); }
 
     addAttr(attr: Attr): NoteAttr {
         if (attr.isDeleted)
@@ -202,14 +205,14 @@ export default class Note extends ModelWithState<Note> {
         if (attr instanceof Attr)
             attr = attr.name;
 
-        return this.attrs.find(x => !x.tag && x.attr.name == attr)?.value;
+        return this.noteAttrs.find(x => x.attr.name == attr)?.value;
     }
 
     getAttr(attr: string | Attr): NoteAttr {
         if (attr instanceof Attr)
             attr = attr.name;
 
-        return this.attrs.find(x => !x.tag && x.attr.name == attr);
+        return this.noteAttrs.find(x => x.attr.name == attr);
     }
 
 
@@ -227,12 +230,12 @@ export default class Note extends ModelWithState<Note> {
             ntCopy.note = output;
             return ntCopy;
         });
-        output._attrs = this.attrs.map(x => {
+        output._attrs = this.allAttrs.map(x => {
             const naCopy = x.duplicate();
             naCopy.note = output;
             return naCopy;
         });
-        if (!!this.ownTag)
+        if (!!this.ownTag && !this.ownTag.isDeleted)
             output.setOwnTag(this.ownTag.duplicate());
         output.state = this.state;
         return output;
@@ -248,7 +251,7 @@ export default class Note extends ModelWithState<Note> {
             spaceId: this.spaceId,
             ownTag: this.ownTag,
             tags: this.tags,
-            attrs: this.attrs
+            attrs: this._attrs
         }
     }
 

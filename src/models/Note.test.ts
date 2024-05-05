@@ -47,7 +47,7 @@ test('can duplicate itself', () => {
     expect(copy.spaceId).toBe(note.spaceId);
     expect(copy.state).toBe(note.state);
     expect(copy.tags.length).toBe(note.tags.length);
-    expect(copy.attrs.length).toBe(note.attrs.length);
+    expect(copy.allAttrs.length).toBe(note.allAttrs.length);
     expect(copy.ownTag.name).toBe(note.ownTag.name);
 });
 
@@ -386,8 +386,8 @@ test('removeTag removes any attributes that have been added on the tag', () => {
 
     note.removeTag(tag);
 
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0]).toBe(attrToStay);
+    expect(note.allAttrs.length).toBe(1);
+    expect(note.allAttrs[0]).toBe(attrToStay);
 });
 
 test('hasTag returns correct value for tags in same space as it', () => {
@@ -426,9 +426,9 @@ test('addAttr adds new NoteAttr object', () => {
 
     note.addAttr(attr);
     
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0].note).toBe(note);
-    expect(note.attrs[0].attr).toBe(attr);
+    expect(note.allAttrs.length).toBe(1);
+    expect(note.allAttrs[0].note).toBe(note);
+    expect(note.allAttrs[0].attr).toBe(attr);
 });
 
 test('addAttr creates new NoteAttr object even if trying to add duplicate attr', () => {
@@ -438,11 +438,11 @@ test('addAttr creates new NoteAttr object even if trying to add duplicate attr',
 
     note.addAttr(attr);
 
-    expect(note.attrs.length).toBe(2);
-    expect(note.attrs[0].note).toBe(note);
-    expect(note.attrs[0].attr).toBe(attr);
-    expect(note.attrs[1].note).toBe(note);
-    expect(note.attrs[1].attr).toBe(attr);
+    expect(note.allAttrs.length).toBe(2);
+    expect(note.allAttrs[0].note).toBe(note);
+    expect(note.allAttrs[0].attr).toBe(attr);
+    expect(note.allAttrs[1].note).toBe(note);
+    expect(note.allAttrs[1].attr).toBe(attr);
 });
 
 test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr', () => {
@@ -453,7 +453,7 @@ test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr'
 
     const na2 = note.addAttr(attr);
 
-    expect(note.attrs.length).toBe(1);
+    expect(note.allAttrs.length).toBe(1);
     expect(note['_attrs'].length).toBe(2);
     expect(na1.isDeleted).toBe(true);
     expect(na2.isNew).toBe(true);
@@ -477,7 +477,7 @@ test('removeAttr removes newly added attr from note', () => {
 
     note.removeAttr(attr);
 
-    expect(note.attrs.length).toBe(0);
+    expect(note.allAttrs.length).toBe(0);
 });
 
 test('removeAttr marks existing attr on note as deleted', () => {
@@ -487,7 +487,7 @@ test('removeAttr marks existing attr on note as deleted', () => {
 
     note.removeAttr(attr);
 
-    expect(note.attrs.length).toBe(0);
+    expect(note.allAttrs.length).toBe(0);
     expect(note['_attrs'].length).toBe(1)
     expect(note['_attrs'][0].isDeleted).toBe(true);
 });
@@ -501,8 +501,8 @@ test('removeAttr can remove attr thats been added on tag', () => {
 
     note.removeAttr(attr, tag);
 
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0]).toBe(na1);
+    expect(note.allAttrs.length).toBe(1);
+    expect(note.allAttrs[0]).toBe(na1);
 });
 
 test('getValue returns correct value for attrs directly on note', () => {
@@ -598,11 +598,11 @@ test('fromJSON reconstructs note correctly', () => {
     expect(noteCopy.tags[0].tagId).toBe(note.tags[0].tagId);
     expect(noteCopy.tags[0].note).toBe(noteCopy);
 
-    expect(noteCopy.attrs.length).toBe(1);
-    expect(noteCopy.attrs[0]).toBeInstanceOf(NoteAttr);
-    expect(noteCopy.attrs[0].state).toBe(note.attrs[0].state);
-    expect(noteCopy.attrs[0].attrId).toBe(note.attrs[0].attrId);
-    expect(noteCopy.attrs[0].note).toBe(noteCopy);
+    expect(noteCopy.allAttrs.length).toBe(1);
+    expect(noteCopy.allAttrs[0]).toBeInstanceOf(NoteAttr);
+    expect(noteCopy.allAttrs[0].state).toBe(note.allAttrs[0].state);
+    expect(noteCopy.allAttrs[0].attrId).toBe(note.allAttrs[0].attrId);
+    expect(noteCopy.allAttrs[0].note).toBe(noteCopy);
 });
 
 test('fromJSON reconstructs note correctly 2', () => {
@@ -626,5 +626,5 @@ test('fromJSON reconstructs note correctly 2', () => {
     expect(note.spaceId).toBe(2);
     expect(note.ownTag).toBe(null);
     expect(note.tags.length).toBe(0);
-    expect(note.attrs.length).toBe(0);
+    expect(note.allAttrs.length).toBe(0);
 });

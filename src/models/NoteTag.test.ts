@@ -211,10 +211,10 @@ test('addAttr adds NoteAttr object to parent note', () => {
 
     nt.addAttr(attr);
 
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0].note).toBe(note);
-    expect(note.attrs[0].attr).toBe(attr);
-    expect(note.attrs[0].tag).toBe(tag);
+    expect(note.allAttrs.length).toBe(1);
+    expect(note.allAttrs[0].note).toBe(note);
+    expect(note.allAttrs[0].attr).toBe(attr);
+    expect(note.allAttrs[0].tag).toBe(tag);
 });
 
 test('addAttr throws error if note property not set', () => {
