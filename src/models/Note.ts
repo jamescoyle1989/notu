@@ -124,6 +124,7 @@ export default class Note extends ModelWithState<Note> {
 
     private _tags: Array<NoteTag> = [];
     get tags(): Array<NoteTag> { return this._tags.filter(x => !x.isDeleted); }
+    get tagsPendingDeletion(): Array<NoteTag> { return this._tags.filter(x => x.isDeleted); }
 
     addTag(tag: Tag): NoteTag {
         if (tag.isDeleted)
@@ -175,8 +176,11 @@ export default class Note extends ModelWithState<Note> {
 
 
     private _attrs: Array<NoteAttr> = [];
+    /** This contains all attrs that have been added either directly to the note, or to a tag on the note and are not due to be deleted. */
     get allAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
+    /** This contains all attrs that have been added directly to the note and are not due to be deleted. */
     get noteAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted && !x.tag); }
+    /** This contains all attrs that have been added either directly to the note, or to a tag on the note and are due to be deleted. */
     get allAttrsPendingDeletion(): Array<NoteAttr> { return this._attrs.filter(x => x.isDeleted); }
 
     addAttr(attr: Attr): NoteAttr {
