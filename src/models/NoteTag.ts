@@ -38,7 +38,7 @@ export default class NoteTag extends ModelWithState<NoteTag> {
     }
 
     removeAttr(attr: Attr): NoteTag {
-        const na = this._attrs.find(x => x.attr.id == attr.id && x.tag.id == this.tag.id);
+        const na = this._attrs.find(x => x.attr.id == attr.id);
         if (!na)
             return this;
 

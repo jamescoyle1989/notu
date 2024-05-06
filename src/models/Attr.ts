@@ -117,7 +117,7 @@ export default class Attr extends ModelWithState<Attr> {
         let output = null;
 
         if (!this.space)
-            output = 'Note must belong to a space.';
+            output = 'Attr must belong to a space.';
         else if (!this.isNew && this.id <= 0)
             output = 'Attr id must be greater than zero if in non-new state.';
 

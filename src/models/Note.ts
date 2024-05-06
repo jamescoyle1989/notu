@@ -9,16 +9,20 @@ import Attr from './Attr';
 
 
 export default class Note extends ModelWithState<Note> {
-    constructor(text?: string) {
+
+    constructor(text?: string, ownTag?: Tag) {
         super();
         if (!!text)
             this.text = text;
+        this._ownTag = ownTag;
     }
     
     
     private _id: number = 0;
     get id(): number { return this._id; }
     set id(value: number) {
+        if (!this.isNew)
+            throw Error('Cannot change the id of a Note once it has already been created.');
         this._id = value;
         if (!!this.ownTag)
             this.ownTag.id = value;
@@ -52,31 +56,20 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
-    private _spaceId: number = 0;
-    get spaceId(): number { return this._spaceId; }
-    set spaceId(value: number) {
-        if (value !== this._spaceId) {
-            this._spaceId = value;
-            if (value !== this.space?.id ?? 0)
-                this._space = null;
-            if (this.isClean)
+    private _space: Space = null;
+    get space(): Space { return this._space; }
+    set space(value: Space) {
+        if (value !== this._space) {
+            const idChanged = value?.id != this._space?.id;
+            this._space = value;
+            if (this.isClean && idChanged)
                 this.dirty();
             this._setOwnTagSpace();
         }
     }
 
-    private _space: Space = null;
-    get space(): Space { return this._space; }
-    set space(value: Space) {
-        this._space = value;
-        this.spaceId = value?.id ?? 0;
-    }
-
-    in(space: number | Space): Note {
-        if (typeof(space) === 'number')
-            this.spaceId = space;
-        else
-            this.space = space;
+    in(space: Space): Note {
+        this.space = space;
         return this;
     }
 
@@ -84,21 +77,15 @@ export default class Note extends ModelWithState<Note> {
     private _ownTag: Tag = null;
     get ownTag(): Tag { return this._ownTag; }
 
-    setOwnTag(tag: string | Tag): Note {
-        if (typeof tag === 'string') {
-            if (this.ownTag == null)
-                this._ownTag = new Tag();
-            this.ownTag.name = tag;
+    setOwnTag(tagName: string): Note {
+        if (this.ownTag == null) {
+            this._ownTag = new Tag(tagName);
             this.ownTag.id = this.id;
-            this._setOwnTagSpace();
         }
-        else {
-            if (!!this.ownTag)
-                throw new Error('Note has already had its tag set. If you would like to change the tag name, call setTag with just a string specifying the new tag name.');
-            if (tag.id != 0 && tag.id != this.id)
-                throw new Error('Attempted to set tag to note with non-matching ID. Added tag id must either match the note id, which indicates that the tag has already been added to the note. Otherwise the tag id must be zero, indicating that the tag still needs to be added.')
-            this._ownTag = tag;
-        }
+        else if (this.ownTag.isDeleted)
+            this.ownTag.dirty();
+        this.ownTag.name = tagName;
+        this._setOwnTagSpace();
         return this;
     }
 
@@ -117,8 +104,6 @@ export default class Note extends ModelWithState<Note> {
             return;
         if (!!this.space)
             this.ownTag.space = this.space;
-        else
-            this.ownTag.spaceId = this.spaceId;
     }
 
 
@@ -133,23 +118,21 @@ export default class Note extends ModelWithState<Note> {
             throw Error('Cannot add a tag that hasn\'t yet been saved to a note');
         if (tag.id == this.id)
             throw Error('Note cannot add its own tag as a linked tag');
-        if (!tag.isPublic && tag.spaceId != this.spaceId)
+        if (!tag.isPublic && tag.space.id != this.space.id)
             throw Error('Cannot add a private tag from another space');
-        let nt = this._tags.find(x => x.tagId == tag.id);
+        let nt = this._tags.find(x => x.tag.id == tag.id);
         if (!!nt) {
             if (nt.isDeleted)
                 nt.dirty();
             return nt;
         }
-        nt = new NoteTag();
-        nt.note = this;
-        nt.tag = tag;
+        nt = new NoteTag(tag);
         this._tags.push(nt);
         return nt;
     }
 
     removeTag(tag: Tag): Note {
-        const nt = this._tags.find(x => x.tagId == tag.id);
+        const nt = this._tags.find(x => x.tag.id == tag.id);
         if (!nt)
             return this;
 
@@ -157,8 +140,6 @@ export default class Note extends ModelWithState<Note> {
             this._tags = this._tags.filter(x => x !== nt);
         else
             nt.delete();
-        for (const na of this._attrs.filter(x => !x.isDeleted && x.tagId == tag.id))
-            this.removeAttr(na.attr, na.tag);
         return this;
     }
 
@@ -169,32 +150,28 @@ export default class Note extends ModelWithState<Note> {
             space = space.id;
 
         if (space != null)
-            return this.tags.find(x => x.tag.name == tag && x.tag.spaceId == space);
+            return this.tags.find(x => x.tag.name == tag && x.tag.space.id == space);
 
-        return this.tags.find(x => x.tag.name == tag && x.tag.spaceId == this.spaceId);
+        return this.tags.find(x => x.tag.name == tag && x.tag.space.id == this.space.id);
     }
 
 
     private _attrs: Array<NoteAttr> = [];
-    /** This contains all attrs that have been added either directly to the note, or to a tag on the note and are not due to be deleted. */
-    get allAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
-    /** This contains all attrs that have been added directly to the note and are not due to be deleted. */
-    get noteAttrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted && !x.tag); }
-    /** This contains all attrs that have been added either directly to the note, or to a tag on the note and are due to be deleted. */
-    get allAttrsPendingDeletion(): Array<NoteAttr> { return this._attrs.filter(x => x.isDeleted); }
+    get attrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
+    get attrsPendingDeletion(): Array<NoteAttr> { return this._attrs.filter(x => x.isDeleted); }
 
-    addAttr(attr: Attr): NoteAttr {
+    addAttr(attr: Attr, value?: any): Note {
         if (attr.isDeleted)
             throw Error('Cannot add an attribute marked as deleted to a note');
         if (attr.isNew)
             throw Error('Cannot add an attribute that hasn\'t yet been saved to a note');
-        const na = new NoteAttr(this, attr);
+        const na = new NoteAttr(attr, null, value);
         this._attrs.push(na);
-        return na;
+        return this;
     }
 
-    removeAttr(attr: Attr, tag: Tag = null): Note {
-        const na = this._attrs.find(x => x.attrId == attr.id && x.tagId == tag?.id);
+    removeAttr(attr: Attr): Note {
+        const na = this._attrs.find(x => x.attr.id == attr.id);
         if (!na)
             return this;
 
@@ -205,43 +182,23 @@ export default class Note extends ModelWithState<Note> {
         return this;
     }
 
-    getValue(attr: string | Attr): any {
-        if (attr instanceof Attr)
-            attr = attr.name;
-
-        return this.noteAttrs.find(x => x.attr.name == attr)?.value;
-    }
-
     getAttr(attr: string | Attr): NoteAttr {
         if (attr instanceof Attr)
             attr = attr.name;
 
-        return this.noteAttrs.find(x => x.attr.name == attr);
+        return this.attrs.find(x => x.attr.name == attr);
+    }
+
+    getValue(attr: string | Attr): any {
+        return this.getAttr(attr)?.value;
     }
 
 
     duplicate(): Note {
-        const output = new Note();
-        output.id = this.id;
-        output.date = this.date;
-        output.text = this.text;
-        if (!!this.space)
-            output.space = this.space;
-        else
-            output.spaceId = this.spaceId;
-        output._tags = this.tags.map(x => { 
-            const ntCopy = x.duplicate();
-            ntCopy.note = output;
-            return ntCopy;
-        });
-        output._attrs = this.allAttrs.map(x => {
-            const naCopy = x.duplicate();
-            naCopy.note = output;
-            return naCopy;
-        });
-        if (!!this.ownTag && !this.ownTag.isDeleted)
-            output.setOwnTag(this.ownTag.duplicate());
-        output.state = this.state;
+        const output = new Note(this.text, this.ownTag?.duplicate())
+            .at(this.date).in(this.space);
+        output._attrs = this.attrs.map(x => x.duplicate());
+        output._tags = this.tags.map(x => x.duplicate());
         return output;
     }
 
@@ -252,58 +209,37 @@ export default class Note extends ModelWithState<Note> {
             id: this.id,
             date: this.date,
             text: this.text,
-            spaceId: this.spaceId,
+            spaceId: this.space.id,
             ownTag: this.ownTag,
-            tags: this.tags,
+            tags: this._tags,
             attrs: this._attrs
         }
     }
 
 
-    static fromJSON(json: any): Note {
-        const output = new Note(json.text);
-        output.id = json.id;
-        output.date = new Date(json.date);
-        output.spaceId = json.spaceId;
-        if (!!json.ownTag)
-            output.setOwnTag(Tag.fromJSON(json.ownTag));
-        if (!!json.tags) {
-            output._tags = json.tags.map(x => NoteTag.fromJSON(x));
-            for (const nt of output._tags)
-                nt.note = output;
-        }
-        if (!!json.attrs) {
-            output._attrs = json.attrs.map(x => NoteAttr.fromJSON(x));
-            for (const na of output._attrs)
-                na.note = output;
-        }
-        output.state = json.state;
-        return output;
-    }
-
-
     validate(throwError: boolean = false): boolean {
-        let output = null;
+        function exit(message: string): boolean {
+            if (throwError && message != null)
+                throw Error(message);
+            return message == null;
+        }
 
-        if (this.spaceId <= 0)
-            output = 'Note spaceId must be greater than zero.';
+        if (!this.space)
+            return exit('Note must belong to a space.');
         else if (!this.isNew && this.id <= 0)
-            output = 'Note id must be greater than zero if in non-new state.';
-        else if (!!this.ownTag && this.ownTag.spaceId != this.spaceId)
-            output = 'Note cannot belong to a different space than its own tag';
+            return exit('Note id must be greater than zero if in non-new state.');
+        else if (!!this.ownTag && this.ownTag.space.id != this.space.id)
+            return exit('Note cannot belong to a different space than its own tag');
 
-        const survivingAttrs = this._attrs.filter(x => !x.isDeleted);
+        const survivingAttrs = this.attrs;
         for (let i = 0; i < survivingAttrs.length; i++) {
             const na = survivingAttrs[i];
             for (let j = i + 1; j < survivingAttrs.length; j++) {
                 const na2 = survivingAttrs[j];
-                if (na.attrId == na2.attrId && na.tagId == na2.tagId)
-                    output = `Attr '${na.attr.name}' is duplicated.`;
+                if (na.attr.id == na2.attr.id)
+                    return exit(`Attr '${na.attr.name}' is duplicated.`);
             }
         }
-
-        if (throwError && output != null)
-            throw Error(output);
 
         if (!!this.ownTag && !this.ownTag.validate(throwError))
             return false;
@@ -316,6 +252,6 @@ export default class Note extends ModelWithState<Note> {
                 return false;
         }
 
-        return output == null;
+        return true;
     }
 }

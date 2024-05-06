@@ -4,7 +4,14 @@ import ModelWithState from './ModelWithState';
 
 
 export default class Space extends ModelWithState<Space> {
-    id: number = 0;
+
+    private _id: number = 0;
+    get id(): number { return this._id; }
+    set id(value: number) {
+        if (!this.isNew)
+            throw Error('Cannot change the id of a Space once it has already been created.');
+        this._id = value;
+    }
 
     
     private _name: string = '';
