@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { CachedClient } from './CachedClient';
+import { Notu } from './Notu';
 import { NotuClient, NotuLoginResult } from './HttpClient';
 import { Attr, Note, NoteAttr, NoteTag, Space, Tag } from '..';
 import { newAttr, newSpace, newTag, newNote } from '../TestHelpers';
@@ -80,13 +80,13 @@ class MockClient implements NotuClient {
 
 
 test('constructor takes NotuClient implementation', () => {
-    new CachedClient(new MockClient());
+    new Notu(new MockClient());
 });
 
 
 test('getSpaces wont fetch twice', async () => {
     const internal = new MockClient();
-    const client = new CachedClient(internal);
+    const client = new Notu(internal);
 
     await client.getSpaces();
     expect(internal.log.filter(x => x == 'getSpaces').length).toBe(1);
@@ -96,7 +96,7 @@ test('getSpaces wont fetch twice', async () => {
 });
 
 test('saveSpace updates the cache', async () => {
-    const client = new CachedClient(new MockClient());
+    const client = new Notu(new MockClient());
     await client.getSpaces();
     const newSpace = new Space('Test').clean();
     newSpace.id = 999;
@@ -110,7 +110,7 @@ test('saveSpace updates the cache', async () => {
 
 test('getTags wont fetch twice', async () => {
     const internal = new MockClient();
-    const client = new CachedClient(internal);
+    const client = new Notu(internal);
 
     await client.getTags();
     expect(internal.log.filter(x => x == 'getTags').length).toBe(1);
@@ -120,7 +120,7 @@ test('getTags wont fetch twice', async () => {
 });
 
 test('saveNote updates the cache if note has its own tag', async () => {
-    const client = new CachedClient(new MockClient());
+    const client = new Notu(new MockClient());
     await client.getTags();
     const myNote = newNote('I have my own tag', 777).setOwnTag('Sexy');
     myNote.ownTag.id = 777;
@@ -134,7 +134,7 @@ test('saveNote updates the cache if note has its own tag', async () => {
 });
 
 test('getNotes will populate related tags & attrs', async () => {
-    const client = new CachedClient(new MockClient());
+    const client = new Notu(new MockClient());
     await client.getSpaces();
     await client.getTags();
     await client.getAttrs(0);
@@ -148,7 +148,7 @@ test('getNotes will populate related tags & attrs', async () => {
 });
 
 test('getNotes returns clean objects', async () => {
-    const client = new CachedClient(new MockClient());
+    const client = new Notu(new MockClient());
     await client.getSpaces();
     await client.getTags();
     await client.getAttrs(0);
@@ -162,7 +162,7 @@ test('getNotes returns clean objects', async () => {
 });
 
 test('getNotes ensures NoteAttr values for date attrs are actually dates', async () => {
-    const client = new CachedClient(new MockClient());
+    const client = new Notu(new MockClient());
     await client.getSpaces();
     await client.getTags();
     await client.getAttrs(0);
@@ -175,7 +175,7 @@ test('getNotes ensures NoteAttr values for date attrs are actually dates', async
 
 test('cacheAll allows for specifying a spaceId to limit attrs that are retrieved', async () => {
     const internal = new MockClient();
-    const client = new CachedClient(internal);
+    const client = new Notu(internal);
 
     await client.cacheAll(_spaceId);
 

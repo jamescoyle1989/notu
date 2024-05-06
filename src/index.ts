@@ -1,6 +1,8 @@
 import Attr from './models/Attr';
-import { CachedClient } from './services/CachedClient';
-import HttpClient from './services/HttpClient';
+import { Notu } from './services/Notu';
+import NotuHttpClient from './services/HttpClient';
+import { NotuCache } from './services/NotuCache';
+import { NotuHttpCacheFetcher } from './services/HttpCacheFetcher';
 import Note from './models/Note';
 import NoteAttr from './models/NoteAttr';
 import NoteTag from './models/NoteTag';
@@ -10,8 +12,10 @@ import Tag from './models/Tag';
 
 export {
     Attr,
-    CachedClient,
-    HttpClient,
+    Notu,
+    NotuHttpClient,
+    NotuCache,
+    NotuHttpCacheFetcher,
     Note,
     NoteAttr,
     NoteTag,

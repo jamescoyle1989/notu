@@ -40,6 +40,9 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
     private _value: any = null;
     get value(): any { return this._value; }
     set value(newVal: any) {
+        if (this.attr.isDate && !(newVal instanceof Date))
+            newVal = new Date(newVal);
+
         if (newVal != this._value) {
             this._value = newVal;
             if (this.isClean)
