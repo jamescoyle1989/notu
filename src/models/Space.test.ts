@@ -52,16 +52,3 @@ test('validate throws error if arg set to true', () => {
     model.id = 0;
     expect(() => model.validate(true)).toThrowError();
 });
-
-test('fromJSON reconstructs Space correctly', () => {
-    const space = new Space('Test').v('1.2.3').clean();
-    space.id = 123;
-
-    const spaceCopy = Space.fromJSON(JSON.parse(JSON.stringify(space)));
-
-    expect(spaceCopy).toBeInstanceOf(Space);
-    expect(spaceCopy.state).toBe(space.state);
-    expect(spaceCopy.id).toBe(space.id);
-    expect(spaceCopy.name).toBe(space.name);
-    expect(spaceCopy.version).toBe(space.version);
-});

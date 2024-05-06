@@ -77,13 +77,4 @@ export default class Space extends ModelWithState<Space> {
             version: this.version
         }
     }
-
-
-    static fromJSON(json: any): Space {
-        const output = new Space(json.name);
-        output.id = json.id;
-        output.version = json.version;
-        output.state = json.state;
-        return output;
-    }
 }
