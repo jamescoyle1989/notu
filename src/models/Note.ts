@@ -24,7 +24,7 @@ export default class Note extends ModelWithState<Note> {
         if (!this.isNew)
             throw Error('Cannot change the id of a Note once it has already been created.');
         this._id = value;
-        if (!!this.ownTag)
+        if (!!this.ownTag && this.ownTag.id != value)
             this.ownTag.id = value;
     }
 

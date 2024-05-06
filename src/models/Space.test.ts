@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import Space from './Space';
+import { newSpace } from '../TestHelpers';
 
 
 test('Gets initiated as new', () => {
@@ -42,13 +43,11 @@ test('can duplicate itself', () => {
 });
 
 test('validate fails if not new and id <= 0', () => {
-    const model = new Space().clean();
-    model.id = 0;
+    const model = newSpace('Test', 0).clean();
     expect(model.validate()).toBe(false);
 });
 
 test('validate throws error if arg set to true', () => {
-    const model = new Space().clean();
-    model.id = 0;
+    const model = newSpace('Test', 0).clean();
     expect(() => model.validate(true)).toThrowError();
 });

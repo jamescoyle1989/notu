@@ -23,9 +23,9 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
             this._tag = tag;
         }
         if (value != null && value != undefined)
-            this._value = value;
+            this.value = value;
         else
-            this._value = attr.defaultValue;
+            this.value = attr.defaultValue;
     }
     
     

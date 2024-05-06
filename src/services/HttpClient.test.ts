@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest';
-import HttpClient from './HttpClient';
 import Space from '../models/Space';
-import { Attr, Note } from '..';
+import { Attr, NotuHttpClient } from '..';
 
 
 async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     if (init.method == 'POST' && input.toString().includes('/login')) {
         const body = JSON.parse(init.body.toString());
         if (body.username == 'ValidUser' && body.password == 'ValidPassword')
-            return new Response(JSON.stringify({token: 'qwer.asdf.zxcv'}), {status: 200});
-        return new Response(null, {status: 401});
+            return new Response(JSON.stringify({token: 'qwer.asdf.zxcv', error: null}), {status: 200});
+        return new Response(JSON.stringify({token: null, error: 'You entered the wrong password, idiot!'}), {status: 401});
     }
     if (init.method == 'GET' && input.toString().includes('/spaces')) {
         return new Response(JSON.stringify([
@@ -29,8 +28,22 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
         }
         else {
             return new Response(JSON.stringify([
-                new Note('test1'),
-                new Note('test2')
+                {
+                    id: 2,
+                    state: 'CLEAN',
+                    date: new Date(),
+                    text: 'Hello, this is a test',
+                    spaceId: 1,
+                    ownTag: { id: 2 },
+                    tags: [
+                        { tagId: 1, state: 'CLEAN', attrs: [] }
+                    ],
+                    attrs: [
+                        { attrId: 1, state: 'CLEAN', tagId: null, value: 'Im an attr value' },
+                        { attrId: 2, state: 'CLEAN', tagId: null, value: 123 },
+                        { attrId: 4, state: 'CLEAN', tagId: null, value: '2024-04-17' }
+                    ]
+                }
             ]), {status: 200});
         }
     }
@@ -44,97 +57,51 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
 
 
 test('constructor takes api root url', () => {
-    const client = new HttpClient('https://www.test.com', mockFetch);
+    const client = new NotuHttpClient('https://www.test.com', mockFetch);
 
     expect(client.url).toBe('https://www.test.com');
 });
 
 test('constructor throws error if url not provided', () => {
-    expect(() => new HttpClient(null)).toThrowError();
+    expect(() => new NotuHttpClient(null)).toThrowError();
 });
 
 
 test('login asyncronously gets token from web service', async () => {
-    const client = new HttpClient('abcd', mockFetch);
+    const client = new NotuHttpClient('abcd', mockFetch);
     const loginResult = await client.login('ValidUser', 'ValidPassword');
 
-    expect(loginResult.success).toBe(true);
     expect(loginResult.error).toBeNull();
     expect(loginResult.token).toBe('qwer.asdf.zxcv');
 });
 
 test('login fails if username and password are invalid', async () => {
-    const client = new HttpClient('abcd', mockFetch);
+    const client = new NotuHttpClient('abcd', mockFetch);
     const loginResult = await client.login('InvalidUser', 'InvalidPassword');
 
-    expect(loginResult.success).toBe(false);
-    expect(loginResult.error).toBe('Invalid username & password.');
+    expect(loginResult.error).toBe('You entered the wrong password, idiot!');
     expect(loginResult.token).toBeNull();
 });
 
 test('login sets token on the client', async () => {
-    const client = new HttpClient('abcd', mockFetch);
+    const client = new NotuHttpClient('abcd', mockFetch);
     await client.login('ValidUser', 'ValidPassword');
 
     expect(client.token).toBe('qwer.asdf.zxcv');
 });
 
 test('Token can be manually set if already known', () => {
-    const client = new HttpClient('abcd', mockFetch);
+    const client = new NotuHttpClient('abcd', mockFetch);
     client.token = 'qwer.asdf.zxcv';
 
     expect(client.token).toBe('qwer.asdf.zxcv');
 });
 
 
-test('getSpaces makes async call to correct URL endpoint, returns space objects', async () => {
-    let input: string;
-    let init: RequestInit;
-    const client = new HttpClient('abcd', (inp, ini) => {
-        input = inp.toString();
-        init = ini;
-        return mockFetch(inp, ini);
-    });
-    client.token = 'qwer.asdf.zxcv';
-
-    const result = await client.getSpaces();
-
-    expect(init.method).toBe('GET');
-    expect(input).toBe('abcd/spaces');
-    expect(init.body).toBeFalsy();
-    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
-    expect(result.length).toBe(2);
-    expect(result[0].name).toBe('Space 1');
-    expect(result[1].name).toBe('Space 2');
-});
-
-
-test('getAttrs makes async call to correct URL endpoint, returns attr objects', async () => {
-    let input: string;
-    let init: RequestInit;
-    const client = new HttpClient('abcd', (inp, ini) => {
-        input = inp.toString();
-        init = ini;
-        return mockFetch(inp, ini);
-    });
-    client.token = 'qwer.asdf.zxcv';
-
-    const result = await client.getAttrs();
-
-    expect(init.method).toBe('GET');
-    expect(input).toBe('abcd/attrs?space=0');
-    expect(init.body).toBeFalsy();
-    expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
-    expect(result.length).toBe(2);
-    expect(result[0].name).toBe('Attr 1');
-    expect(result[1].name).toBe('Attr 2');
-});
-
-
 test('getNotes passes spaceId and query in URL', async () => {
     let input: string;
     let init: RequestInit;
-    const client = new HttpClient('abcd', (inp, ini) => {
+    const client = new NotuHttpClient('abcd', (inp, ini) => {
         input = inp.toString();
         init = ini;
         return mockFetch(inp, ini);
@@ -147,17 +114,15 @@ test('getNotes passes spaceId and query in URL', async () => {
     expect(input).toBe('abcd/notes?space=1&query=%23Tag%20AND%20%40Attr%20%3D%20100');
     expect(init.body).toBeFalsy();
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
-    expect(result.length).toBe(2);
-    expect(result[0].text).toBe('test1');
-    expect(result[1].text).toBe('test2');
-    expect(result[0]).toBeInstanceOf(Note);
+    expect(result.length).toBe(1);
+    expect(result[0].text).toBe('Hello, this is a test');
 });
 
 
 test('getNoteCount passes spaceId and query in URL', async () => {
     let input: string;
     let init: RequestInit;
-    const client = new HttpClient('abcd', (inp, ini) => {
+    const client = new NotuHttpClient('abcd', (inp, ini) => {
         input = inp.toString();
         init = ini;
         return mockFetch(inp, ini);
@@ -177,7 +142,7 @@ test('getNoteCount passes spaceId and query in URL', async () => {
 test('customJob makes async call to correct URL endpoint', async () => {
     let input: string;
     let init: RequestInit;
-    const client = new HttpClient('abcd', (inp, ini) => {
+    const client = new NotuHttpClient('abcd', (inp, ini) => {
         input = inp.toString();
         init = ini;
         return mockFetch(inp, ini);

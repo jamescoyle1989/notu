@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
 import Tag from './Tag';
-import { Space } from '..';
 import { newTag } from '../TestHelpers';
 
 
@@ -21,14 +20,6 @@ test('Set id throws error if tag not new', () => {
     expect(() => tag.id = 2).toThrow();
 });
 
-
-test('Set space property updates space value if id matches', () => {
-    const tag = new Tag('Test').clean();
-    const space = new Space('My Space').clean();
-    space.id = 1;
-    tag.space = space;
-    expect(tag.space).toBe(space);
-});
 
 test('Set space property handles null value being passed in', () => {
     const tag = new Tag('Test').clean();

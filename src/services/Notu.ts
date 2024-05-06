@@ -70,7 +70,7 @@ export class Notu {
 
     async getNotes(query: string, spaceId: number): Promise<Array<Note>> {
         const notesData = await this.client.getNotes(query, spaceId);
-        return notesData.map(this.cache.noteFromJSON);
+        return notesData.map(n => this.cache.noteFromJSON(n));
     }
 
     async getNoteCount(query: string, spaceId: number): Promise<number> {
@@ -79,9 +79,9 @@ export class Notu {
 
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {
         const notesData = await this.client.saveNotes(notes);
-        notes = notesData.map(this.cache.noteFromJSON);
-        for (const note of notes.filter(x => !!x.ownTag))
-            this.cache.tagSaved(note.ownTag);
+        for (const noteData of notesData.filter(x => !!x.ownTag))
+            this.cache.tagSaved(noteData.ownTag);
+        notes = notesData.map(n => this.cache.noteFromJSON(n));
         return notes;
     }
 

@@ -30,7 +30,7 @@ export class NotuCache {
         await Promise.all([tagsPromise, attrsPromise]);
     }
 
-    async _populateSpaces(): Promise<void> {
+    private async _populateSpaces(): Promise<void> {
         const spacesData = await this._fetcher.getSpacesData();
         this._spaces = new Map<number, Space>();
         for (const spaceData of spacesData) {
@@ -47,7 +47,7 @@ export class NotuCache {
         return space;
     }
 
-    async _populateTags(): Promise<void> {
+    private async _populateTags(): Promise<void> {
         const tagsData = await this._fetcher.getTagsData();
         this._tags = new Map<number, Tag>();
         for (const tagData of tagsData) {
@@ -66,7 +66,7 @@ export class NotuCache {
         return tag;
     }
 
-    async _populateAttrs(): Promise<void> {
+    private async _populateAttrs(): Promise<void> {
         const attrsData = await this._fetcher.getAttrsData();
         this._attrs = new Map<number, Attr>();
         for (const attrData of attrsData) {
