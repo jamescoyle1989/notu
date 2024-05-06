@@ -178,7 +178,10 @@ export class NotuCache {
 
 
 
-    getAttrs(space: number | Space): Array<Attr> {
+    getAttrs(space: number | Space = null): Array<Attr> {
+        if (space == null)
+            return Array.from(this._attrs.values());
+
         if (space instanceof Space)
             space = space.id;
 

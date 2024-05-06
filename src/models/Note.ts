@@ -210,9 +210,9 @@ export default class Note extends ModelWithState<Note> {
             date: this.date,
             text: this.text,
             spaceId: this.space.id,
-            ownTag: this.ownTag,
-            tags: this._tags,
-            attrs: this._attrs
+            ownTag: this.ownTag?.toJSON(),
+            tags: this._tags.map(x => x.toJSON()),
+            attrs: this._attrs.map(x => x.toJSON())
         }
     }
 

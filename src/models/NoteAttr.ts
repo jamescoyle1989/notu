@@ -74,7 +74,7 @@ export default class NoteAttr extends ModelWithState<NoteAttr> {
         return {
             state: this.state,
             attrId: this.attr.id,
-            tagId: this.tag.id,
+            tagId: this.tag?.id,
             value: this.value
         };
     }

@@ -22,6 +22,10 @@ export class Notu {
         return await this.client.login(username, password);
     }
 
+    async setup(): Promise<void> {
+        return await this.client.setup();
+    }
+
     getSpaces(): Array<Space> {
         return this.cache.getSpaces();
     }
@@ -39,7 +43,7 @@ export class Notu {
         return this.cache.spaceSaved(spaceData);
     }
 
-    getAttrs(space: number | Space): Array<Attr> {
+    getAttrs(space: number | Space = null): Array<Attr> {
         return this.cache.getAttrs(space)
     }
 
