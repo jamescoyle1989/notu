@@ -145,7 +145,7 @@ export default class Note extends ModelWithState<Note> {
 
     getTag(tag: string | Tag, space: number | Space = null): NoteTag {
         if (tag instanceof Tag)
-            tag = tag.name;
+            return this.tags.find(x => x.tag === tag);
         if (!!space && (space instanceof Space))
             space = space.id;
 

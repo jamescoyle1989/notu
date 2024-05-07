@@ -302,6 +302,21 @@ test('getTag returns correct value for tags in different space from the note', (
     expect(note.getTag('Goodbye', space2)).toBeFalsy();
 });
 
+test('getTag ignores the space parameter if the actual tag object is passed in', () => {
+    const space1 = newSpace('Space 1', 1).clean();
+    const space2 = newSpace('Space 2', 2).clean();
+    const tag1 = newTag('Tag 1', 3).in(space1).clean();
+    const tag2 = newTag('Tag 2', 4).in(space2).clean();
+    const note = new Note().in(space1);
+    note.addTag(tag1);
+    note.addTag(tag2);
+
+    expect(note.getTag(tag1).tag).toBe(tag1);
+    expect(note.getTag(tag2).tag).toBe(tag2);
+    expect(note.getTag(tag2, space1).tag).toBe(tag2);
+    expect(note.getTag(tag2, space2).tag).toBe(tag2);
+});
+
 
 test('addAttr adds new NoteAttr object', () => {
     const attr = newAttr('Attr', 234).clean();
