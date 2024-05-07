@@ -34,12 +34,12 @@ export class NotuCache {
         const spacesData = await this._fetcher.getSpacesData();
         this._spaces = new Map<number, Space>();
         for (const spaceData of spacesData) {
-            const space = this._spaceFromJSON(spaceData);
+            const space = this.spaceFromJSON(spaceData);
             this._spaces.set(space.id, space);
         }
     }
 
-    private _spaceFromJSON(spaceData: any): Space {
+    spaceFromJSON(spaceData: any): Space {
         const space = new Space(spaceData.name);
         space.id = spaceData.id;
         space.version = spaceData.version;
@@ -51,12 +51,12 @@ export class NotuCache {
         const tagsData = await this._fetcher.getTagsData();
         this._tags = new Map<number, Tag>();
         for (const tagData of tagsData) {
-            const tag = this._tagFromJSON(tagData);
+            const tag = this.tagFromJSON(tagData);
             this._tags.set(tag.id, tag);
         }
     }
 
-    private _tagFromJSON(tagData: any): Tag {
+    tagFromJSON(tagData: any): Tag {
         const tag = new Tag(tagData.name);
         tag.id = tagData.id;
         tag.space = this._spaces.get(tagData.spaceId);
@@ -70,12 +70,12 @@ export class NotuCache {
         const attrsData = await this._fetcher.getAttrsData();
         this._attrs = new Map<number, Attr>();
         for (const attrData of attrsData) {
-            const attr = this._attrFromJSON(attrData);
+            const attr = this.attrFromJSON(attrData);
             this._attrs.set(attr.id, attr);
         }
     }
 
-    private _attrFromJSON(attrData: any): Attr {
+    attrFromJSON(attrData: any): Attr {
         const attr = new Attr(attrData.name, attrData.description);
         attr.id = attrData.id;
         attr.type = attrData.type;
@@ -131,7 +131,7 @@ export class NotuCache {
     }
 
     spaceSaved(spaceData: any): Space {
-        const space = this._spaceFromJSON(spaceData);
+        const space = this.spaceFromJSON(spaceData);
         if (space.state == 'DELETED')
             this._spaces.delete(space.id);
         else
@@ -168,7 +168,7 @@ export class NotuCache {
     }
 
     tagSaved(tagData: any): Tag {
-        const tag = this._tagFromJSON(tagData);
+        const tag = this.tagFromJSON(tagData);
         if (tag.state == 'DELETED')
             this._tags.delete(tag.id);
         else
@@ -205,7 +205,7 @@ export class NotuCache {
     }
 
     attrSaved(attrData: any): Attr {
-        const attr = this._attrFromJSON(attrData);
+        const attr = this.attrFromJSON(attrData);
         if (attr.state == 'DELETED')
             this._attrs.delete(attr.id);
         else
