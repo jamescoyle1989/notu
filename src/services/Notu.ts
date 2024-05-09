@@ -44,7 +44,7 @@ export class Notu {
     }
 
     getAttrs(space: number | Space = null): Array<Attr> {
-        return this.cache.getAttrs(space)
+        return this.cache.getAttrs(space);
     }
 
     getAttr(id: number): Attr {

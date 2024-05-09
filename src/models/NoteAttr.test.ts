@@ -33,6 +33,30 @@ test('Set value doesnt change state if value not different', () => {
     expect(na.isClean).toBe(true);
 });
 
+test('Set value will parse value as number if thats what the attr expects', () => {
+    const na = new NoteAttr(newAttr('Attr', 123).asNumber().clean()).clean();
+    na.value = '500';
+    expect(na.value).toBe(500);
+});
+
+test('Set value will parse value as bool if thats what the attr expects', () => {
+    const na = new NoteAttr(newAttr('Attr', 123).asBoolean().clean()).clean();
+    na.value = 1;
+    expect(na.value).toBe(true);
+});
+
+test('Set value will parse value as bool if thats what the attr expects - 2', () => {
+    const na = new NoteAttr(newAttr('Attr', 123).asBoolean().clean()).clean();
+    na.value = 0;
+    expect(na.value).toBe(false);
+});
+
+test('Set value will parse value as text if thats what the attr expects', () => {
+    const na = new NoteAttr(newAttr('Attr', 123).asText().clean()).clean();
+    na.value = 989;
+    expect(na.value).toBe('989');
+});
+
 
 test('Can duplicate itself', () => {
     const na = new NoteAttr(
@@ -58,7 +82,7 @@ test('validate succeeds', () => {
 
 test('constructor allows setting attr, tag & value', () => {
     const na = new NoteAttr(
-        newAttr('Attr', 123).clean(),
+        newAttr('Attr', 123).asNumber().clean(),
         newTag('Tag', 234).clean(),
         12345
     );
