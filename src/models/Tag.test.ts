@@ -71,6 +71,12 @@ test('Set color doesnt change tag state if value not different', () => {
 });
 
 
+test('Cant change tag from public to private once its been saved', () => {
+    const tag = new Tag('asdf').asPublic().clean();
+    expect(() => tag.asPrivate()).toThrow();
+});
+
+
 test('can duplicate itself', () => {
     const tag = new Tag('hello').asPrivate();
     const copy = tag.duplicate();

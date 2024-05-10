@@ -18,7 +18,7 @@ test('gets initiated with sensible defaults', () => {
 test('can duplicate itself', () => {
     const space = newSpace('hello', 123).clean();
     const attr = newAttr('Attr1', 234).asText().clean();
-    const tag = newTag('Tag1', 345).clean();
+    const tag = newTag('Tag1', 345).in(space).clean();
     const note = new Note().in(space).setOwnTag('My Tag').clean();
     note.addAttr(attr, 'hotpot');
     note.addTag(tag);
@@ -187,9 +187,10 @@ test('validate calls validate on ownTag', () => {
 });
 
 test('validate calls validate on each added tag', () => {
-    const note = new Note().in(newSpace('Space', 123).clean());
+    const space = newSpace('Space', 123).clean()
+    const note = new Note().in(space);
     note.id = 123;
-    const nt = note.addTag(newTag('Tag', 0).clean());
+    const nt = note.addTag(newTag('Tag', 0).in(space).clean());
     expect(note.validate()).toBe(true);
     nt['_tag'] = null;
     expect(note.validate()).toBe(false);
@@ -197,7 +198,7 @@ test('validate calls validate on each added tag', () => {
 
 
 test('addTag adds new NoteTag object', () => {
-    const tag = newTag('Tag', 123).clean();
+    const tag = newTag('Tag', 123).asPublic().clean();
     const note = new Note();
 
     note.addTag(tag);
@@ -207,7 +208,7 @@ test('addTag adds new NoteTag object', () => {
 });
 
 test('addTag returns existing NoteTag object if trying to add duplicate tag', () => {
-    const tag = newTag('Tag', 123).clean();
+    const tag = newTag('Tag', 123).asPublic().clean();
     const note = new Note();
     note.addTag(tag);
 
@@ -218,7 +219,7 @@ test('addTag returns existing NoteTag object if trying to add duplicate tag', ()
 });
 
 test('addTag undeletes existing NoteTag if trying to add duplicate tag', () => {
-    const tag = newTag('Tag', 123).clean();
+    const tag = newTag('Tag', 123).asPublic().clean();
     const note = new Note();
     const nt = note.addTag(tag);
     nt.delete();
@@ -255,7 +256,7 @@ test('addTag prevents note from adding tag that hasnt been saved yet', () => {
 });
 
 test('removeTag removes newly added tag from note', () => {
-    const tag = newTag('Tag', 123).clean();
+    const tag = newTag('Tag', 123).asPublic().clean();
     const note = new Note();
     note.addTag(tag);
 
@@ -265,7 +266,7 @@ test('removeTag removes newly added tag from note', () => {
 });
 
 test('removeTag marks existing tag on note as deleted', () => {
-    const tag = newTag('Tag', 123).clean();
+    const tag = newTag('Tag', 123).asPublic().clean();
     const note = new Note();
     note.addTag(tag).clean();
 
@@ -291,7 +292,7 @@ test('getTag returns correct value for tags in same space as it', () => {
 test('getTag returns correct value for tags in different space from the note', () => {
     const space1 = newSpace('Space 1', 1).clean();
     const space2 = newSpace('Space 2', 2).clean();
-    const tag = newTag('Hello', 123).in(space2).clean();
+    const tag = newTag('Hello', 123).in(space2).asPublic().clean();
     const note = new Note().in(space1);
     note.addTag(tag);
 
@@ -305,8 +306,8 @@ test('getTag returns correct value for tags in different space from the note', (
 test('getTag ignores the space parameter if the actual tag object is passed in', () => {
     const space1 = newSpace('Space 1', 1).clean();
     const space2 = newSpace('Space 2', 2).clean();
-    const tag1 = newTag('Tag 1', 3).in(space1).clean();
-    const tag2 = newTag('Tag 2', 4).in(space2).clean();
+    const tag1 = newTag('Tag 1', 3).in(space1).asPublic().clean();
+    const tag2 = newTag('Tag 2', 4).in(space2).asPublic().clean();
     const note = new Note().in(space1);
     note.addTag(tag1);
     note.addTag(tag2);

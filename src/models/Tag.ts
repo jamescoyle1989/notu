@@ -59,9 +59,11 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    private _isPublic: boolean = true;
+    private _isPublic: boolean = false;
     get isPublic(): boolean { return this._isPublic; }
     set isPublic(value: boolean) {
+        if (!this.isNew && this.isPublic && !value)
+            throw Error('Cannot change a tag from public to private once its already been saved.');
         if (value !== this._isPublic) {
             this._isPublic = value;
             if (this.isClean)
