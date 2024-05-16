@@ -86,9 +86,12 @@ export class NotuCache {
 
 
     noteFromJSON(noteData: any): Note {
-        const ownTag = noteData.ownTag?.state == 'CLEAN'
-            ? this.getTag(noteData.id)
-            : this.tagFromJSON(noteData.ownTag);
+        let ownTag = null;
+        if (!!noteData.ownTag) {
+            ownTag = noteData.ownTag?.state == 'CLEAN'
+                ? this.getTag(noteData.id)
+                : this.tagFromJSON(noteData.ownTag);
+        }
         const note = new Note(noteData.text, ownTag)
             .at(new Date(noteData.date))
             .in(this.getSpace(noteData.spaceId));
