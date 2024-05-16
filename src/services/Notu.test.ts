@@ -36,7 +36,7 @@ class MockClient implements NotuClient {
                 date: new Date(),
                 text: 'Hello, this is a test',
                 spaceId: 1,
-                ownTag: { id: 2 },
+                ownTag: { id: 2, state: 'CLEAN', name: 'Test', spaceId: 1, color: '#FF00FF', isPublic: true },
                 tags: [
                     { tagId: 1, state: 'CLEAN', attrs: [] }
                 ],
