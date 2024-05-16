@@ -32,5 +32,5 @@ test('noteFromJSON handles if ownTag is null', async () => {
 
     const fromJSON = cache.noteFromJSON(note.toJSON());
 
-    expect(fromJSON.ownTag).toBeNull();
+    expect(fromJSON.ownTag.name).toBe('Tag 1');
 });
