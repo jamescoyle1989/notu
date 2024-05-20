@@ -3,6 +3,7 @@
 import Attr from '../models/Attr';
 import Note from '../models/Note';
 import Space from '../models/Space';
+import Tag from '../models/Tag';
 
 
 
@@ -25,6 +26,8 @@ export interface NotuClient {
     getNotes(query: string, space: number | Space): Promise<Array<any>>;
 
     getNoteCount(query: string, space: number | Space): Promise<number>;
+
+    getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>>;
 
     saveNotes(notes: Array<Note>): Promise<Array<any>>;
 
@@ -133,6 +136,21 @@ export default class NotuHttpClient implements NotuClient {
             }
         );
         return (await response.json()).count;
+    }
+
+    async getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>> {
+        if (tag instanceof Tag)
+            tag = tag.id;
+        if (tag instanceof Note)
+            tag = tag.id;
+
+        const response = await this._fetch(this.url + `notes?tag=${tag}`,
+            {
+                method: 'GET',
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        return await response.json();
     }
 
     async saveNotes(notes: Array<Note>): Promise<Array<any>> {

@@ -81,6 +81,11 @@ export class Notu {
         return await this.client.getNoteCount(query, spaceId);
     }
 
+    async getRelatedNotes(tag: Tag | Note | number): Promise<Array<Note>> {
+        const notesData = await this.client.getRelatedNotes(tag);
+        return notesData.map(n => this.cache.noteFromJSON(n));
+    }
+
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {
         const notesData = await this.client.saveNotes(notes);
         for (const noteData of notesData.filter(x => !!x.ownTag))
