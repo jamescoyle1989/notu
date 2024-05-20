@@ -144,7 +144,7 @@ export default class NotuHttpClient implements NotuClient {
         if (tag instanceof Note)
             tag = tag.id;
 
-        const response = await this._fetch(this.url + `notes?tag=${tag}`,
+        const response = await this._fetch(this.url + `/notes?tag=${tag}`,
             {
                 method: 'GET',
                 headers: { Authorization: 'Bearer ' + this.token }
