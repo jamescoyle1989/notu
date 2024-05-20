@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Notu } from './Notu';
 import { NotuClient, NotuLoginResult } from './HttpClient';
-import { Attr, Note, NotuCache, Space } from '..';
+import { Attr, Note, NotuCache, Space, Tag } from '..';
 import { newNote, newSpace, testCacheFetcher } from '../TestHelpers';
 
 class MockClient implements NotuClient {
@@ -52,6 +52,28 @@ class MockClient implements NotuClient {
     getNoteCount(query: string, spaceId: number): Promise<number> {
         this.log.push(`getNoteCount('${query}', ${spaceId})`);
         return Promise.resolve(1);
+    }
+
+    getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>> {
+        this.log.push(`getRelatedNotes('${tag})`);
+        return Promise.resolve([
+            {
+                id: 2,
+                state: 'CLEAN',
+                date: new Date(),
+                text: 'Hello, this is a test',
+                spaceId: 1,
+                ownTag: { id: 2, state: 'CLEAN', name: 'Test', spaceId: 1, color: '#FF00FF', isPublic: true },
+                tags: [
+                    { tagId: 1, state: 'CLEAN', attrs: [] }
+                ],
+                attrs: [
+                    { attrId: 1, state: 'CLEAN', tagId: null, value: 'Im an attr value' },
+                    { attrId: 2, state: 'CLEAN', tagId: null, value: 123 },
+                    { attrId: 4, state: 'CLEAN', tagId: null, value: '2024-04-17' }
+                ]
+            }
+        ]);
     }
 
     saveNotes(notes: Array<Note>): Promise<Array<any>> {
