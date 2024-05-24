@@ -123,7 +123,6 @@ export default class Tag extends ModelWithState<Tag> {
         return parseInt(hex, 16);
     }
 
-
     static getColorFromInt(color: number): string {
         if (color == null)
             return null;

@@ -2,6 +2,7 @@
 
 import ModelWithState from './ModelWithState';
 import Space from './Space';
+import Tag from './Tag';
 
 
 const ATTR_TYPE = {
@@ -101,6 +102,17 @@ export default class Attr extends ModelWithState<Attr> {
     }
 
 
+    private _color: string = null;
+    get color(): string { return this._color; }
+    set color(value: string) {
+        if (value !== this._color) {
+            this._color = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+
     duplicate(): Attr {
         const output = new Attr();
         output.id = this.id;
@@ -108,6 +120,7 @@ export default class Attr extends ModelWithState<Attr> {
         output.description = this.description;
         output.type = this.type;
         output.space = this.space;
+        output.color = this.color;
         output.state = this.state;
         return output;
     }
@@ -120,6 +133,8 @@ export default class Attr extends ModelWithState<Attr> {
             output = 'Attr must belong to a space.';
         else if (!this.isNew && this.id <= 0)
             output = 'Attr id must be greater than zero if in non-new state.';
+        else if (!!this.color && !/^#?[A-z0-9]{6}$/.test(this.color))
+            output = 'Tag color is invalid, must be a 6 character hexadecimal.';
 
         if (throwError && output != null)
             throw Error(output);
@@ -139,6 +154,20 @@ export default class Attr extends ModelWithState<Attr> {
             case 'DATE':
                 return new Date();
         }
+    }
+
+
+    getColorInt(): number {
+        let hex = this.color;
+        if (!hex)
+            return null;
+        if (hex.startsWith('#'))
+            hex = hex.substring(1);
+        return parseInt(hex, 16);
+    }
+
+    static getColorFromInt(color: number): string {
+        return Tag.getColorFromInt(color);
     }
 
 
