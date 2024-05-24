@@ -124,6 +124,13 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
+    static getColorFromInt(color: number): string {
+        if (color == null)
+            return null;
+        return '#' + color.toString(16).toUpperCase().padStart(6, '0');
+    }
+
+
     toJSON() {
         return {
             state: this.state,
