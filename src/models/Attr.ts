@@ -178,7 +178,8 @@ export default class Attr extends ModelWithState<Attr> {
             name: this.name,
             description: this.description,
             type: this.type,
-            spaceId: this.space?.id
+            spaceId: this.space?.id,
+            color: this.color
         };
     }
 }
