@@ -157,20 +157,6 @@ export default class Attr extends ModelWithState<Attr> {
     }
 
 
-    getColorInt(): number {
-        let hex = this.color;
-        if (!hex)
-            return null;
-        if (hex.startsWith('#'))
-            hex = hex.substring(1);
-        return parseInt(hex, 16);
-    }
-
-    static getColorFromInt(color: number): string {
-        return Tag.getColorFromInt(color);
-    }
-
-
     toJSON() {
         return {
             state: this.state,

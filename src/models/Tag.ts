@@ -114,22 +114,6 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    getColorInt(): number {
-        let hex = this.color;
-        if (!hex)
-            return null;
-        if (hex.startsWith('#'))
-            hex = hex.substring(1);
-        return parseInt(hex, 16);
-    }
-
-    static getColorFromInt(color: number): string {
-        if (color == null)
-            return null;
-        return '#' + color.toString(16).toUpperCase().padStart(6, '0');
-    }
-
-
     toJSON() {
         return {
             state: this.state,

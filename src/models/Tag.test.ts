@@ -137,35 +137,3 @@ test('validate throws error if color is not valid hex', () => {
     model.color = 'A9C10G8';
     expect(model.validate()).toBe(false);
 });
-
-
-test('getColorInt returns correct value with hash prefix', () => {
-    const model = new Tag('hello');
-    model.color = '#A1B2C3';
-    expect(model.getColorInt()).toBe(10597059);
-});
-
-test('getColorInt returns correct value without hash prefix', () => {
-    const model = new Tag('hello');
-    model.color = 'A1B2C3';
-    expect(model.getColorInt()).toBe(10597059);
-});
-
-test('getColorInt returns null if color is null', () => {
-    const model = new Tag('hello');
-    model.color = null;
-    expect(model.getColorInt()).toBe(null);
-});
-
-
-test('getColorFromInt returns correct value', () => {
-    expect(Tag.getColorFromInt(10597059)).toBe('#A1B2C3');
-});
-
-test('getColorFromInt returns null if passed in value is null', () => {
-    expect(Tag.getColorFromInt(null)).toBeNull();
-});
-
-test('getColorFromInt pads properly for low numbers', () => {
-    expect(Tag.getColorFromInt(31)).toBe('#00001F');
-});
