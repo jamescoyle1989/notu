@@ -46,3 +46,12 @@ test('addAttr adds NoteAttr object', () => {
     expect(nt.attrs[0].attr).toBe(attr);
     expect(nt.attrs[0].tag).toBe(nt.tag);
 });
+
+test('addAttr doesnt add duplicates', () => {
+    const attr = newAttr('Attr', 234).asNumber().clean();
+    const nt = new NoteTag(newTag('Tag', 123).clean());
+    nt.addAttr(attr, 10);
+    nt.addAttr(attr, 20);
+    expect(nt.attrs.length).toBe(1);
+    expect(nt.attrs[0].value).toBe(20);
+});
