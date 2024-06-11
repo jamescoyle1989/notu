@@ -329,18 +329,6 @@ test('addAttr adds new NoteAttr object', () => {
     expect(note.attrs[0].attr).toBe(attr);
 });
 
-test('addAttr creates new NoteAttr object even if trying to add duplicate attr', () => {
-    const attr = newAttr('Attr', 234).clean();
-    const note = new Note();
-    note.addAttr(attr);
-
-    note.addAttr(attr);
-
-    expect(note.attrs.length).toBe(2);
-    expect(note.attrs[0].attr).toBe(attr);
-    expect(note.attrs[1].attr).toBe(attr);
-});
-
 test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr', () => {
     const attr = newAttr('Attr', 234).clean();
     const note = new Note();
@@ -363,6 +351,15 @@ test('addAttr throws error if trying to add deleted attr', () => {
 test('addAttr prevents note from adding attr that hasnt been saved yet', () => {
     const note = new Note();
     expect(() => note.addAttr(new Attr())).toThrowError();
+});
+
+test('addAttr doesnt add duplicates', () => {
+    const attr = newAttr('Attr', 234).asNumber().clean();
+    const note = new Note();
+    note.addAttr(attr, 10);
+    note.addAttr(attr, 20);
+    expect(note.attrs.length).toBe(1);
+    expect(note.attrs[0].value).toBe(20);
 });
 
 test('removeAttr removes newly added attr from note', () => {

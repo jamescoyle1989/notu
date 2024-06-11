@@ -165,7 +165,15 @@ export default class Note extends ModelWithState<Note> {
             throw Error('Cannot add an attribute marked as deleted to a note');
         if (attr.isNew)
             throw Error('Cannot add an attribute that hasn\'t yet been saved to a note');
-        const na = new NoteAttr(attr, null, value);
+        let na = this.attrs.find(x => x.attr.id == attr.id);
+        if (!!na) {
+            if (na.isDeleted)
+                na.dirty();
+            if (value != undefined)
+                na.value = value;
+            return this;
+        }
+        na = new NoteAttr(attr, null, value);
         this._attrs.push(na);
         return this;
     }
