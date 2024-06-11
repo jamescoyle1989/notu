@@ -6,16 +6,8 @@ import Space from '../models/Space';
 import Tag from '../models/Tag';
 
 
-
-
-export interface NotuLoginResult {
-    error: string;
-    token: string;
-}
-
-
 export interface NotuClient {
-    login(username: string, password: string): Promise<NotuLoginResult>;
+    login(username: string, password: string): Promise<string>;
 
     setup(): Promise<void>;
 
@@ -47,6 +39,11 @@ export default class NotuHttpClient implements NotuClient {
     //Added for testing support
     private _fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
+    private _validateResponseStatus(response: Response) {
+        if (response.status >= 400 && response.status < 600)
+            throw Error(response.statusText);
+    }
+
     constructor(
         url: string,
         fetchMethod: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> = null
@@ -60,20 +57,21 @@ export default class NotuHttpClient implements NotuClient {
     }
 
 
-    async login(username: string, password: string): Promise<NotuLoginResult> {
+    async login(username: string, password: string): Promise<string> {
         const response = await this._fetch(this.url + '/login',
             {
                 method: 'POST',
                 body: JSON.stringify({username, password})
             }
         );
+        this._validateResponseStatus(response);
         if (response.body != null) {
-            const result = (await response.json()) as NotuLoginResult;
-            if (!!result.token)
-                this._token = result.token;
+            const result = (await response.json()) as string;
+            if (!!result)
+                this._token = result;
             return result;
         }
-        return { token: null, error: 'Unknown error occurred on the server' };
+        throw Error('Unknown error occurred on the server');
     }
 
 
@@ -84,6 +82,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         await response.json();
     }
 
@@ -96,6 +95,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 
@@ -108,6 +108,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 
@@ -122,6 +123,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 
@@ -135,6 +137,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return (await response.json()).count;
     }
 
@@ -150,6 +153,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 
@@ -161,6 +165,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 
@@ -173,6 +178,7 @@ export default class NotuHttpClient implements NotuClient {
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
+        this._validateResponseStatus(response);
         return await response.json();
     }
 }

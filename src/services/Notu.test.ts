@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest';
 import { Notu } from './Notu';
-import { NotuClient, NotuLoginResult } from './HttpClient';
+import { NotuClient } from './HttpClient';
 import { Attr, Note, NotuCache, Space, Tag } from '..';
 import { newNote, newSpace, testCacheFetcher } from '../TestHelpers';
 
 class MockClient implements NotuClient {
     log: Array<string> = [];
     
-    login(username: string, password: string): Promise<NotuLoginResult> {
+    login(username: string, password: string): Promise<string> {
         this.log.push(`login('${username}', '${password}')`);
-        return Promise.resolve({ success: true, error: null, token: 'abc.def.ghi' });
+        return Promise.resolve('abc.def.ghi');
     }
 
     setup(): Promise<void> {

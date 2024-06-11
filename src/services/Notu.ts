@@ -1,7 +1,7 @@
 'use strict';
 
 import { Attr, Note, Space, Tag } from '..';
-import { NotuClient, NotuLoginResult } from './HttpClient';
+import { NotuClient } from './HttpClient';
 import { NotuCache } from './NotuCache';
 
 
@@ -18,7 +18,7 @@ export class Notu {
     }
 
 
-    async login(username: string, password: string): Promise<NotuLoginResult> {
+    async login(username: string, password: string): Promise<string> {
         return await this.client.login(username, password);
     }
 

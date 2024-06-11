@@ -7,8 +7,8 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
     if (init.method == 'POST' && input.toString().includes('/login')) {
         const body = JSON.parse(init.body.toString());
         if (body.username == 'ValidUser' && body.password == 'ValidPassword')
-            return new Response(JSON.stringify({token: 'qwer.asdf.zxcv', error: null}), {status: 200});
-        return new Response(JSON.stringify({token: null, error: 'You entered the wrong password, idiot!'}), {status: 401});
+            return new Response(JSON.stringify('qwer.asdf.zxcv'), {status: 200});
+        return new Response(JSON.stringify({token: null}), {status: 401, statusText: 'You entered the wrong password, idiot!'});
     }
     if (init.method == 'GET' && input.toString().includes('/spaces')) {
         return new Response(JSON.stringify([
@@ -54,6 +54,30 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
 }
 
 
+async function mockErrorFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    if (init.method == 'POST' && input.toString().includes('/login')) {
+        return new Response(JSON.stringify({token: null, error: 'You entered the wrong password, idiot!'}), {status: 401, statusText: 'poopoo'});
+    }
+    if (init.method == 'GET' && input.toString().includes('/spaces')) {
+        return new Response(JSON.stringify([]), {status: 500, statusText: 'poopoo'});
+    }
+    if (init.method == 'GET' && input.toString().includes('/attrs')) {
+        return new Response(JSON.stringify([]), {status: 500, statusText: 'poopoo'});
+    }
+    if (init.method == 'GET' && input.toString().includes('/notes?')) {
+        if (input.toString().includes('count=true'))
+            return new Response(JSON.stringify({}), {status: 500, statusText: 'poopoo'});
+        else {
+            return new Response(JSON.stringify([]), {status: 500, statusText: 'poopoo'});
+        }
+    }
+    if (input.toString().includes('customjob')) {
+        return new Response(JSON.stringify({}), {status: 500, statusText: 'poopoo'});
+    }
+    return new Response(null, {status: 404, statusText: 'poopoo'});
+}
+
+
 
 
 test('constructor takes api root url', () => {
@@ -71,16 +95,19 @@ test('login asyncronously gets token from web service', async () => {
     const client = new NotuHttpClient('abcd', mockFetch);
     const loginResult = await client.login('ValidUser', 'ValidPassword');
 
-    expect(loginResult.error).toBeNull();
-    expect(loginResult.token).toBe('qwer.asdf.zxcv');
+    expect(loginResult).toBe('qwer.asdf.zxcv');
 });
 
 test('login fails if username and password are invalid', async () => {
     const client = new NotuHttpClient('abcd', mockFetch);
-    const loginResult = await client.login('InvalidUser', 'InvalidPassword');
 
-    expect(loginResult.error).toBe('You entered the wrong password, idiot!');
-    expect(loginResult.token).toBeNull();
+    let error = null;
+    try {
+        await client.login('InvalidUser', 'InvalidPassword');
+    } catch (err) {
+        error = err;
+    }
+    expect(error.message).toBe('You entered the wrong password, idiot!');
 });
 
 test('login sets token on the client', async () => {
@@ -157,4 +184,24 @@ test('customJob makes async call to correct URL endpoint', async () => {
     expect(body.name).toBe('DoSomething');
     expect(body.data).toBe('xyz');
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
+});
+
+
+test('Error status code gets thrown as error', async () => {
+    let input: string;
+    let init: RequestInit;
+    const client = new NotuHttpClient('abcd', (inp, ini) => {
+        input = inp.toString();
+        init = ini;
+        return mockErrorFetch(inp, ini);
+    });
+    client.token = 'qwer.asdf.zxcv';
+
+    let error = null;
+    try {
+        await client.getNotes('asdf', 123)
+    } catch(err) {
+        error = err;
+    }
+    expect(error.message).toBe('poopoo');
 });
