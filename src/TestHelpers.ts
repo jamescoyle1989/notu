@@ -32,10 +32,10 @@ export function testCacheFetcher(): NotuCacheFetcher {
         { id: 2, state: 'CLEAN', name: 'Space 2', version: '1.0.0' }
     ];
     const tagsData = [
-        { id: 1, state: 'CLEAN', name: 'Tag 1', spaceId: 1, color: '#FF0000', isPublic: true },
-        { id: 2, state: 'CLEAN', name: 'Tag 2', spaceId: 1, color: '#FF0000', isPublic: false },
-        { id: 3, state: 'CLEAN', name: 'Tag 3', spaceId: 2, color: '#FF0000', isPublic: true },
-        { id: 4, state: 'CLEAN', name: 'Tag 4', spaceId: 2, color: '#FF0000', isPublic: false }
+        { id: 1, state: 'CLEAN', name: 'Tag 1', spaceId: 1, color: '#FF0000', isPublic: true, links: [2,3] },
+        { id: 2, state: 'CLEAN', name: 'Tag 2', spaceId: 1, color: '#FF0000', isPublic: false, links: [3,4] },
+        { id: 3, state: 'CLEAN', name: 'Tag 3', spaceId: 2, color: '#FF0000', isPublic: true, links: [4,1] },
+        { id: 4, state: 'CLEAN', name: 'Tag 4', spaceId: 2, color: '#FF0000', isPublic: false, links: [1,2] }
     ];
     const attrsData = [
         { id: 1, state: 'CLEAN', name: 'Attr 1', description: 'Text attr', type: 'TEXT', spaceId: 1 },

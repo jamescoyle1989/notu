@@ -79,11 +79,13 @@ test('Cant change tag from public to private once its been saved', () => {
 
 test('can duplicate itself', () => {
     const tag = new Tag('hello').asPrivate();
+    tag.links = [new Tag('abc'), new Tag('def')];
     const copy = tag.duplicate();
     expect(copy.id).toBe(tag.id);
     expect(copy.name).toBe(tag.name);
     expect(copy.state).toBe(tag.state);
     expect(copy.isPublic).toBe(tag.isPublic);
+    expect(copy.links.length).toBe(2);
 });
 
 test('validate fails if not new and id <= 0', () => {
@@ -136,4 +138,11 @@ test('validate throws error if color is not valid hex', () => {
     const model = new Tag('hello');
     model.color = 'A9C10G8';
     expect(model.validate()).toBe(false);
+});
+
+test('toJSON includes list of links', () => {
+    const model = new Tag('hello');
+    model.links = [newTag('abc', 123), newTag('def', 456)];
+    const json = model.toJSON();
+    expect(json.links).toEqual([123, 456]);
 });

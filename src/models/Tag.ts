@@ -81,6 +81,9 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
+    links: Array<Tag> = [];
+
+
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -94,6 +97,7 @@ export default class Tag extends ModelWithState<Tag> {
         output.color = this.color;
         output.space = this.space;
         output.isPublic = this.isPublic;
+        output.links = this.links.slice();
         return output;
     }
 
@@ -121,7 +125,8 @@ export default class Tag extends ModelWithState<Tag> {
             name: this.name,
             spaceId: this.space?.id,
             color: this.color,
-            isPublic: this.isPublic
+            isPublic: this.isPublic,
+            links: this.links.map(x => x.id)
         };
     }
 }

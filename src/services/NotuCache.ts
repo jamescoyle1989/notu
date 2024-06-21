@@ -49,11 +49,15 @@ export class NotuCache {
 
     private async _populateTags(): Promise<void> {
         const tagsData = await this._fetcher.getTagsData();
-        this._tags = new Map<number, Tag>();
+        const allTags = new Map<number, Tag>();
         for (const tagData of tagsData) {
             const tag = this.tagFromJSON(tagData);
-            this._tags.set(tag.id, tag);
+            allTags.set(tag.id, tag);
+            tagData.tag = tag;
         }
+        this._tags = allTags;
+        for (const tagData of tagsData)
+            this._populateTagLinks(tagData.tag, tagData);
     }
 
     tagFromJSON(tagData: any): Tag {
@@ -63,7 +67,13 @@ export class NotuCache {
         tag.color = tagData.color;
         tag.isPublic = tagData.isPublic;
         tag.state = tagData.state;
+        if (!!this._tags)
+            this._populateTagLinks(tag, tagData);
         return tag;
+    }
+
+    private _populateTagLinks(tag: Tag, tagData: any) {
+        tag.links = tagData.links.map(x => this._tags.get(x));
     }
 
     private async _populateAttrs(): Promise<void> {
