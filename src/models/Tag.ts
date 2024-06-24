@@ -83,6 +83,10 @@ export default class Tag extends ModelWithState<Tag> {
 
     links: Array<Tag> = [];
 
+    linksTo(tag: Tag): boolean {
+        return !!this.links.find(x => x == tag);
+    }
+
 
     constructor(name: string = '') {
         super();
