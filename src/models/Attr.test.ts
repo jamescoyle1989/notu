@@ -134,6 +134,8 @@ test('Can duplicate itself', () => {
     const space = new Space('hello');
     space.id = 123;
     const attr = new Attr('Howdy', 'I say nice things').in(space);
+    attr.id = 234;
+    attr.clean();
 
     const copy = attr.duplicate();
 
@@ -142,6 +144,24 @@ test('Can duplicate itself', () => {
     expect(copy.description).toBe(attr.description);
     expect(copy.type).toBe(attr.type);
     expect(copy.space).toBe(attr.space);
+    expect(copy.state).toBe(attr.state);
+});
+
+test('Can duplicate itself as new', () => {
+    const space = new Space('hello');
+    space.id = 123;
+    const attr = new Attr('Howdy', 'I say nice things').in(space);
+    attr.id = 234;
+    attr.clean();
+
+    const copy = attr.duplicateAsNew();
+
+    expect(copy.id).toBe(0);
+    expect(copy.name).toBe(attr.name);
+    expect(copy.description).toBe(attr.description);
+    expect(copy.type).toBe(attr.type);
+    expect(copy.space).toBe(attr.space);
+    expect(copy.state).toBe('NEW');
 });
 
 

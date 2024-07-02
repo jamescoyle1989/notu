@@ -48,11 +48,16 @@ export default class Space extends ModelWithState<Space> {
 
 
     duplicate(): Space {
-        const output = new Space();
+        const output = this.duplicateAsNew();
         output.id = this.id;
+        output.state = this.state;
+        return output;
+    }
+
+    duplicateAsNew(): Space {
+        const output = new Space();
         output.name = this.name;
         output.version = this.version;
-        output.state = this.state;
         return output;
     }
 

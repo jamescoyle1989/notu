@@ -114,14 +114,19 @@ export default class Attr extends ModelWithState<Attr> {
 
 
     duplicate(): Attr {
-        const output = new Attr();
+        const output = this.duplicateAsNew();
         output.id = this.id;
+        output.state = this.state;
+        return output;
+    }
+
+    duplicateAsNew(): Attr {
+        const output = new Attr();
         output.name = this.name;
         output.description = this.description;
         output.type = this.type;
         output.space = this.space;
         output.color = this.color;
-        output.state = this.state;
         return output;
     }
 

@@ -95,9 +95,14 @@ export default class Tag extends ModelWithState<Tag> {
 
 
     duplicate(): Tag {
-        const output = new Tag(this.name);
+        const output = this.duplicateAsNew();
         output.id = this.id;
         output.state = this.state;
+        return output;
+    }
+
+    duplicateAsNew(): Tag {
+        const output = new Tag(this.name);
         output.color = this.color;
         output.space = this.space;
         output.isPublic = this.isPublic;

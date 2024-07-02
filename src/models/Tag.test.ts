@@ -88,6 +88,18 @@ test('can duplicate itself', () => {
     expect(copy.links.length).toBe(2);
 });
 
+
+test('can duplicate itself as new', () => {
+    const tag = new Tag('hello').asPrivate();
+    tag.links = [new Tag('abc'), new Tag('def')];
+    const copy = tag.duplicateAsNew();
+    expect(copy.id).toBe(0);
+    expect(copy.name).toBe(tag.name);
+    expect(copy.state).toBe('NEW');
+    expect(copy.isPublic).toBe(tag.isPublic);
+    expect(copy.links.length).toBe(2);
+});
+
 test('validate fails if not new and id <= 0', () => {
     const model = newTag('Test', 0).clean();
     expect(model.validate()).toBe(false);

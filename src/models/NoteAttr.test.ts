@@ -70,6 +70,21 @@ test('Can duplicate itself', () => {
     expect(copy.attr).toBe(na.attr);
     expect(copy.tag).toBe(na.tag);
     expect(copy.value).toBe(na.value);
+    expect(copy.state).toBe(na.state);
+});
+
+test('Can duplicate itself as new', () => {
+    const na = new NoteAttr(
+        newAttr('Attr', 123).clean(),
+        newTag('Tag', 234).clean(),
+        'hello'
+    ).clean();
+
+    const copy = na.duplicateAsNew();
+
+    expect(copy.attr).toBe(na.attr);
+    expect(copy.tag).toBe(na.tag);
+    expect(copy.value).toBe(na.value);
     expect(copy.state).toBe('NEW');
 });
 

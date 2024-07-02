@@ -42,6 +42,15 @@ test('can duplicate itself', () => {
     expect(copy.version).toBe(space.version);
 });
 
+test('can duplicate itself as new', () => {
+    const space = new Space('hello').v('1.2.3').clean();
+    const copy = space.duplicateAsNew();
+    expect(copy.id).toBe(0);
+    expect(copy.name).toBe(space.name);
+    expect(copy.state).toBe('NEW');
+    expect(copy.version).toBe(space.version);
+});
+
 test('validate fails if not new and id <= 0', () => {
     const model = newSpace('Test', 0).clean();
     expect(model.validate()).toBe(false);
