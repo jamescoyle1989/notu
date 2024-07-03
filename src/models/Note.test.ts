@@ -53,7 +53,9 @@ test('can duplicate itself as new', () => {
     expect(copy.space.id).toBe(note.space.id);
     expect(copy.state).toBe('NEW');
     expect(copy.tags.length).toBe(note.tags.length);
+    expect(copy.tags[0].state).toBe('NEW');
     expect(copy.attrs.length).toBe(note.attrs.length);
+    expect(copy.attrs[0].state).toBe('NEW');
     expect(copy.ownTag).toBeFalsy()
 });
 

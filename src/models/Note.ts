@@ -215,8 +215,8 @@ export default class Note extends ModelWithState<Note> {
     duplicateAsNew(): Note {
         const output = new Note(this.text)
             .at(this.date).in(this.space);
-        output._attrs = this.attrs.map(x => x.duplicate());
-        output._tags = this.tags.map(x => x.duplicate());
+        output._attrs = this.attrs.map(x => x.duplicateAsNew());
+        output._tags = this.tags.map(x => x.duplicateAsNew());
         return output;
     }
 
