@@ -171,7 +171,7 @@ export default class NotuHttpClient implements NotuClient {
 
 
     async customJob(name: string, data: any): Promise<any> {
-        const response = await this._fetch(this.url + '/customjob',
+        const response = await this._fetch(this.url + '/customJob',
             {
                 method: 'POST',
                 body: JSON.stringify({ name, data }),
