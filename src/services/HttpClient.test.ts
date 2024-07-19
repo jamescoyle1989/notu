@@ -47,7 +47,7 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
             ]), {status: 200});
         }
     }
-    if (input.toString().includes('customjob')) {
+    if (input.toString().includes('customJob')) {
         return new Response(JSON.stringify({}), {status: 200});
     }
     return new Response(null, {status: 404});
@@ -179,10 +179,11 @@ test('customJob makes async call to correct URL endpoint', async () => {
     const result = await client.customJob('DoSomething', 'xyz');
 
     expect(init.method).toBe('POST');
-    expect(input).toBe('abcd/customjob');
+    expect(input).toBe('abcd/customJob');
     const body = JSON.parse(init.body.toString());
     expect(body.name).toBe('DoSomething');
     expect(body.data).toBe('xyz');
+    expect(body.clientTimezone).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
 });
 

@@ -174,7 +174,7 @@ export default class NotuHttpClient implements NotuClient {
         const response = await this._fetch(this.url + '/customJob',
             {
                 method: 'POST',
-                body: JSON.stringify({ name, data }),
+                body: JSON.stringify({ name, data, clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );
