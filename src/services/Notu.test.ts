@@ -105,7 +105,7 @@ test('saveSpace updates the cache', async () => {
 });
 
 
-test('saveNote updates the cache if note has its own tag', async () => {
+test('saveNotes updates the cache if note has its own tag', async () => {
     const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
     await notu.cache.populate();
     const space = notu.cache.getSpace(1);
@@ -114,6 +114,20 @@ test('saveNote updates the cache if note has its own tag', async () => {
     await notu.saveNotes([myNote]);
 
     expect(notu.getTag(777)).toStrictEqual(myNote.ownTag);
+});
+
+test('saveNotes causes ownTag to have links updated and saved', async () => {
+    const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
+    await notu.cache.populate();
+    const space = notu.cache.getSpace(1);
+    const myNote = newNote('I have my own tag', 777).in(space).setOwnTag('Sexy');
+    myNote.addTag(notu.cache.getTag(1));
+    myNote.addTag(notu.cache.getTag(2));
+    expect(myNote.ownTag.links.length).toBe(0);
+
+    await notu.saveNotes([myNote]);
+
+    expect(notu.cache.getTag(777).links.map(x => x.id)).toEqual([1,2]);
 });
 
 test('getNotes will populate related tags & attrs', async () => {

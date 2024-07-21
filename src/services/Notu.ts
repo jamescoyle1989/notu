@@ -88,8 +88,10 @@ export class Notu {
 
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {
         const notesData = await this.client.saveNotes(notes);
-        for (const noteData of notesData.filter(x => !!x.ownTag))
+        for (const noteData of notesData.filter(x => !!x.ownTag)) {
+            noteData.ownTag.links = noteData.tags.map(x => x.tagId);
             this.cache.tagSaved(noteData.ownTag);
+        }
         notes = notesData.map(n => this.cache.noteFromJSON(n));
         return notes;
     }
