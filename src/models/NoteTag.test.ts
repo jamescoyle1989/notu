@@ -26,12 +26,14 @@ test('Can duplicate itself', () => {
 test('Can duplicate itself as new', () => {
     const nt = new NoteTag(newTag('Test', 123).clean())
         .addAttr(newAttr('Attr', 234).asText().clean(), 'Hello');
+    nt.clean().attrs[0].clean();
     const copy = nt.duplicateAsNew();
 
     expect(copy.tag).toBe(nt.tag);
     expect(copy.attrs[0]).not.toBe(nt.attrs[0]);
     expect(copy.attrs[0].attr).toBe(nt.attrs[0].attr);
     expect(copy.state).toBe('NEW');
+    expect(copy.attrs[0].state).toBe('NEW');
 });
 
 

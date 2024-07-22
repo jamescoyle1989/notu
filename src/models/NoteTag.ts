@@ -77,7 +77,7 @@ export default class NoteTag extends ModelWithState<NoteTag> {
 
     duplicateAsNew(): NoteTag {
         const output = new NoteTag(this.tag);
-        output._attrs = this.attrs.map(x => x.duplicate());
+        output._attrs = this.attrs.map(x => x.duplicateAsNew());
         return output;
     }
 
