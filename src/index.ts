@@ -5,6 +5,7 @@ import { NotuCache } from './services/NotuCache';
 import { NotuHttpCacheFetcher } from './services/HttpCacheFetcher';
 import Note from './models/Note';
 import NoteAttr from './models/NoteAttr';
+import { NoteComponentInfo } from './notecomponents/NoteComponent';
 import NoteTag from './models/NoteTag';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedAttr} from './services/QueryParser';
 import Space from './models/Space';
