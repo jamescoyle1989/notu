@@ -19,6 +19,7 @@ export {
     NotuHttpCacheFetcher,
     Note,
     NoteAttr,
+    NoteComponentInfo, splitNoteTextIntoComponents,
     NoteTag,
     parseQuery, ParsedQuery, ParsedTag, ParsedAttr,
     Space,
