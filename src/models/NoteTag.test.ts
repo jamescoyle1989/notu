@@ -14,10 +14,12 @@ test('Throws error if tag is falsy', () => {
 
 test('Can duplicate itself', () => {
     const nt = new NoteTag(newTag('Test', 123).clean())
+        .withData({foo: 'bar'})
         .addAttr(newAttr('Attr', 234).asText().clean(), 'Hello').clean();
     const copy = nt.duplicate();
 
     expect(copy.tag).toBe(nt.tag);
+    expect(copy.data.foo).toBe('bar');
     expect(copy.attrs[0]).not.toBe(nt.attrs[0]);
     expect(copy.attrs[0].attr).toBe(nt.attrs[0].attr);
     expect(copy.state).toBe(nt.state);

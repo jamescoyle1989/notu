@@ -23,6 +23,19 @@ export default class NoteTag extends ModelWithState<NoteTag> {
     get tag(): Tag { return this._tag; }
 
 
+    private _data: any;
+    get data(): any { return this._data; }
+    set data(value: any) {
+        this._data = value;
+        if (this.isClean)
+            this.dirty();
+    }
+    withData(data: any): NoteTag {
+        this.data = data;
+        return this;
+    }
+
+
     private _attrs: Array<NoteAttr> = [];
     get attrs(): Array<NoteAttr> { return this._attrs.filter(x => !x.isDeleted); }
     get attrsPendingDeletion(): Array<NoteAttr> { return this._attrs.filter(x => x.isDeleted); }
@@ -77,6 +90,8 @@ export default class NoteTag extends ModelWithState<NoteTag> {
 
     duplicateAsNew(): NoteTag {
         const output = new NoteTag(this.tag);
+        if (!!this.data)
+            output._data = JSON.parse(JSON.stringify(this.data));
         output._attrs = this.attrs.map(x => x.duplicateAsNew());
         return output;
     }
@@ -105,6 +120,7 @@ export default class NoteTag extends ModelWithState<NoteTag> {
         return {
             state: this.state,
             tagId: this.tag.id,
+            data: !!this.data ? JSON.stringify(this.data) : undefined,
             attrs: this._attrs.map(x => x.toJSON())
         };
     }
