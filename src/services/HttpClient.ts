@@ -39,9 +39,18 @@ export default class NotuHttpClient implements NotuClient {
     //Added for testing support
     private _fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
+    //Used to handle error responses that come in and take some custom action on them
+    //Returns true if the response was handled, otherwise returns in which case an error will be thrown
+    errorHandler: (response: Response) => boolean = null;
+
     private _validateResponseStatus(response: Response) {
-        if (response.status >= 400 && response.status < 600)
+        if (response.status >= 400 && response.status < 600) {
+            if (!!this.errorHandler) {
+                if (this.errorHandler(response))
+                    return;
+            }
             throw Error(response.statusText);
+        }
     }
 
     constructor(

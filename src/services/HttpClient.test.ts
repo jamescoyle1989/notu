@@ -206,3 +206,24 @@ test('Error status code gets thrown as error', async () => {
     }
     expect(error.message).toBe('poopoo');
 });
+
+test('Can use error handler to custom handle server error', async () => {
+    const client = new NotuHttpClient('abcd', mockFetch);
+    let customErrorMessage = null;
+    client.errorHandler = response => {
+        if (response.status == 401) {
+            customErrorMessage = 'Aww diddums, you forgot your password';
+            return true;
+        }
+        return false;
+    }
+
+    let error = null;
+    try {
+        await client.login('InvalidUser', 'InvalidPassword');
+    } catch (err) {
+        error = err;
+    }
+    expect(error).toBeNull();
+    expect(customErrorMessage).toBe('Aww diddums, you forgot your password');
+});
