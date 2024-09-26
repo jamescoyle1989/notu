@@ -113,6 +113,7 @@ export class NotuCache {
 
         for (const ntData of noteData.tags) {
             const nt = note.addTag(this.getTag(ntData.tagId));
+            nt.data = ntData.data;
             nt.state = ntData.state;
 
             for (const ntaData of ntData.attrs) {

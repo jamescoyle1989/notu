@@ -35,6 +35,17 @@ test('noteFromJSON handles if ownTag is null', async () => {
     expect(fromJSON.ownTag.name).toBe('Tag 1');
 });
 
+test('noteFromJSON populates data if present', async () => {
+    const cache = new NotuCache(testCacheFetcher());
+    await cache.populate();
+    const note = newNote('Hello', 1).in(cache.getSpace(1)).clean();
+    note.addTag(newTag('Address', 2).in(cache.getSpace(1)).clean()).withData({name: '123 Fake Street'});
+
+    const fromJSON = cache.noteFromJSON(note.toJSON());
+
+    expect(fromJSON.tags[0].data.name).toBe('123 Fake Street');
+});
+
 test('initial populate creates links between tags', async () => {
     const cache = new NotuCache(testCacheFetcher());
     await cache.populate();

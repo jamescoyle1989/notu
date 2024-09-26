@@ -120,7 +120,7 @@ export default class NoteTag extends ModelWithState<NoteTag> {
         return {
             state: this.state,
             tagId: this.tag.id,
-            data: !!this.data ? JSON.stringify(this.data) : undefined,
+            data: this.data,
             attrs: this._attrs.map(x => x.toJSON())
         };
     }
