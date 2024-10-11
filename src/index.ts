@@ -8,6 +8,7 @@ import NoteAttr from './models/NoteAttr';
 import { NoteComponentInfo, splitNoteTextIntoComponents } from './notecomponents/NoteComponent';
 import NoteTag from './models/NoteTag';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedAttr} from './services/QueryParser';
+import newParseQuery, {NewParsedQuery, NewParsedTag, NewParsedTagFilter} from './services/NewQueryParser';
 import Space from './models/Space';
 import Tag from './models/Tag';
 
@@ -22,6 +23,7 @@ export {
     NoteComponentInfo, splitNoteTextIntoComponents,
     NoteTag,
     parseQuery, ParsedQuery, ParsedTag, ParsedAttr,
+    newParseQuery, NewParsedQuery, NewParsedTag, NewParsedTagFilter,
     Space,
     Tag
 };

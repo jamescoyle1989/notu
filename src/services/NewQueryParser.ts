@@ -1,28 +1,38 @@
 'use strict';
 
 
-export class ParsedQuery {
+export class NewParsedQuery {
     where: string = null;
     order: string = null;
-    tags: Array<ParsedTag> = [];
+    tags: Array<NewParsedTag> = [];
 }
 
-export class ParsedTag {
+export class NewParsedTag {
     space: string = null;
     name: string = null;
     searchDepths: Array<number> = [];
-    filter: ParsedTagFilter = null;
+    filter: NewParsedTagFilter = null;
 }
 
-export class ParsedTagFilter {
+export class NewParsedTagFilter {
     pattern: string = null;
     exps: Array<string> = [];
 }
 
 
-export function splitQuery(query: string): ParsedQuery {
+export default function newParseQuery(query: string): NewParsedQuery {
+    const output = splitQuery(query);
+
+    output.where = identifyTags(output.where, output);
+    output.order = identifyTags(output.order, output);
+
+    return output;
+}
+
+
+export function splitQuery(query: string): NewParsedQuery {
     query = ' ' + query + ' ';
-    const output = new ParsedQuery();
+    const output = new NewParsedQuery();
 
     const orderByIndex = query.toUpperCase().indexOf(' ORDER BY ');
     if (orderByIndex < 0)
@@ -37,7 +47,7 @@ export function splitQuery(query: string): ParsedQuery {
 }
 
 
-export function identifyTags(query: string, parsedQuery: ParsedQuery): string {
+export function identifyTags(query: string, parsedQuery: NewParsedQuery): string {
     const regexes: Array<RegExp> = [
         /([#@_]+)([\w\d]+\.)?([\w\d]+)/,            //Single word tags and space names
         /([#@_]+)\[([\w\d\s]+\.)?([\w\d\s]+)\]/     //Multi-word tags and space names wrapped in []
@@ -49,7 +59,7 @@ export function identifyTags(query: string, parsedQuery: ParsedQuery): string {
                 break;
 
             let hashPrefix = match[1];
-            const parsedTag = new ParsedTag();
+            const parsedTag = new NewParsedTag();
             parsedTag.space = !!match[2] ? match[2].substring(0, match[2].length - 1) : null;
             parsedTag.name = match[3];
             if (hashPrefix.startsWith('@')) {
@@ -99,9 +109,9 @@ function getTagDataFilterText(query: string, tagEndIndex: number): string {
     return query.substring(tagEndIndex + 1, i);
 }
 
-function processTagDataFilter(parsedTag: ParsedTag, filterText: string): void {
+function processTagDataFilter(parsedTag: NewParsedTag, filterText: string): void {
     filterText = ` ${filterText}`;
-    parsedTag.filter = new ParsedTagFilter();
+    parsedTag.filter = new NewParsedTagFilter();
     parsedTag.filter.pattern = filterText;
     const expressionRegex = /[\s\(]\.([\w\d\[\]\.]+)/;
 
