@@ -138,8 +138,12 @@ export default class Note extends ModelWithState<Note> {
 
         if (nt.isNew)
             this._tags = this._tags.filter(x => x !== nt);
-        else
+        else {
             nt.delete();
+            const attrs = nt.attrs.map(x => x.attr);
+            for (const attr of attrs)
+                nt.removeAttr(attr);
+        }
         return this;
     }
 

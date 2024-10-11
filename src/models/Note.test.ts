@@ -3,7 +3,6 @@ import Note from './Note';
 import Tag from './Tag';
 import Space from './Space';
 import Attr from './Attr';
-import { NoteAttr, NoteTag } from '..';
 import { newAttr, newNote, newSpace, newTag } from '../TestHelpers';
 
 
@@ -298,6 +297,20 @@ test('removeTag marks existing tag on note as deleted', () => {
     expect(note.tags.length).toBe(0);
     expect(note['_tags'].length).toBe(1);
     expect(note['_tags'][0].isDeleted).toBe(true);
+});
+
+test('removeTag also removes any attrs added to that tag', () => {
+    const tag = newTag('Tag', 123).asPublic().clean();
+    const attr = newAttr('Attr', 234).asNumber().clean();
+    const note = new Note();
+    note.addTag(tag).clean().addAttr(attr, 500);
+    const nt = note.getTag(tag);
+    const na = nt.getAttr(attr).clean();
+
+    note.removeTag(tag);
+
+    expect(nt.isDeleted).toBeTruthy();
+    expect(na.isDeleted).toBeTruthy();
 });
 
 test('getTag returns correct value for tags in same space as it', () => {
