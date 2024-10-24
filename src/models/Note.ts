@@ -205,6 +205,13 @@ export default class Note extends ModelWithState<Note> {
         return this.getAttr(attr)?.value;
     }
 
+    getTagData<T>(tag: Tag, type: { new(noteTag: NoteTag): T}): T {
+        const nt = this.getTag(tag);
+        if (!nt)
+            return null;
+        return new type(nt);
+    }
+
 
     duplicate(): Note {
         const output = new Note(this.text, this.ownTag?.duplicate())

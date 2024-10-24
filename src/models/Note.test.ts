@@ -4,6 +4,7 @@ import Tag from './Tag';
 import Space from './Space';
 import Attr from './Attr';
 import { newAttr, newNote, newSpace, newTag } from '../TestHelpers';
+import NoteTag from './NoteTag';
 
 
 test('gets initiated with sensible defaults', () => {
@@ -474,4 +475,26 @@ test('stringifying shouldnt throw error', () => {
     const note = new Note('Hello').in(space);
     note.addTag(tag);
     JSON.stringify(note);
+});
+
+
+class TestData {
+    private _nt: NoteTag;
+    constructor(noteTag: NoteTag) {
+        this._nt = noteTag;
+    }
+
+    get foo(): string { return this._nt.data.foo; }
+    set foo(value: string) { this._nt.data.foo = value; }
+}
+
+test('getTagData returns correct result', () => {
+    const space = newSpace('Space', 1);
+    const tag = newTag('Tag', 2).in(space).clean();
+    const note = new Note('Hello').in(space);
+    note.addTag(tag).withData({foo: 'bar'});
+
+    const data = note.getTagData(tag, TestData);
+
+    expect(data.foo).toBe('bar');
 });
