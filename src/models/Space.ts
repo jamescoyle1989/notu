@@ -41,6 +41,17 @@ export default class Space extends ModelWithState<Space> {
     }
 
 
+    private _useCommonSpace: boolean = false;
+    get useCommonSpace(): boolean { return this._useCommonSpace; }
+    set useCommonSpace(value: boolean) {
+        if (value !== this._useCommonSpace) {
+            this._useCommonSpace = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -79,7 +90,8 @@ export default class Space extends ModelWithState<Space> {
             state: this.state,
             id: this.id,
             name: this.name,
-            version: this.version
+            version: this.version,
+            useCommonSpace: this.useCommonSpace
         }
     }
 }

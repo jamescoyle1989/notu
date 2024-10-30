@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { splitQuery, identifyTags } from './NewQueryParser';
+import newParseQuery, { splitQuery, identifyTags } from './NewQueryParser';
 
 
 test('splitQuery should split out string into where, order', () => {
@@ -82,4 +82,29 @@ test('identifyTags can identify data criteria attached to tag', () => {
     expect(result.tags[1].name).toBe('Dog');
     expect(result.tags[1].searchDepths).toEqual([1]);
     expect(result.tags[1].filter).toBeNull();
+});
+
+test('ordering by date property works correctly', () => {
+    const result = newParseQuery(`_#Tasks.Setup AND #General.Finished ORDER BY #General.Finished{(.date)::date} DESC`);
+
+    expect(result.where).toBe(`{tag0} AND {tag1}`);
+    expect(result.order).toBe(`{tag2} DESC`);
+    expect(result.tags).toHaveLength(3);
+
+    expect(result.tags[0].space).toBe('Tasks');
+    expect(result.tags[0].name).toBe('Setup');
+    expect(result.tags[0].searchDepths).toEqual([2]);
+    expect(result.tags[0].filter).toBeNull();
+
+    expect(result.tags[1].space).toBe('General');
+    expect(result.tags[1].name).toBe('Finished');
+    expect(result.tags[1].searchDepths).toEqual([1]);
+    expect(result.tags[1].filter).toBeNull();
+
+    expect(result.tags[2].space).toBe('General');
+    expect(result.tags[2].name).toBe('Finished');
+    expect(result.tags[2].searchDepths).toEqual([1]);
+    expect(result.tags[2].filter.pattern).toBe(`({exp0})::date`);
+    expect(result.tags[2].filter.exps).toHaveLength(1);
+    expect(result.tags[2].filter.exps[0]).toBe(`date`);
 });
