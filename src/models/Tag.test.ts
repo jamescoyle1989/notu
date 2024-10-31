@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import Tag from './Tag';
-import { newTag } from '../TestHelpers';
+import { newTag, testCacheFetcher } from '../TestHelpers';
+import { NotuCache } from '../services/NotuCache';
 
 
 test('Gets initiated as new', () => {
@@ -157,4 +158,23 @@ test('toJSON includes list of links', () => {
     model.links = [newTag('abc', 123), newTag('def', 456)];
     const json = model.toJSON();
     expect(json.links).toEqual([123, 456]);
+});
+
+
+test('getUniqueName returns just tag name if name is not shared', async () => {
+    const cache = new NotuCache(testCacheFetcher());
+    await cache.populate();
+    const tag = cache.getTag(1);
+    
+    expect(tag.getUniqueName(cache)).toBe('Tag 1');
+});
+
+test('getUniqueName returns space.name if tag name is duplicated', async () => {
+    const cache = new NotuCache(testCacheFetcher());
+    await cache.populate();
+    cache.tagSaved({id: 5, state: 'NEW', name: 'Duplicate', spaceId: 1, links: []});
+    cache.tagSaved({id: 6, state: 'NEW', name: 'Duplicate', spaceId: 2, links: []});
+    const tag = cache.getTag(6);
+
+    expect(tag.getUniqueName(cache)).toBe('Space 2.Duplicate');
 });

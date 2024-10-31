@@ -1,6 +1,6 @@
 'use strict';
 
-import { Space } from '..';
+import { NotuCache, Space } from '..';
 import ModelWithState from './ModelWithState';
 
 
@@ -43,6 +43,13 @@ export default class Tag extends ModelWithState<Tag> {
 
     getQualifiedName(contextSpaceId: number): string {
         if (contextSpaceId == this.space?.id)
+            return this.name;
+        return `${this.space.name}.${this.name}`;
+    }
+
+    getUniqueName(cache: NotuCache): string {
+        const sameNameTags = cache.getTagsByName(this.name);
+        if (sameNameTags.length == 1)
             return this.name;
         return `${this.space.name}.${this.name}`;
     }

@@ -19,7 +19,10 @@ export class NotuCache {
 
 
     private _spaces: Map<number, Space> = null;
+
     private _tags: Map<number, Tag> = null;
+    private _tagNames: Map<string, Array<Tag>> = null;
+
     private _attrs: Map<number, Attr> = null;
 
 
@@ -28,6 +31,7 @@ export class NotuCache {
         const tagsPromise = this._populateTags();
         const attrsPromise = this._populateAttrs();
         await Promise.all([tagsPromise, attrsPromise]);
+        this._populateTagNames();
     }
 
     private async _populateSpaces(): Promise<void> {
@@ -58,6 +62,17 @@ export class NotuCache {
         this._tags = allTags;
         for (const tagData of tagsData)
             this._populateTagLinks(tagData.tag, tagData);
+    }
+
+    private _populateTagNames(): void {
+        const result = new Map<string, Array<Tag>>();
+        for (const tag of this._tags.values()) {
+            if (result.has(tag.name))
+                result.get(tag.name).push(tag);
+            else
+                result.set(tag.name, [tag]);
+        }
+        this._tagNames = result;
     }
 
     tagFromJSON(tagData: any): Tag {
@@ -174,11 +189,15 @@ export class NotuCache {
         if (space instanceof Space)
             space = space.id;
 
-        for (const tag of this._tags.values()) {
+        for (const tag of this._tagNames.get(name) ?? []) {
             if (tag.name == name && tag.space.id == space)
                 return tag;
         }
         return undefined;
+    }
+
+    getTagsByName(name: string): Array<Tag> {
+        return this._tagNames.get(name) ?? [];
     }
 
     tagSaved(tagData: any): Tag {
@@ -187,6 +206,7 @@ export class NotuCache {
             this._tags.delete(tag.id);
         else
             this._tags.set(tag.id, tag);
+        this._populateTagNames();
         return tag;
     }
 
