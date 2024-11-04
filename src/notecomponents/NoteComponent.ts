@@ -41,6 +41,8 @@ export interface NoteComponentProcessor {
         previous: NoteComponentInfo,
         next: NoteComponentInfo
     ) => NoteComponent;
+
+    get componentShowsInlineInParagraph(): boolean;
 }
 
 
