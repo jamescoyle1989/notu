@@ -34,13 +34,11 @@ export interface NoteComponentProcessor {
     identify(text: string): NoteComponentInfo;
 
     /** Accepts a function which converts a NoteComponentInfo object into an actual NoteComponent that can be rendered */
-    creator: (
+    create(
         info: NoteComponentInfo,
         note: Note,
-        save: () => Promise<void>,
-        previous: NoteComponentInfo,
-        next: NoteComponentInfo
-    ) => NoteComponent;
+        save: () => Promise<void>
+    ): NoteComponent;
 
     get componentShowsInlineInParagraph(): boolean;
 }
@@ -51,7 +49,8 @@ export function splitNoteTextIntoComponents(
     note: Note,
     notu: Notu,
     componentProcessors: Array<NoteComponentProcessor>,
-    defaultProcessor: NoteComponentProcessor
+    defaultProcessor: NoteComponentProcessor,
+    groupIntoParagraph: (components: Array<NoteComponent>) => NoteComponent
 ): Array<NoteComponent> {
     
     const componentInfos = recursiveSplitNoteText(note.text, note, componentProcessors, defaultProcessor);
@@ -62,14 +61,22 @@ export function splitNoteTextIntoComponents(
         await notu.saveNotes([note]);
     }
 
-    let previous: NoteComponentInfo = null;
-    let current: NoteComponentInfo = componentInfos[0] ?? null;
-    let next: NoteComponentInfo = componentInfos[1] ?? null;
-    for (let i = 0; i < componentInfos.length; i++) {
-        components.push(current.processor.creator(current, note, save, previous, next));
-        previous = current;
-        current = next;
-        next = componentInfos[i + 2] ?? null;
+    for (let groupStart = 0; groupStart < componentInfos.length; groupStart++) {
+        const startInfo = componentInfos[groupStart];
+        if (!startInfo.processor.componentShowsInlineInParagraph) {
+            components.push(startInfo.processor.create(startInfo, note, save));
+            continue;
+        }
+        for (let groupEnd = groupStart; groupEnd <= componentInfos.length; groupEnd++) {
+            const endInfo = componentInfos[groupEnd];
+            if (!endInfo || !endInfo.processor.componentShowsInlineInParagraph) {
+                const groupedInfos = componentInfos.slice(groupStart, groupEnd);
+                const groupedComponents = groupedInfos.map(x => x.processor.create(x, note, save));
+                components.push(groupIntoParagraph(groupedComponents));
+                groupStart = groupEnd - 1;
+                break;
+            }
+        }
     }
 
     return components;
