@@ -41,17 +41,24 @@ export default class Tag extends ModelWithState<Tag> {
         }
     }
 
-    getQualifiedName(contextSpaceId: number): string {
-        if (contextSpaceId == this.space?.id)
-            return this.name;
+    /** Returns the name of the tag along with the name of the space that it belongs to. */
+    getFullName(): string {
         return `${this.space.name}.${this.name}`;
     }
 
+    /** Returns the name of the tag, adds the name of the space only if different from the contextSpaceId passed in. */
+    getQualifiedName(contextSpaceId: number): string {
+        if (contextSpaceId == this.space?.id)
+            return this.name;
+        return this.getFullName();
+    }
+
+    /** Returns the name of the tag, if there are no other tags with the same name, otherwise returns the full name. */
     getUniqueName(cache: NotuCache): string {
         const sameNameTags = cache.getTagsByName(this.name);
         if (sameNameTags.length == 1)
             return this.name;
-        return `${this.space.name}.${this.name}`;
+        return this.getFullName();
     }
 
 
