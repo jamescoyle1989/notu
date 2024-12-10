@@ -87,10 +87,18 @@ export class Notu {
     }
 
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {
+        const tagsBeingDeletedData = notes
+            .filter(x => !!x.ownTag)
+            .filter(x => x.isDeleted || x.ownTag.isDeleted)
+            .map(x => x.ownTag.toJSON());
         const notesData = await this.client.saveNotes(notes);
-        for (const noteData of notesData.filter(x => !!x.ownTag)) {
+        for (const noteData of notesData.filter(x => !!x.ownTag && !x.ownTag.isDeleted)) {
             noteData.ownTag.links = noteData.tags.map(x => x.tagId);
             this.cache.tagSaved(noteData.ownTag);
+        }
+        for (const tagData of tagsBeingDeletedData) {
+            tagData.state = 'DELETED';
+            this.cache.tagSaved(tagData);
         }
         notes = notesData.map(n => this.cache.noteFromJSON(n));
         return notes;

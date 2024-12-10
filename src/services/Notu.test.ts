@@ -116,6 +116,34 @@ test('saveNotes updates the cache if note has its own tag', async () => {
     expect(notu.getTag(777)).toStrictEqual(myNote.ownTag);
 });
 
+test('saveNotes updates the cache if note is removing its own tag', async () => {
+    const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
+    await notu.cache.populate();
+    const space = notu.cache.getSpace(1);
+    const myNote = new Note('Test', notu.cache.getTag(1)).in(space);
+    myNote.id = 1;
+    myNote.clean();
+
+    myNote.ownTag.delete();
+    await notu.saveNotes([myNote]);
+
+    expect(notu.getTag(1)).toBeFalsy();
+});
+
+test('saveNotes updates the cache if note with own tag is deleted', async () => {
+    const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
+    await notu.cache.populate();
+    const space = notu.cache.getSpace(1);
+    const myNote = new Note('Test', notu.cache.getTag(1)).in(space);
+    myNote.id = 1;
+    myNote.clean();
+
+    myNote.delete();
+    await notu.saveNotes([myNote]);
+
+    expect(notu.getTag(1)).toBeFalsy();
+});
+
 test('saveNotes causes ownTag to have links updated and saved', async () => {
     const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
     await notu.cache.populate();

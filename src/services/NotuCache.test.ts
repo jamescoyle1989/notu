@@ -69,6 +69,17 @@ test('tagSaved for new tag sets up links', async () => {
     expect(hippo.links[1].name).toBe('Tag 3');
 });
 
+test('tagSaved for deleted tag removes it', async () => {
+    const cache = new NotuCache(testCacheFetcher());
+    await cache.populate();
+    const tag4 = cache.getTag(4);
+    tag4.delete();
+
+    cache.tagSaved(tag4.toJSON());
+
+    expect(cache.getTag(4)).toBeFalsy();
+});
+
 
 test('getTagByName returns correct tag if found', async () => {
     const cache = new NotuCache(testCacheFetcher());
