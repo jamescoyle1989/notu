@@ -4,8 +4,6 @@ export interface NotuCacheFetcher {
     getSpacesData(): Promise<Array<any>>;
 
     getTagsData(): Promise<Array<any>>;
-
-    getAttrsData(): Promise<Array<any>>;
 }
 
 
@@ -43,10 +41,6 @@ export class NotuHttpCacheFetcher implements NotuCacheFetcher {
 
     async getTagsData(): Promise<Array<any>> {
         return await this._getX('/tags');
-    }
-
-    async getAttrsData(): Promise<Array<any>> {
-        return await this._getX('/attrs');
     }
 
     private async _getX(endpoint: string): Promise<Array<any>> {

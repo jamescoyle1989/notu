@@ -1,6 +1,6 @@
 'use strict';
 
-import { Attr, Note, Space, Tag } from '..';
+import { Note, Space, Tag } from '..';
 import { NotuClient } from './HttpClient';
 import { NotuCache } from './NotuCache';
 
@@ -41,23 +41,6 @@ export class Notu {
     async saveSpace(space: Space): Promise<Space> {
         const spaceData = await this.client.saveSpace(space);
         return this.cache.spaceSaved(spaceData);
-    }
-
-    getAttrs(space: number | Space = null): Array<Attr> {
-        return this.cache.getAttrs(space);
-    }
-
-    getAttr(id: number): Attr {
-        return this.cache.getAttr(id);
-    }
-
-    getAttrByName(name: string, space: number | Space): Attr {
-        return this.cache.getAttrByName(name, space);
-    }
-
-    async saveAttr(attr: Attr): Promise<Attr> {
-        const attrData = await this.client.saveAttr(attr);
-        return this.cache.attrSaved(attrData);
     }
 
     getTags(space: number | Space = null, includeOtherSpacePublics: boolean = false): Array<Tag> {

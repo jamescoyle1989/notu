@@ -1,6 +1,5 @@
 'use strict';
 
-import Attr from '../models/Attr';
 import Note from '../models/Note';
 import Space from '../models/Space';
 import Tag from '../models/Tag';
@@ -12,8 +11,6 @@ export interface NotuClient {
     setup(): Promise<void>;
 
     saveSpace(space: Space): Promise<any>;
-
-    saveAttr(attr: Attr): Promise<any>;
 
     getNotes(query: string, space: number | Space): Promise<Array<any>>;
 
@@ -101,19 +98,6 @@ export default class NotuHttpClient implements NotuClient {
             {
                 method: 'POST',
                 body: JSON.stringify(space),
-                headers: { Authorization: 'Bearer ' + this.token }
-            }
-        );
-        this._validateResponseStatus(response);
-        return await response.json();
-    }
-
-
-    async saveAttr(attr: Attr): Promise<any> {
-        const response = await this._fetch(this.url + '/attrs',
-            {
-                method: 'POST',
-                body: JSON.stringify(attr),
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );

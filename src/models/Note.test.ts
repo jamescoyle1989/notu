@@ -2,8 +2,7 @@ import { expect, test } from 'vitest';
 import Note from './Note';
 import Tag from './Tag';
 import Space from './Space';
-import Attr from './Attr';
-import { newAttr, newNote, newSpace, newTag } from '../TestHelpers';
+import { newNote, newSpace, newTag } from '../TestHelpers';
 import NoteTag from './NoteTag';
 
 
@@ -17,10 +16,8 @@ test('gets initiated with sensible defaults', () => {
 
 test('can duplicate itself', () => {
     const space = newSpace('hello', 123).clean();
-    const attr = newAttr('Attr1', 234).asText().clean();
     const tag = newTag('Tag1', 345).in(space).clean();
     const note = newNote('asdf', 789).in(space).setOwnTag('My Tag').clean();
-    note.addAttr(attr, 'hotpot');
     note.addTag(tag);
 
     const copy = note.duplicate();
@@ -32,16 +29,13 @@ test('can duplicate itself', () => {
     expect(copy.space.id).toBe(note.space.id);
     expect(copy.state).toBe(note.state);
     expect(copy.tags.length).toBe(note.tags.length);
-    expect(copy.attrs.length).toBe(note.attrs.length);
     expect(copy.ownTag.name).toBe(note.ownTag.name);
 });
 
 test('can duplicate itself as new', () => {
     const space = newSpace('hello', 123).clean();
-    const attr = newAttr('Attr1', 234).asText().clean();
     const tag = newTag('Tag1', 345).in(space).clean();
     const note = newNote('asdf', 789).in(space).setOwnTag('My Tag').clean();
-    note.addAttr(attr, 'hotpot');
     note.addTag(tag);
 
     const copy = note.duplicateAsNew();
@@ -54,8 +48,6 @@ test('can duplicate itself as new', () => {
     expect(copy.state).toBe('NEW');
     expect(copy.tags.length).toBe(note.tags.length);
     expect(copy.tags[0].state).toBe('NEW');
-    expect(copy.attrs.length).toBe(note.attrs.length);
-    expect(copy.attrs[0].state).toBe('NEW');
     expect(copy.ownTag).toBeFalsy()
 });
 
@@ -182,14 +174,6 @@ test('validate fails if not new and id <= 0', () => {
     expect(model.validate()).toBe(false);
 });
 
-test('validate fails if same attr has been added to note twice', () => {
-    const model = new Note();
-    const attr = newAttr('Attr', 123).clean();
-    model.addAttr(attr);
-    model.addAttr(attr);
-    expect(model.validate()).toBe(false);
-});
-
 test('validate fails if ownTag set to different space', () => {
     const model = new Note('Hello').in(newSpace('Space', 123));
     model.setOwnTag('My Tag');
@@ -300,20 +284,6 @@ test('removeTag marks existing tag on note as deleted', () => {
     expect(note['_tags'][0].isDeleted).toBe(true);
 });
 
-test('removeTag also removes any attrs added to that tag', () => {
-    const tag = newTag('Tag', 123).asPublic().clean();
-    const attr = newAttr('Attr', 234).asNumber().clean();
-    const note = new Note();
-    note.addTag(tag).clean().addAttr(attr, 500);
-    const nt = note.getTag(tag);
-    const na = nt.getAttr(attr).clean();
-
-    note.removeTag(tag);
-
-    expect(nt.isDeleted).toBeTruthy();
-    expect(na.isDeleted).toBeTruthy();
-});
-
 test('getTag returns correct value for tags in same space as it', () => {
     const space = newSpace('Space', 1).clean();
     const tag = newTag('Test', 123).in(space).clean();
@@ -353,94 +323,6 @@ test('getTag ignores the space parameter if the actual tag object is passed in',
     expect(note.getTag(tag2).tag).toBe(tag2);
     expect(note.getTag(tag2, space1).tag).toBe(tag2);
     expect(note.getTag(tag2, space2).tag).toBe(tag2);
-});
-
-
-test('addAttr adds new NoteAttr object', () => {
-    const attr = newAttr('Attr', 234).clean();
-    const note = new Note();
-
-    note.addAttr(attr);
-    
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0].attr).toBe(attr);
-});
-
-test('addAttr doesnt undelete existing NoteAttr if trying to add duplicate attr', () => {
-    const attr = newAttr('Attr', 234).clean();
-    const note = new Note();
-    note.addAttr(attr);
-    note.attrs[0].clean();
-    note.attrs[0].delete();
-
-    note.addAttr(attr);
-
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrsPendingDeletion.length).toBe(1);
-});
-
-test('addAttr throws error if trying to add deleted attr', () => {
-    const attr = newAttr('Attr', 234).clean().delete();
-    const note = new Note();
-    expect(() => note.addAttr(attr)).toThrowError();
-});
-
-test('addAttr prevents note from adding attr that hasnt been saved yet', () => {
-    const note = new Note();
-    expect(() => note.addAttr(new Attr())).toThrowError();
-});
-
-test('addAttr doesnt add duplicates', () => {
-    const attr = newAttr('Attr', 234).asNumber().clean();
-    const note = new Note();
-    note.addAttr(attr, 10);
-    note.addAttr(attr, 20);
-    expect(note.attrs.length).toBe(1);
-    expect(note.attrs[0].value).toBe(20);
-});
-
-test('removeAttr removes newly added attr from note', () => {
-    const attr = newAttr('Attr', 234).clean();
-    const note = new Note();
-    note.addAttr(attr);
-
-    note.removeAttr(attr);
-
-    expect(note.attrs.length).toBe(0);
-});
-
-test('removeAttr marks existing attr on note as deleted', () => {
-    const attr = newAttr('Attr', 234).clean();
-    const note = new Note();
-    note.addAttr(attr);
-    note.attrs[0].clean();
-
-    note.removeAttr(attr);
-
-    expect(note.attrs.length).toBe(0);
-    expect(note.attrsPendingDeletion.length).toBe(1);
-    expect(note.attrsPendingDeletion[0].isDeleted).toBe(true);
-});
-
-test('getValue returns correct value for attrs note', () => {
-    const attr = newAttr('Attr', 234).clean();
-    attr.name = 'Rumpy';
-    const note = new Note().addAttr(attr, 'Pumpy');
-
-    expect(note.getValue('Rumpy')).toBe('Pumpy');
-    expect(note.getValue(attr)).toBe('Pumpy');
-
-    expect(note.getValue('Lumpy')).toBeUndefined();
-});
-
-test('hasValue returns correct value for attrs note', () => {
-    const attr = newAttr('Attr', 234).clean();
-    attr.name = 'Rumpy';
-    const note = new Note().addAttr(attr, 'Pumpy');
-
-    expect(note.getAttr('Rumpy')).toBeTruthy();
-    expect(note.getAttr(attr)).toBeTruthy();
-    expect(note.getAttr('Lumpy')).toBeFalsy();
 });
 
 

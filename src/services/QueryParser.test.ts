@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { splitQuery, identifyTags, identifyAttrs } from './QueryParser';
+import parseQuery, { splitQuery, identifyTags } from './QueryParser';
 
 
 test('splitQuery should split out string into where, order', () => {
@@ -25,26 +25,20 @@ test('splitQuery should leave where null if not specified', () => {
 
 
 test('identifyTags should correctly identify multiple tags in query', () => {
-    const result = splitQuery('#Test AND ~Info OR #~Me');
+    const result = splitQuery('#Test AND @Info OR @_#Me');
 
     result.where = identifyTags(result.where, result);
 
     expect(result.where).toBe('{tag0} AND {tag1} OR {tag2}');
     expect(result.tags[0].space).toBeNull();
     expect(result.tags[0].name).toBe('Test');
-    expect(result.tags[0].includeOwner).toBe(false);
-    expect(result.tags[0].searchDepth).toBe(1);
-    expect(result.tags[0].strictSearchDepth).toBe(true);
+    expect(result.tags[0].searchDepths).toEqual([1]);
     expect(result.tags[1].space).toBeNull();
     expect(result.tags[1].name).toBe('Info');
-    expect(result.tags[1].includeOwner).toBe(true);
-    expect(result.tags[1].searchDepth).toBe(0);
-    expect(result.tags[1].strictSearchDepth).toBe(true);
+    expect(result.tags[1].searchDepths).toEqual([0]);
     expect(result.tags[2].space).toBeNull();
     expect(result.tags[2].name).toBe('Me');
-    expect(result.tags[2].includeOwner).toBe(true);
-    expect(result.tags[2].searchDepth).toBe(1);
-    expect(result.tags[2].strictSearchDepth).toBe(true);
+    expect(result.tags[2].searchDepths).toEqual([0, 2]);
 });
 
 test('identifyTags handles spaces in tag names if wrapped in brackets', () => {
@@ -55,9 +49,7 @@ test('identifyTags handles spaces in tag names if wrapped in brackets', () => {
     expect(result.where).toBe('{tag0}');
     expect(result.tags[0].space).toBeNull();
     expect(result.tags[0].name).toBe('I Am Long');
-    expect(result.tags[0].includeOwner).toBe(false);
-    expect(result.tags[0].searchDepth).toBe(1);
-    expect(result.tags[0].strictSearchDepth).toBe(true);
+    expect(result.tags[0].searchDepths).toEqual([1]);
 });
 
 test('identifyTags can identify tag spaces', () => {
@@ -68,80 +60,51 @@ test('identifyTags can identify tag spaces', () => {
     expect(result.where).toBe('{tag0} AND {tag1}');
     expect(result.tags[0].space).toBe('Space1');
     expect(result.tags[0].name).toBe('Tag1');
-    expect(result.tags[0].includeOwner).toBe(false);
-    expect(result.tags[0].searchDepth).toBe(1);
-    expect(result.tags[0].strictSearchDepth).toBe(true);
+    expect(result.tags[0].searchDepths).toEqual([1]);
     expect(result.tags[1].space).toBe('Space 2');
     expect(result.tags[1].name).toBe('Tag 2');
-    expect(result.tags[1].includeOwner).toBe(false);
-    expect(result.tags[1].searchDepth).toBe(1);
-    expect(result.tags[1].strictSearchDepth).toBe(true);
+    expect(result.tags[1].searchDepths).toEqual([1]);
 });
 
-test('identifyAttrs can correctly identify multiple attrs in query', () => {
-    const result = splitQuery('@Count > 3 AND @Depth < 4');
+test('identifyTags can identify data criteria attached to tag', () => {
+    const result = splitQuery('#Person{.height.meters > 1.8 AND .weight[0] < 80} OR #Dog');
 
-    result.where = identifyAttrs(result.where, result);
+    result.where = identifyTags(result.where, result);
 
-    expect(result.where).toBe('{attr0} > 3 AND {attr1} < 4');
-    expect(result.attrs[0].name).toBe('Count');
-    expect(result.attrs[0].exists).toBe(false);
-    expect(result.attrs[1].name).toBe('Depth');
-    expect(result.attrs[1].exists).toBe(false);
+    expect(result.where).toBe('{tag0} OR {tag1}');
+    expect(result.tags[0].space).toBeNull();
+    expect(result.tags[0].name).toBe('Person');
+    expect(result.tags[0].searchDepths).toEqual([1]);
+    expect(result.tags[0].filter.pattern).toBe('{exp0} > 1.8 AND {exp1} < 80');
+    expect(result.tags[0].filter.exps[0]).toBe('height.meters');
+    expect(result.tags[0].filter.exps[1]).toBe('weight[0]');
+    expect(result.tags[1].space).toBeNull();
+    expect(result.tags[1].name).toBe('Dog');
+    expect(result.tags[1].searchDepths).toEqual([1]);
+    expect(result.tags[1].filter).toBeNull();
 });
 
-test('identifyAttrs improperly parses attributes that try to specify space', () => {
-    const result = splitQuery('@MySpace.Count = 123');
-    
-    result.where = identifyAttrs(result.where, result);
+test('ordering by date property works correctly', () => {
+    const result = parseQuery(`_#Tasks.Setup AND #General.Finished ORDER BY #General.Finished{(.date)::date} DESC`);
 
-    expect(result.where).toBe('{attr0}.Count = 123');
-});
+    expect(result.where).toBe(`{tag0} AND {tag1}`);
+    expect(result.order).toBe(`{tag2} DESC`);
+    expect(result.tags).toHaveLength(3);
 
-test('identifyAttrs can identify exists queries', () => {
-    const result = splitQuery('@Help.Exists()');
+    expect(result.tags[0].space).toBe('Tasks');
+    expect(result.tags[0].name).toBe('Setup');
+    expect(result.tags[0].searchDepths).toEqual([2]);
+    expect(result.tags[0].filter).toBeNull();
 
-    result.where = identifyAttrs(result.where, result);
+    expect(result.tags[1].space).toBe('General');
+    expect(result.tags[1].name).toBe('Finished');
+    expect(result.tags[1].searchDepths).toEqual([1]);
+    expect(result.tags[1].filter).toBeNull();
 
-    expect(result.where).toBe('{attr0}');
-    expect(result.attrs[0].name).toBe('Help');
-    expect(result.attrs[0].exists).toBe(true);
-});
-
-test('identifyAttrs can identify on tag filters', () => {
-    const result = splitQuery('@Abc.On(MyTag) > 1');
-
-    result.where = identifyAttrs(result.where, result);
-
-    expect(result.where).toBe('{attr0} > 1');
-    expect(result.attrs[0].name).toBe('Abc');
-    expect(result.attrs[0].exists).toBe(false);
-    expect(result.attrs[0].tagNameFilters[0].name).toBe('MyTag');
-});
-
-test('identifyAttrs can handle attr names with spaces in them', () => {
-    const result = splitQuery('@[Test Test] = 123');
-
-    result.where = identifyAttrs(result.where, result);
-
-    expect(result.where).toBe('{attr0} = 123');
-    expect(result.attrs[0].name).toBe('Test Test');
-});
-
-test('identifyAttrs can support multiple pipe-separated on(tag) filters', () => {
-    const result = splitQuery('@Abc.Exists().On(Tag1|#Space2.Tag2)');
-
-    result.where = identifyAttrs(result.where, result);
-
-    expect(result.where).toBe('{attr0}');
-    expect(result.attrs.length).toBe(1);
-    expect(result.attrs[0].name).toBe('Abc');
-    expect(result.attrs[0].exists).toBe(true);
-    expect(result.attrs[0].tagNameFilters.length).toBe(2);
-    expect(result.attrs[0].tagNameFilters[0].name).toBe('Tag1');
-    expect(result.attrs[0].tagNameFilters[0].space).toBeNull();
-    expect(result.attrs[0].tagNameFilters[0].searchDepth).toBe(0);
-    expect(result.attrs[0].tagNameFilters[1].name).toBe('Tag2');
-    expect(result.attrs[0].tagNameFilters[1].space).toBe('Space2');
-    expect(result.attrs[0].tagNameFilters[1].searchDepth).toBe(1);
+    expect(result.tags[2].space).toBe('General');
+    expect(result.tags[2].name).toBe('Finished');
+    expect(result.tags[2].searchDepths).toEqual([1]);
+    expect(result.tags[2].filter.pattern).toBe(`({exp0})::date`);
+    expect(result.tags[2].filter.exps).toHaveLength(1);
+    expect(result.tags[2].filter.exps[0]).toBe(`date`);
 });

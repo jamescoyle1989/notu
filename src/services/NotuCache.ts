@@ -1,6 +1,5 @@
 'use strict';
 
-import Attr from '../models/Attr';
 import Note from '../models/Note';
 import Space from '../models/Space';
 import Tag from '../models/Tag';
@@ -23,14 +22,10 @@ export class NotuCache {
     private _tags: Map<number, Tag> = null;
     private _tagNames: Map<string, Array<Tag>> = null;
 
-    private _attrs: Map<number, Attr> = null;
-
 
     async populate(): Promise<void> {
         await this._populateSpaces();
-        const tagsPromise = this._populateTags();
-        const attrsPromise = this._populateAttrs();
-        await Promise.all([tagsPromise, attrsPromise]);
+        await this._populateTags();
         this._populateTagNames();
     }
 
@@ -91,24 +86,6 @@ export class NotuCache {
         tag.links = tagData.links.map(x => this._tags.get(x));
     }
 
-    private async _populateAttrs(): Promise<void> {
-        const attrsData = await this._fetcher.getAttrsData();
-        this._attrs = new Map<number, Attr>();
-        for (const attrData of attrsData) {
-            const attr = this.attrFromJSON(attrData);
-            this._attrs.set(attr.id, attr);
-        }
-    }
-
-    attrFromJSON(attrData: any): Attr {
-        const attr = new Attr(attrData.name, attrData.description);
-        attr.id = attrData.id;
-        attr.type = attrData.type;
-        attr.space = this._spaces.get(attrData.spaceId);
-        attr.state = attrData.state;
-        return attr;
-    }
-
 
     noteFromJSON(noteData: any): Note {
         const ownTag = !noteData.ownTag || noteData.ownTag.state == 'CLEAN'
@@ -120,22 +97,10 @@ export class NotuCache {
         note.id = noteData.id;
         note.state = noteData.state;
 
-        for (const naData of noteData.attrs) {
-            const attr = this.getAttr(naData.attrId)
-            note.addAttr(attr, naData.value);
-            note.getAttr(attr).state = naData.state;
-        }
-
         for (const ntData of noteData.tags) {
             const nt = note.addTag(this.getTag(ntData.tagId));
             nt.data = ntData.data;
             nt.state = ntData.state;
-
-            for (const ntaData of ntData.attrs) {
-                const attr = this.getAttr(ntaData.attrId);
-                nt.addAttr(attr, ntaData.value);
-                nt.getAttr(attr).state = ntaData.state;
-            }
         }
 
         return note;
@@ -209,42 +174,4 @@ export class NotuCache {
         this._populateTagNames();
         return tag;
     }
-
-
-
-    getAttrs(space: number | Space = null): Array<Attr> {
-        if (space == null)
-            return Array.from(this._attrs.values());
-
-        if (space instanceof Space)
-            space = space.id;
-
-        return Array.from(this._attrs.values())
-            .filter(x => x.space.id == space);
-    }
-
-    getAttr(id: number): Attr {
-        return this._attrs.get(id);
-    }
-
-    getAttrByName(name: string, space: number | Space): Attr {
-        if (space instanceof Space)
-            space = space.id;
-
-        for (const attr of this._attrs.values()) {
-            if (attr.name == name && attr.space.id == space)
-                return attr;
-        }
-        return undefined;
-    }
-
-    attrSaved(attrData: any): Attr {
-        const attr = this.attrFromJSON(attrData);
-        if (attr.state == 'DELETED')
-            this._attrs.delete(attr.id);
-        else
-            this._attrs.set(attr.id, attr);
-        return attr;
-    }
-
 }

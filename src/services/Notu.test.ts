@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Notu } from './Notu';
 import { NotuClient } from './HttpClient';
-import { Attr, Note, NotuCache, Space, Tag } from '..';
+import { Note, NotuCache, Space, Tag } from '..';
 import { newNote, newSpace, testCacheFetcher } from '../TestHelpers';
 
 class MockClient implements NotuClient {
@@ -22,11 +22,6 @@ class MockClient implements NotuClient {
         return Promise.resolve(space);
     }
 
-    saveAttr(attr: Attr): Promise<Attr> {
-        this.log.push('saveAttr');
-        return Promise.resolve(attr);
-    }
-
     getNotes(query: string, spaceId: number): Promise<Array<any>> {
         this.log.push(`getNotes('${query}', ${spaceId})`);
         return Promise.resolve([
@@ -38,12 +33,7 @@ class MockClient implements NotuClient {
                 spaceId: 1,
                 ownTag: { id: 2, state: 'CLEAN', name: 'Test', spaceId: 1, color: '#FF00FF', isPublic: true },
                 tags: [
-                    { tagId: 1, state: 'CLEAN', attrs: [] }
-                ],
-                attrs: [
-                    { attrId: 1, state: 'CLEAN', tagId: null, value: 'Im an attr value' },
-                    { attrId: 2, state: 'CLEAN', tagId: null, value: 123 },
-                    { attrId: 4, state: 'CLEAN', tagId: null, value: '2024-04-17' }
+                    { tagId: 1, state: 'CLEAN' }
                 ]
             }
         ]);
@@ -65,12 +55,7 @@ class MockClient implements NotuClient {
                 spaceId: 1,
                 ownTag: { id: 2, state: 'CLEAN', name: 'Test', spaceId: 1, color: '#FF00FF', isPublic: true },
                 tags: [
-                    { tagId: 1, state: 'CLEAN', attrs: [] }
-                ],
-                attrs: [
-                    { attrId: 1, state: 'CLEAN', tagId: null, value: 'Im an attr value' },
-                    { attrId: 2, state: 'CLEAN', tagId: null, value: 123 },
-                    { attrId: 4, state: 'CLEAN', tagId: null, value: '2024-04-17' }
+                    { tagId: 1, state: 'CLEAN' }
                 ]
             }
         ]);
@@ -158,7 +143,7 @@ test('saveNotes causes ownTag to have links updated and saved', async () => {
     expect(notu.cache.getTag(777).links.map(x => x.id)).toEqual([1,2]);
 });
 
-test('getNotes will populate related tags & attrs', async () => {
+test('getNotes will populate related tags', async () => {
     const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
     await notu.cache.populate();
 
@@ -166,7 +151,6 @@ test('getNotes will populate related tags & attrs', async () => {
 
     expect(note.space.name).toBe('Space 1');
     expect(note.tags[0].tag.name).toBe('Tag 1');
-    expect(note.attrs[0].attr.name).toBe('Attr 1');
     expect(note.ownTag.name).toBe('Tag 2');
 });
 
@@ -178,16 +162,5 @@ test('getNotes returns clean objects', async () => {
 
     expect(note.isClean).toBeTruthy();
     expect(note.tags[0].isClean).toBeTruthy();
-    expect(note.attrs[0].isClean).toBeTruthy();
     expect(note.ownTag.isClean).toBeTruthy();
-});
-
-test('getNotes ensures NoteAttr values for date attrs are actually dates', async () => {
-    const notu = new Notu(new MockClient(), new NotuCache(testCacheFetcher()));
-    await notu.cache.populate();
-
-    const note = (await notu.getNotes('some query', 1))[0];
-
-    expect(note.attrs.find(x => x.attr.isDate).value.getTime()).toBe(new Date('2024-04-17').getTime());
-    expect(note.attrs.find(x => x.attr.isNumber).value).toBe(123);
 });

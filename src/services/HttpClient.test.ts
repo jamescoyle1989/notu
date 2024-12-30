@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import Space from '../models/Space';
-import { Attr, NotuHttpClient } from '..';
+import { NotuHttpClient } from '..';
 
 
 async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
@@ -14,12 +14,6 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
         return new Response(JSON.stringify([
             new Space('Space 1'),
             new Space('Space 2')
-        ]), {status: 200});
-    }
-    if (init.method == 'GET' && input.toString().includes('/attrs')) {
-        return new Response(JSON.stringify([
-            new Attr('Attr 1'),
-            new Attr('Attr 2')
         ]), {status: 200});
     }
     if (init.method == 'GET' && input.toString().includes('/notes?')) {
@@ -36,12 +30,7 @@ async function mockFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
                     spaceId: 1,
                     ownTag: { id: 2 },
                     tags: [
-                        { tagId: 1, state: 'CLEAN', attrs: [] }
-                    ],
-                    attrs: [
-                        { attrId: 1, state: 'CLEAN', tagId: null, value: 'Im an attr value' },
-                        { attrId: 2, state: 'CLEAN', tagId: null, value: 123 },
-                        { attrId: 4, state: 'CLEAN', tagId: null, value: '2024-04-17' }
+                        { tagId: 1, state: 'CLEAN' }
                     ]
                 }
             ]), {status: 200});
@@ -59,9 +48,6 @@ async function mockErrorFetch(input: RequestInfo | URL, init?: RequestInit): Pro
         return new Response(JSON.stringify({token: null, error: 'You entered the wrong password, idiot!'}), {status: 401, statusText: 'poopoo'});
     }
     if (init.method == 'GET' && input.toString().includes('/spaces')) {
-        return new Response(JSON.stringify([]), {status: 500, statusText: 'poopoo'});
-    }
-    if (init.method == 'GET' && input.toString().includes('/attrs')) {
         return new Response(JSON.stringify([]), {status: 500, statusText: 'poopoo'});
     }
     if (init.method == 'GET' && input.toString().includes('/notes?')) {
@@ -135,10 +121,10 @@ test('getNotes passes spaceId and query in URL', async () => {
     });
     client.token = 'qwer.asdf.zxcv';
 
-    const result = await client.getNotes('#Tag AND @Attr = 100', 1);
+    const result = await client.getNotes('#Tag', 1);
 
     expect(init.method).toBe('GET');
-    expect(input).toBe('abcd/notes?space=1&query=%23Tag%20AND%20%40Attr%20%3D%20100');
+    expect(input).toBe('abcd/notes?space=1&query=%23Tag');
     expect(init.body).toBeFalsy();
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
     expect(result.length).toBe(1);
@@ -156,10 +142,10 @@ test('getNoteCount passes spaceId and query in URL', async () => {
     });
     client.token = 'qwer.asdf.zxcv';
 
-    const result = await client.getNoteCount('#Tag AND @Attr = 100', 1);
+    const result = await client.getNoteCount('#Tag', 1);
 
     expect(init.method).toBe('GET');
-    expect(input).toBe('abcd/notes?count=true&space=1&query=%23Tag%20AND%20%40Attr%20%3D%20100');
+    expect(input).toBe('abcd/notes?count=true&space=1&query=%23Tag');
     expect(init.body).toBeFalsy();
     expect(init.headers['Authorization']).toBe('Bearer qwer.asdf.zxcv');
     expect(result).toBe(2);
