@@ -55,18 +55,13 @@ export class Notu {
         return this.cache.getTagByName(name, space);
     }
 
-    async getNotes(query: string, spaceId: number): Promise<Array<Note>> {
+    async getNotes(query: string, spaceId?: number): Promise<Array<Note>> {
         const notesData = await this.client.getNotes(query, spaceId);
         return notesData.map(n => this.cache.noteFromJSON(n));
     }
 
-    async getNoteCount(query: string, spaceId: number): Promise<number> {
+    async getNoteCount(query: string, spaceId?: number): Promise<number> {
         return await this.client.getNoteCount(query, spaceId);
-    }
-
-    async getRelatedNotes(tag: Tag | Note | number): Promise<Array<Note>> {
-        const notesData = await this.client.getRelatedNotes(tag);
-        return notesData.map(n => this.cache.noteFromJSON(n));
     }
 
     async saveNotes(notes: Array<Note>): Promise<Array<Note>> {

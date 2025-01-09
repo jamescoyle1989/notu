@@ -22,7 +22,7 @@ class MockClient implements NotuClient {
         return Promise.resolve(space);
     }
 
-    getNotes(query: string, spaceId: number): Promise<Array<any>> {
+    getNotes(query: string, spaceId?: number): Promise<Array<any>> {
         this.log.push(`getNotes('${query}', ${spaceId})`);
         return Promise.resolve([
             {
@@ -39,26 +39,9 @@ class MockClient implements NotuClient {
         ]);
     }
 
-    getNoteCount(query: string, spaceId: number): Promise<number> {
+    getNoteCount(query: string, spaceId?: number): Promise<number> {
         this.log.push(`getNoteCount('${query}', ${spaceId})`);
         return Promise.resolve(1);
-    }
-
-    getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>> {
-        this.log.push(`getRelatedNotes('${tag})`);
-        return Promise.resolve([
-            {
-                id: 2,
-                state: 'CLEAN',
-                date: new Date(),
-                text: 'Hello, this is a test',
-                spaceId: 1,
-                ownTag: { id: 2, state: 'CLEAN', name: 'Test', spaceId: 1, color: '#FF00FF', isPublic: true },
-                tags: [
-                    { tagId: 1, state: 'CLEAN' }
-                ]
-            }
-        ]);
     }
 
     saveNotes(notes: Array<Note>): Promise<Array<any>> {

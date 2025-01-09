@@ -12,11 +12,9 @@ export interface NotuClient {
 
     saveSpace(space: Space): Promise<any>;
 
-    getNotes(query: string, space: number | Space): Promise<Array<any>>;
+    getNotes(query: string, space?: number | Space): Promise<Array<any>>;
 
-    getNoteCount(query: string, space: number | Space): Promise<number>;
-
-    getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>>;
+    getNoteCount(query: string, space?: number | Space): Promise<number>;
 
     saveNotes(notes: Array<Note>): Promise<Array<any>>;
 
@@ -106,11 +104,11 @@ export default class NotuHttpClient implements NotuClient {
     }
 
 
-    async getNotes(query: string, space: number | Space): Promise<Array<any>> {
-        if (space instanceof Space)
+    async getNotes(query: string, space?: number | Space): Promise<Array<any>> {
+        if (!!space && space instanceof Space)
             space = space.id;
 
-        const response = await this._fetch(this.url + `/notes?space=${space}&query=${encodeURIComponent(query)}`,
+        const response = await this._fetch(this.url + `/notes?${!!space ? `space=${space}&` : ''}query=${encodeURIComponent(query)}`,
             {
                 method: 'GET',
                 headers: { Authorization: 'Bearer ' + this.token }
@@ -120,7 +118,7 @@ export default class NotuHttpClient implements NotuClient {
         return await response.json();
     }
 
-    async getNoteCount(query: string, space: number | Space): Promise<number> {
+    async getNoteCount(query: string, space?: number | Space): Promise<number> {
         if (space instanceof Space)
             space = space.id;
 
@@ -132,22 +130,6 @@ export default class NotuHttpClient implements NotuClient {
         );
         this._validateResponseStatus(response);
         return (await response.json()).count;
-    }
-
-    async getRelatedNotes(tag: Tag | Note | number): Promise<Array<any>> {
-        if (tag instanceof Tag)
-            tag = tag.id;
-        if (tag instanceof Note)
-            tag = tag.id;
-
-        const response = await this._fetch(this.url + `/notes?tag=${tag}`,
-            {
-                method: 'GET',
-                headers: { Authorization: 'Bearer ' + this.token }
-            }
-        );
-        this._validateResponseStatus(response);
-        return await response.json();
     }
 
     async saveNotes(notes: Array<Note>): Promise<Array<any>> {
