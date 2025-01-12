@@ -10,6 +10,12 @@ class NoteTest1 implements NoteComponent {
 }
 
 class Test1Processor implements NoteComponentProcessor {
+    get displayName(): string { return 'Test 1'; }
+
+    newComponentText(contentText: string): string {
+        return `<Test1>${contentText}</Test1>`;
+    }
+
     get componentShowsInlineInParagraph(): boolean { return false; }
 
     identify(text: string): NoteComponentInfo {
@@ -33,6 +39,12 @@ class NoteTest2 implements NoteComponent {
 }
 
 class Test2Processor implements NoteComponentProcessor {
+    get displayName(): string { return 'Test 2'; }
+
+    newComponentText(contentText: string): string {
+        return `<Test2>${contentText}</Test2>`;
+    }
+
     get componentShowsInlineInParagraph(): boolean { return false; }
 
     identify(text: string): NoteComponentInfo {
@@ -56,6 +68,12 @@ class InlineTest implements NoteComponent {
 }
 
 class InlineTestProcessor implements NoteComponentProcessor {
+    get displayName(): string { return 'Inline'; }
+
+    newComponentText(contentText: string): string {
+        return `<Inline>${contentText}</Inline>`;
+    }
+
     get componentShowsInlineInParagraph(): boolean { return true; }
 
     identify(text: string): NoteComponentInfo {
@@ -81,6 +99,12 @@ class Text implements NoteComponent {
 }
 
 class DefaultProcessor implements NoteComponentProcessor {
+    get displayName(): string { return null; }
+
+    newComponentText(contentText: string): string {
+        return contentText;
+    }
+
     get componentShowsInlineInParagraph(): boolean { return true; }
 
     identify(text: string): NoteComponentInfo {

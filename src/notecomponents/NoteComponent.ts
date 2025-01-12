@@ -31,6 +31,10 @@ export class NoteComponentInfo {
 /** Defines the interface for an object which can identify and then create instances of a particular type of note component */
 export interface NoteComponentProcessor {
 
+    get displayName(): string;
+
+    newComponentText(contentText: string): string;
+
     identify(text: string): NoteComponentInfo;
 
     /** Accepts a function which converts a NoteComponentInfo object into an actual NoteComponent that can be rendered */
