@@ -1,6 +1,6 @@
 {
   "name": "notu",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "main": "dist/notu.mjs",
   "unpkg": "dist/notu.mjs",
   "types": "dist/types/index.d.ts",

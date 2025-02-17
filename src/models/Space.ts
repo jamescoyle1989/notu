@@ -69,6 +69,7 @@ export default class Space extends ModelWithState<Space> {
         const output = new Space();
         output.name = this.name;
         output.version = this.version;
+        output.useCommonSpace = this.useCommonSpace;
         return output;
     }
 
