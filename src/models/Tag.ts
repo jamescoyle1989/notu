@@ -76,7 +76,7 @@ export default class Tag extends ModelWithState<Tag> {
     private _availability: number = 0;
     get availability(): number { return this._availability; }
     set availability(value: number) {
-        if (!this.isNew && !this.isPrivate && value == 0)
+        if (!this.isNew && value < this.availability)
             throw Error('Cannot change a tag to private once its already been saved.');
         if (value != this._availability) {
             this._availability = value;

@@ -85,7 +85,7 @@ test('can duplicate itself', () => {
     expect(copy.id).toBe(tag.id);
     expect(copy.name).toBe(tag.name);
     expect(copy.state).toBe(tag.state);
-    expect(copy.isPublic).toBe(tag.isPublic);
+    expect(copy.availability).toBe(tag.availability);
     expect(copy.links.length).toBe(2);
 });
 
@@ -97,7 +97,7 @@ test('can duplicate itself as new', () => {
     expect(copy.id).toBe(0);
     expect(copy.name).toBe(tag.name);
     expect(copy.state).toBe('NEW');
-    expect(copy.isPublic).toBe(tag.isPublic);
+    expect(copy.availability).toBe(tag.availability);
     expect(copy.links.length).toBe(2);
 });
 

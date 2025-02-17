@@ -135,15 +135,25 @@ export class NotuCache {
 
 
 
-    getTags(space: number | Space = null, includeOtherSpacePublics: boolean = false): Array<Tag> {
+    getTags(space: number | Space = null, includeOtherSpacePublics: boolean = false, includeOtherSpaceCommons: boolean = false): Array<Tag> {
         if (space == null)
             return Array.from(this._tags.values());
-        
-        if (space instanceof Space)
-            space = space.id;
 
+        let spaceObj: Space;
+        if (typeof space === 'number')
+            spaceObj = this.getSpace(space);
+        else
+            spaceObj = space;
+        
         return Array.from(this._tags.values())
-            .filter(x => (x.isPublic && includeOtherSpacePublics) || x.space.id == space);
+            .filter(x => {
+                if (x.space.id == spaceObj.id)
+                    return true;
+                if (x.isPublic && includeOtherSpacePublics)
+                    return true;
+                if (x.isCommon && includeOtherSpaceCommons)
+                    return true;
+            });
     }
 
     getTag(id: number): Tag {
