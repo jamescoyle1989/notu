@@ -43,6 +43,7 @@ export class NotuCache {
         space.id = spaceData.id;
         space.version = spaceData.version;
         space.state = spaceData.state;
+        space.useCommonSpace = spaceData.useCommonSpace;
         return space;
     }
 
