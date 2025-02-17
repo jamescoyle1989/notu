@@ -42,8 +42,8 @@ export class NotuCache {
         const space = new Space(spaceData.name);
         space.id = spaceData.id;
         space.version = spaceData.version;
-        space.state = spaceData.state;
         space.useCommonSpace = spaceData.useCommonSpace;
+        space.state = spaceData.state;
         return space;
     }
 

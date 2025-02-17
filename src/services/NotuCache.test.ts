@@ -3,6 +3,17 @@ import { NotuCache } from './NotuCache';
 import { newNote, newSpace, newTag, testCacheFetcher } from '../TestHelpers';
 
 
+test('spaceFromJSON correctly sets up properties', () => {
+    const cache = new NotuCache(testCacheFetcher());
+    const spaceData = {id: 1, name: 'Tasks', version: '2.0.0', useCommonSpace: true, state: 'CLEAN'};
+    const space = cache.spaceFromJSON(spaceData);
+    expect(space.id).toBe(1);
+    expect(space.name).toBe('Tasks');
+    expect(space.version).toBe('2.0.0');
+    expect(space.useCommonSpace).toBe(true);
+    expect(space.state).toBe('CLEAN');
+});
+
 test('noteFromJSON pulls ownTag from cache if state is clean', async () => {
     const cache = new NotuCache(testCacheFetcher());
     await cache.populate();
