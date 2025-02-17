@@ -75,7 +75,7 @@ export class NotuCache {
         tag.id = tagData.id;
         tag.space = this._spaces.get(tagData.spaceId);
         tag.color = tagData.color;
-        tag.isPublic = tagData.isPublic;
+        tag.availability = tagData.availability;
         tag.state = tagData.state;
         if (!!this._tags)
             this._populateTagLinks(tag, tagData);

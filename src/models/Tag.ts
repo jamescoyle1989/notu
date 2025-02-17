@@ -73,24 +73,36 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    private _isPublic: boolean = false;
-    get isPublic(): boolean { return this._isPublic; }
-    set isPublic(value: boolean) {
-        if (!this.isNew && this.isPublic && !value)
-            throw Error('Cannot change a tag from public to private once its already been saved.');
-        if (value !== this._isPublic) {
-            this._isPublic = value;
+    private _availability: number = 0;
+    get availability(): number { return this._availability; }
+    set availability(value: number) {
+        if (!this.isNew && !this.isPrivate && value == 0)
+            throw Error('Cannot change a tag to private once its already been saved.');
+        if (value != this._availability) {
+            this._availability = value;
             if (this.isClean)
                 this.dirty();
         }
     }
 
-    asPublic(): Tag {
-        this.isPublic = true;
+    get isPrivate(): boolean { return this._availability == 0; }
+
+    get isCommon(): boolean { return this._availability == 1; }
+
+    get isPublic(): boolean { return this.availability == 2; }
+
+    asPrivate(): Tag {
+        this.availability = 0;
         return this;
     }
-    asPrivate(): Tag {
-        this.isPublic = false;
+
+    asCommon(): Tag {
+        this.availability = 1;
+        return this;
+    }
+
+    asPublic(): Tag {
+        this.availability = 2;
         return this;
     }
 
@@ -119,7 +131,7 @@ export default class Tag extends ModelWithState<Tag> {
         const output = new Tag(this.name);
         output.color = this.color;
         output.space = this.space;
-        output.isPublic = this.isPublic;
+        output.availability = this.availability;
         output.links = this.links.slice();
         return output;
     }
@@ -148,7 +160,7 @@ export default class Tag extends ModelWithState<Tag> {
             name: this.name,
             spaceId: this.space?.id,
             color: this.color,
-            isPublic: this.isPublic,
+            availability: this.availability,
             links: this.links.map(x => x.id)
         };
     }
