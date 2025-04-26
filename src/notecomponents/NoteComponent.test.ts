@@ -7,6 +7,10 @@ class NoteTest1 implements NoteComponent {
     getText(): string {
         return 'Test1';
     }
+
+    getTypeInfo(): string {
+        return 'NoteTest1';
+    }
 }
 
 class Test1Processor implements NoteComponentProcessor {
@@ -36,6 +40,10 @@ class NoteTest2 implements NoteComponent {
     getText(): string {
         return 'Test2';
     }
+
+    getTypeInfo(): string {
+        return 'NoteTest2';
+    }
 }
 
 class Test2Processor implements NoteComponentProcessor {
@@ -64,6 +72,10 @@ class Test2Processor implements NoteComponentProcessor {
 class InlineTest implements NoteComponent {
     getText(): string {
         return 'Inline';
+    }
+
+    getTypeInfo(): string {
+        return 'InlineTest';
     }
 }
 
@@ -95,6 +107,10 @@ class Text implements NoteComponent {
 
     getText(): string {
         return this.text;
+    }
+
+    getTypeInfo(): string {
+        return 'Text';
     }
 }
 
@@ -128,6 +144,10 @@ class Paragraph implements NoteComponent {
 
     getText(): string {
         return this.children.map(x => x.getText()).join('');
+    }
+
+    getTypeInfo(): string {
+        return 'Paragraph';
     }
 }
 
