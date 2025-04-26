@@ -6,6 +6,9 @@ export interface NoteComponent {
 
     /** Gets the text which would be used for saving the current state of the note component's contents */
     getText(): string;
+
+    /** Returns some text data about what type of text component this is */
+    getTypeInfo(): string;
 }
 
 
