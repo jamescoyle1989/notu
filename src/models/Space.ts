@@ -52,6 +52,19 @@ export default class Space extends ModelWithState<Space> {
     }
 
 
+    private _settings: any;
+    get settings(): any { return this._settings; }
+    set settings(value: any) {
+        this._settings = value;
+        if (this.isClean)
+            this.dirty();
+    }
+    withSettings(settings: any): Space {
+        this.settings = settings;
+        return this;
+    }
+
+
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -70,6 +83,8 @@ export default class Space extends ModelWithState<Space> {
         output.name = this.name;
         output.version = this.version;
         output.useCommonSpace = this.useCommonSpace;
+        if (!!this.settings)
+            output._settings = JSON.parse(JSON.stringify(this.settings));
         return output;
     }
 
@@ -92,7 +107,8 @@ export default class Space extends ModelWithState<Space> {
             id: this.id,
             name: this.name,
             version: this.version,
-            useCommonSpace: this.useCommonSpace
+            useCommonSpace: this.useCommonSpace,
+            settings: this.settings
         }
     }
 }
