@@ -4,6 +4,7 @@
 export class ParsedQuery {
     where: string = null;
     order: string = null;
+    groupings: Array<ParsedGrouping> = [];
     tags: Array<ParsedTag> = [];
 }
 
@@ -19,12 +20,19 @@ export class ParsedTagFilter {
     exps: Array<string> = [];
 }
 
+export class ParsedGrouping {
+    criteria: string;
+    name: string;
+}
+
 
 export default function parseQuery(query: string): ParsedQuery {
     const output = splitQuery(query);
 
     output.where = identifyTags(output.where, output);
     output.order = identifyTags(output.order, output);
+    for (const grouping of output.groupings)
+        grouping.criteria = identifyTags(grouping.criteria, output);
 
     return output;
 }
@@ -34,13 +42,24 @@ export function splitQuery(query: string): ParsedQuery {
     query = ' ' + query + ' ';
     const output = new ParsedQuery();
 
-    const orderByIndex = query.toUpperCase().indexOf(' ORDER BY ');
-    if (orderByIndex < 0)
-        output.where = query.trim();
-    else {
-        output.where = query.substring(0, orderByIndex).trim();
-        output.order = query.substring(orderByIndex + ' ORDER BY '.length).trim();
+    const groupByIndex = query.toUpperCase().indexOf(' GROUP BY ');
+    if (groupByIndex >= 0) {
+        const groupings = query.substring(groupByIndex + ' GROUP BY '.length).trim().split(',');
+        for (const g of groupings) {
+            const asIndex = g.toUpperCase().indexOf(' AS ');
+            const grouping = new ParsedGrouping();
+            grouping.criteria = g.substring(0, asIndex).trim();
+            grouping.name = g.substring(asIndex + ' AS '.length).replace(/'/g, '').trim();
+            output.groupings.push(grouping);
+        }
+        query = query.substring(0, groupByIndex + 1);
     }
+    const orderByIndex = query.toUpperCase().indexOf(' ORDER BY ');
+    if (orderByIndex >= 0) {
+        output.order = query.substring(orderByIndex + ' ORDER BY '.length).trim();
+        query = query.substring(0, orderByIndex + 1);
+    }
+    output.where = query.trim();
     if (output.where == '')
         output.where = null;
     return output;

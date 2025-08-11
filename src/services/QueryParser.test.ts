@@ -2,11 +2,13 @@ import { expect, test } from 'vitest';
 import parseQuery, { splitQuery, identifyTags } from './QueryParser';
 
 
-test('splitQuery should split out string into where, order', () => {
-    const result = splitQuery('#Test AND #Info ORDER BY @Price DESC');
+test('splitQuery should split out string into where, order & group', () => {
+    const result = splitQuery(`#Test AND #Info ORDER BY @Price DESC GROUP BY #Pinned AS 'Pinned'`);
 
     expect(result.where).toBe('#Test AND #Info');
     expect(result.order).toBe('@Price DESC');
+    expect(result.groupings[0].criteria).toBe(`#Pinned`);
+    expect(result.groupings[0].name).toBe('Pinned');
 });
 
 test('splitQuery should leave order null if not specified', () => {
@@ -107,4 +109,37 @@ test('ordering by date property works correctly', () => {
     expect(result.tags[2].filter.pattern).toBe(`({exp0})::date`);
     expect(result.tags[2].filter.exps).toHaveLength(1);
     expect(result.tags[2].filter.exps[0]).toBe(`date`);
+});
+
+test('grouping works correctly', () => {
+    const result = parseQuery(`#Test GROUP BY #Pinned AS 'Pinned', #Scheduled{.start} AS 'Scheduled FORMAT(DESC yyyy-MMM-dd)', 1 AS 'Other'`);
+
+    expect(result.where).toBe(`{tag0}`);
+    expect(result.order).toBeNull();
+    expect(result.tags.length).toBe(3);
+
+    expect(result.groupings.length).toBe(3);
+    expect(result.groupings[0].criteria).toBe(`{tag1}`);
+    expect(result.groupings[0].name).toBe('Pinned');
+    expect(result.groupings[1].criteria).toBe(`{tag2}`);
+    expect(result.groupings[1].name).toBe('Scheduled FORMAT(DESC yyyy-MMM-dd)');
+    expect(result.groupings[2].criteria).toBe(`1`);
+    expect(result.groupings[2].name).toBe('Other');
+
+    expect(result.tags[0].space).toBeNull();
+    expect(result.tags[0].name).toBe('Test');
+    expect(result.tags[0].searchDepths).toEqual([1]);
+    expect(result.tags[0].filter).toBeNull();
+
+    expect(result.tags[1].space).toBeNull();
+    expect(result.tags[1].name).toBe('Pinned');
+    expect(result.tags[1].searchDepths).toEqual([1]);
+    expect(result.tags[1].filter).toBeNull();
+
+    expect(result.tags[2].space).toBeNull();
+    expect(result.tags[2].name).toBe('Scheduled');
+    expect(result.tags[2].searchDepths).toEqual([1]);
+    expect(result.tags[2].filter.pattern).toBe(`{exp0}`);
+    expect(result.tags[2].filter.exps).toHaveLength(1);
+    expect(result.tags[2].filter.exps[0]).toBe(`start`);
 });
