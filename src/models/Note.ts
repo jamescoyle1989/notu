@@ -105,6 +105,11 @@ export default class Note extends ModelWithState<Note> {
     }
 
 
+    get group(): string { return this._group; }
+    set group(value: string) { this._group = value; }
+    private _group: string;
+
+
     private _tags: Array<NoteTag> = [];
     get tags(): Array<NoteTag> { return this._tags.filter(x => !x.isDeleted); }
     get tagsPendingDeletion(): Array<NoteTag> { return this._tags.filter(x => x.isDeleted); }
