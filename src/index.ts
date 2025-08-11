@@ -5,7 +5,7 @@ import { NotuHttpCacheFetcher } from './services/HttpCacheFetcher';
 import Note from './models/Note';
 import { NoteComponentInfo, splitNoteTextIntoComponents } from './notecomponents/NoteComponent';
 import NoteTag from './models/NoteTag';
-import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter} from './services/QueryParser';
+import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping} from './services/QueryParser';
 import Space from './models/Space';
 import Tag from './models/Tag';
 
@@ -17,7 +17,7 @@ export {
     Note,
     NoteComponentInfo, splitNoteTextIntoComponents,
     NoteTag,
-    parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter,
+    parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping,
     Space,
     Tag
 };
