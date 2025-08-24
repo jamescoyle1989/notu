@@ -40,6 +40,7 @@ export class NotuCache {
 
     spaceFromJSON(spaceData: any): Space {
         const space = new Space(spaceData.name);
+        space.internalName = spaceData.internalName;
         space.id = spaceData.id;
         space.version = spaceData.version;
         space.useCommonSpace = spaceData.useCommonSpace;
@@ -78,6 +79,7 @@ export class NotuCache {
         tag.space = this._spaces.get(tagData.spaceId);
         tag.color = tagData.color;
         tag.availability = tagData.availability;
+        tag.isInternal = tagData.isInternal;
         tag.state = tagData.state;
         if (!!this._tags)
             this._populateTagLinks(tag, tagData);
