@@ -25,6 +25,19 @@ export default class Space extends ModelWithState<Space> {
     }
 
 
+    private _internalName: string = '';
+    get internalName(): string { return this._internalName; }
+    set internalName(value: string) {
+        if (!this.isNew && value != this.internalName)
+            throw Error(`Cannot change the internal name of a space after it has already been saved.`);
+        if (value != this._internalName) {
+            this._internalName = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+
     private _version: string = '0.0.1';
     get version(): string { return this._version; }
     set version(value: string) {
@@ -81,6 +94,7 @@ export default class Space extends ModelWithState<Space> {
     duplicateAsNew(): Space {
         const output = new Space();
         output.name = this.name;
+        output.internalName = this.internalName;
         output.version = this.version;
         output.useCommonSpace = this.useCommonSpace;
         if (!!this.settings)
@@ -106,6 +120,7 @@ export default class Space extends ModelWithState<Space> {
             state: this.state,
             id: this.id,
             name: this.name,
+            internalName: this.internalName,
             version: this.version,
             useCommonSpace: this.useCommonSpace,
             settings: this.settings

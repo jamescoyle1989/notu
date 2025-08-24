@@ -107,6 +107,24 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
+    private _isInternal: boolean = false;
+    get isInternal(): boolean { return this._isInternal; }
+    set isInternal(value: boolean) {
+        if (!this.isNew && value != this.isInternal)
+            throw Error(`Cannot change whether a tag is internal or not once it has already been saved.`);
+        if (value != this._isInternal) {
+            this._isInternal = value;
+            if (this.isClean)
+                this.dirty();
+        }
+    }
+
+    asInternal(): Tag {
+        this.isInternal = true;
+        return this;
+    }
+
+
     links: Array<Tag> = [];
 
     linksTo(tag: Tag): boolean {
@@ -132,6 +150,7 @@ export default class Tag extends ModelWithState<Tag> {
         output.color = this.color;
         output.space = this.space;
         output.availability = this.availability;
+        output.isInternal = this.isInternal;
         output.links = this.links.slice();
         return output;
     }
@@ -161,6 +180,7 @@ export default class Tag extends ModelWithState<Tag> {
             spaceId: this.space?.id,
             color: this.color,
             availability: this.availability,
+            isInternal: this.isInternal,
             links: this.links.map(x => x.id)
         };
     }
