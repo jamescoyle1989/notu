@@ -7,6 +7,7 @@ import { NoteComponentInfo, splitNoteTextIntoComponents } from './notecomponents
 import NoteTag from './models/NoteTag';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping} from './services/QueryParser';
 import Space from './models/Space';
+import SpaceLink from './models/SpaceLink';
 import Tag from './models/Tag';
 
 export {
@@ -19,5 +20,6 @@ export {
     NoteTag,
     parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping,
     Space,
+    SpaceLink,
     Tag
 };

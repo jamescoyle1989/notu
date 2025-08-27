@@ -2,6 +2,7 @@
 
 import Note from '../models/Note';
 import Space from '../models/Space';
+import SpaceLink from '../models/SpaceLink';
 import Tag from '../models/Tag';
 import { NotuCacheFetcher } from './HttpCacheFetcher';
 
@@ -31,11 +32,15 @@ export class NotuCache {
 
     private async _populateSpaces(): Promise<void> {
         const spacesData = await this._fetcher.getSpacesData();
-        this._spaces = new Map<number, Space>();
+        const allSpaces = new Map<number, Space>();
         for (const spaceData of spacesData) {
             const space = this.spaceFromJSON(spaceData);
-            this._spaces.set(space.id, space);
+            allSpaces.set(space.id, space);
+            spaceData.space = space;
         }
+        this._spaces = allSpaces;
+        for (const spaceData of spacesData)
+            this._populateSpaceLinks(spaceData.space, spaceData);
     }
 
     spaceFromJSON(spaceData: any): Space {
@@ -46,8 +51,21 @@ export class NotuCache {
         space.useCommonSpace = spaceData.useCommonSpace;
         space.settings = spaceData.settings;
         space.state = spaceData.state;
+        if (!!this._spaces)
+            this._populateSpaceLinks(space, spaceData);
         return space;
     }
+
+    private _populateSpaceLinks(space: Space, spaceData: any) {
+        for (const linkData of spaceData.links) {
+            const link = new SpaceLink();
+            link.name = linkData.name;
+            link.toSpace = this._spaces.get(linkData.toSpaceId);
+            link.clean();
+            space.addLink(link);
+        }
+    }
+
 
     private async _populateTags(): Promise<void> {
         const tagsData = await this._fetcher.getTagsData();
