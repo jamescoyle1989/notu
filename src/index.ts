@@ -3,7 +3,8 @@ import NotuHttpClient from './services/HttpClient';
 import { NotuCache } from './services/NotuCache';
 import { NotuHttpCacheFetcher } from './services/HttpCacheFetcher';
 import Note from './models/Note';
-import { NoteComponentInfo, splitNoteTextIntoComponents } from './notecomponents/NoteComponent';
+import { splitNoteTextIntoComponents } from './notecomponents/NoteComponent';
+import { parseNoteXml } from './notecomponents/XmlParser';
 import NoteTag from './models/NoteTag';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping} from './services/QueryParser';
 import Space from './models/Space';
@@ -16,7 +17,8 @@ export {
     NotuCache,
     NotuHttpCacheFetcher,
     Note,
-    NoteComponentInfo, splitNoteTextIntoComponents,
+    splitNoteTextIntoComponents,
+    parseNoteXml,
     NoteTag,
     parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping,
     Space,

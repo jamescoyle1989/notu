@@ -29,7 +29,7 @@ function parseXmlChildren(text: string, startIndex: number): Array<NoteXmlElemen
     while (true) {
         if (i >= text.length)
             break;
-        if (i + 1 < text.length && text[i] == '<' && text[i + 1] == '/')
+        if (i + 2 < text.length && text[i] == '<' && text[i + 1] == '|' && text[i + 2] == '/')
             break;
         const child = parseXmlText(text, i);
         output.push(child);
@@ -41,7 +41,7 @@ function parseXmlChildren(text: string, startIndex: number): Array<NoteXmlElemen
 
 /** This function will try to grab the next string portion, but fall back to getting the next xml element if that's what's next */
 function parseXmlText(text: string, startIndex: number): NoteXmlElement | string {
-    let openStart = text.indexOf('<', startIndex);
+    let openStart = text.indexOf('<|', startIndex);
     if (openStart == startIndex)
         return parseXmlElement(text, startIndex);
     if (openStart == -1)
@@ -52,30 +52,30 @@ function parseXmlText(text: string, startIndex: number): NoteXmlElement | string
 
 /** This function will parse an xml element as well as all of its child elements */
 function parseXmlElement(text: string, startIndex: number): NoteXmlElement | string {
-    const openEnd = text.indexOf('>', startIndex + 1);
+    const openEnd = text.indexOf('|>', startIndex + 2);
     if (openEnd == -1)
         return text.substring(startIndex);
     const isSelfClosing = text[openEnd - 1] == '/';
-    const output = parseXmlOpeningTag(text, startIndex + 1, openEnd - Number(isSelfClosing));
+    const output = parseXmlOpeningTag(text, startIndex + 2, openEnd - Number(isSelfClosing));
 
     if (isSelfClosing) {
-        output.text = text.substring(startIndex, openEnd + 1);
+        output.text = text.substring(startIndex, openEnd + 2);
         return output;
     }
 
-    const children = parseXmlChildren(text, openEnd + 1);
+    const children = parseXmlChildren(text, openEnd + 2);
     const childrenLength = children.map(x => x.length).reduce((acc, cur) => acc + cur, 0);
     
-    const closeStart = text.indexOf('</', openEnd + childrenLength);
-    if (closeStart != openEnd + 1 + childrenLength)
+    const closeStart = text.indexOf('<|/', openEnd + 2 + childrenLength);
+    if (closeStart != openEnd + 2 + childrenLength)
         return text.substring(startIndex);
-    const closeEnd = text.indexOf('>', closeStart + 1);
-    const closeTagName = text.substring(closeStart + 2, closeEnd).trim();
+    const closeEnd = text.indexOf('|>', closeStart + 3);
+    const closeTagName = text.substring(closeStart + 3, closeEnd).trim();
     if (output.tag != closeTagName)
         return text.substring(startIndex);
 
     output.children = children;
-    output.text = text.substring(startIndex, closeEnd + 1);
+    output.text = text.substring(startIndex, closeEnd + 2);
     return output;
 }
 
