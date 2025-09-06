@@ -28,7 +28,9 @@ export interface NoteComponentProcessor {
     create(
         data: NoteXmlElement,
         note: Note,
-        save: () => Promise<void>
+        save: () => Promise<void>,
+        componentProcessors: Array<NoteComponentProcessor>,
+        textComponentFactory: (text: string) => NoteComponent
     ): NoteComponent;
 }
 
@@ -90,7 +92,7 @@ function getComponentFromXmlElement(
 
     for (const processor of componentProcessors) {
         if (processor.tagName == element.tag) {
-            return processor.create(element, note, save);
+            return processor.create(element, note, save, componentProcessors, textComponentFactory);
         }
     }
     return textComponentFactory(element.text);
