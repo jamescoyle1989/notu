@@ -1,137 +1,90 @@
 import { expect, test } from 'vitest';
-import { NoteComponent, NoteComponentInfo, NoteComponentProcessor, splitNoteTextIntoComponents } from './NoteComponent';
+import { NoteComponent, NoteComponentProcessor, splitNoteTextIntoComponents } from './NoteComponent';
 import Note from '../models/Note';
+import { NoteXmlElement } from './XmlParser';
 
 
 class NoteTest1 implements NoteComponent {
-    getText(): string {
-        return 'Test1';
-    }
+    getText(): string { return '<Test1/>'; }
 
-    getTypeInfo(): string {
-        return 'NoteTest1';
-    }
+    get typeInfo(): string { return 'NoteTest1'; }
+
+    get displaysInline(): boolean { return false; }
 }
 
 class Test1Processor implements NoteComponentProcessor {
     get displayName(): string { return 'Test 1'; }
 
+    get tagName(): string { return 'Test1'; }
+
     newComponentText(contentText: string): string {
         return `<Test1>${contentText}</Test1>`;
     }
 
-    get componentShowsInlineInParagraph(): boolean { return false; }
-
-    identify(text: string): NoteComponentInfo {
-        const start = text.indexOf('<Test1>');
-        if (start < 0)
-            return null;
-
-        return new NoteComponentInfo('<Test1>', start, this);
-    }
-
-    create(info: NoteComponentInfo, note: Note, save: () => Promise<void>): NoteTest1 {
+    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): NoteTest1 {
         return new NoteTest1();
     }
 }
 
 
 class NoteTest2 implements NoteComponent {
-    getText(): string {
-        return 'Test2';
-    }
+    getText(): string { return '<Test2/>'; }
 
-    getTypeInfo(): string {
-        return 'NoteTest2';
-    }
+    get typeInfo(): string { return 'NoteTest2'; }
+
+    get displaysInline(): boolean { return false; }
 }
 
 class Test2Processor implements NoteComponentProcessor {
     get displayName(): string { return 'Test 2'; }
 
+    get tagName(): string { return 'Test2'; }
+
     newComponentText(contentText: string): string {
         return `<Test2>${contentText}</Test2>`;
     }
 
-    get componentShowsInlineInParagraph(): boolean { return false; }
-
-    identify(text: string): NoteComponentInfo {
-        const start = text.indexOf('<Test2>');
-        if (start < 0)
-            return null;
-
-        return new NoteComponentInfo('<Test2>', start, this);
-    }
-
-    create(info: NoteComponentInfo, note: Note, save: () => Promise<void>): NoteTest2 {
+    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): NoteTest2 {
         return new NoteTest2();
     }
 }
 
 
 class InlineTest implements NoteComponent {
-    getText(): string {
-        return 'Inline';
-    }
+    getText(): string { return '<Inline/>'; }
 
-    getTypeInfo(): string {
-        return 'InlineTest';
-    }
+    get typeInfo(): string { return 'InlineTest'; }
+
+    get displaysInline(): boolean { return true; }
 }
 
 class InlineTestProcessor implements NoteComponentProcessor {
     get displayName(): string { return 'Inline'; }
 
+    get tagName(): string { return 'Inline'; }
+
     newComponentText(contentText: string): string {
         return `<Inline>${contentText}</Inline>`;
     }
 
-    get componentShowsInlineInParagraph(): boolean { return true; }
-
-    identify(text: string): NoteComponentInfo {
-        const start = text.indexOf('<Inline>');
-        if (start < 0)
-            return null;
-
-        return new NoteComponentInfo('<Inline>', start, this);
-    }
-
-    create(info: NoteComponentInfo, note: Note, save: () => Promise<void>): InlineTest {
+    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): InlineTest {
         return new InlineTest();
     }
 }
 
 
 class Text implements NoteComponent {
-    text: string;
+    private _text: string;
 
-    getText(): string {
-        return this.text;
+    constructor(text: string) {
+        this._text = text;
     }
 
-    getTypeInfo(): string {
-        return 'Text';
-    }
-}
+    getText(): string { return this._text; }
 
-class DefaultProcessor implements NoteComponentProcessor {
-    get displayName(): string { return null; }
+    get typeInfo(): string { return 'Text'; }
 
-    newComponentText(contentText: string): string {
-        return contentText;
-    }
-
-    get componentShowsInlineInParagraph(): boolean { return true; }
-
-    identify(text: string): NoteComponentInfo {
-        return new NoteComponentInfo(text, 0, this);
-    }
-
-    create(info: NoteComponentInfo, note: Note, save: () => Promise<void>): Text {
-        const output = new Text();
-        output.text = info.text;
-        return output;
-    }
+    get displaysInline(): boolean { return true; }
 }
 
 
@@ -142,13 +95,11 @@ class Paragraph implements NoteComponent {
         this.children = children;
     }
 
-    getText(): string {
-        return this.children.map(x => x.getText()).join('');
-    }
+    getText(): string { return this.children.map(x => x.getText()).join(''); }
 
-    getTypeInfo(): string {
-        return 'Paragraph';
-    }
+    get typeInfo(): string { return 'Paragraph'; }
+
+    get displaysInline(): boolean { return false; }
 }
 
 function groupComponents(components: Array<NoteComponent>): NoteComponent {
@@ -157,46 +108,46 @@ function groupComponents(components: Array<NoteComponent>): NoteComponent {
 
 
 test('splitNoteTextIntoComponents returns components array correctly', () => {
-    const note = new Note('<Test1><Test1><Test2>');
+    const note = new Note('<Test1/><Test1/><Test2/>');
 
     const components = splitNoteTextIntoComponents(
         note,
         null,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
-        new DefaultProcessor(),
+        text => new Text(text),
         groupComponents
     );
 
     expect(components.length).toBe(3);
-    expect(components[0].getText()).toBe('Test1');
-    expect(components[1].getText()).toBe('Test1');
-    expect(components[2].getText()).toBe('Test2');
+    expect(components[0].getText()).toBe('<Test1/>');
+    expect(components[1].getText()).toBe('<Test1/>');
+    expect(components[2].getText()).toBe('<Test2/>');
 });
 
 test('splitNoteTextIntoComponents can correctly handle default text', () => {
-    const note = new Note('I am some text <Test2>');
+    const note = new Note('I am some text <Test2/>');
 
     const components = splitNoteTextIntoComponents(
         note,
         null,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
-        new DefaultProcessor(),
+        text => new Text(text),
         groupComponents
     );
 
     expect(components.length).toBe(2);
     expect(components[0].getText()).toBe('I am some text ');
-    expect(components[1].getText()).toBe('Test2');
+    expect(components[1].getText()).toBe('<Test2/>');
 });
 
 test('splitNoteTextIntoComponents can correctly group inline components', () => {
-    const note = new Note('I am some <Inline> text <Test1>');
+    const note = new Note('I am some <Inline/> text <Test1/>');
 
     const components = splitNoteTextIntoComponents(
         note,
         null,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
-        new DefaultProcessor(),
+        text => new Text(text),
         groupComponents
     );
 
@@ -204,7 +155,7 @@ test('splitNoteTextIntoComponents can correctly group inline components', () => 
     const paragraph = components[0] as Paragraph;
     expect(paragraph.children.length).toBe(3);
     expect(paragraph.children[0].getText()).toBe('I am some ');
-    expect(paragraph.children[1].getText()).toBe('Inline');
+    expect(paragraph.children[1].getText()).toBe('<Inline/>');
     expect(paragraph.children[2].getText()).toBe(' text ');
-    expect(components[1].getText()).toBe('Test1');
+    expect(components[1].getText()).toBe('<Test1/>');
 });

@@ -1,5 +1,6 @@
 import Note from '../models/Note';
 import { Notu } from '../services/Notu';
+import { NoteXmlElement, parseNoteXml } from './XmlParser';
 
 /** The base interface that all note components must implement */
 export interface NoteComponent {
@@ -8,26 +9,9 @@ export interface NoteComponent {
     getText(): string;
 
     /** Returns some text data about what type of text component this is */
-    getTypeInfo(): string;
-}
+    get typeInfo(): string;
 
-
-/** Stores info about a found NoteComponenet in a note's text until it is ready to be generated */
-export class NoteComponentInfo {
-
-    text: string;
-
-    start: number;
-
-    get end(): number { return this.start + this.text.length; }
-
-    processor: NoteComponentProcessor;
-
-    constructor(text: string, start: number, processor: NoteComponentProcessor) {
-        this.text = text;
-        this.start = start;
-        this.processor = processor;
-    }
+    get displaysInline(): boolean;
 }
 
 
@@ -36,18 +20,16 @@ export interface NoteComponentProcessor {
 
     get displayName(): string;
 
-    newComponentText(contentText: string): string;
+    get tagName(): string;
 
-    identify(text: string): NoteComponentInfo;
+    newComponentText(contentText: string): string;
 
     /** Accepts a function which converts a NoteComponentInfo object into an actual NoteComponent that can be rendered */
     create(
-        info: NoteComponentInfo,
+        data: NoteXmlElement,
         note: Note,
         save: () => Promise<void>
     ): NoteComponent;
-
-    get componentShowsInlineInParagraph(): boolean;
 }
 
 
@@ -56,30 +38,36 @@ export function splitNoteTextIntoComponents(
     note: Note,
     notu: Notu,
     componentProcessors: Array<NoteComponentProcessor>,
-    defaultProcessor: NoteComponentProcessor,
-    groupIntoParagraph: (components: Array<NoteComponent>) => NoteComponent
+    textComponentFactory: (text: string) => NoteComponent,
+    paragraphComponentFactory: (components: Array<NoteComponent>) => NoteComponent
 ): Array<NoteComponent> {
-    
-    const componentInfos = recursiveSplitNoteText(note.text, note, componentProcessors, defaultProcessor);
 
+    const xmlData = parseNoteXml(note.text);
+    
     const components: Array<NoteComponent> = [];
     async function save(): Promise<void> {
         note.text = components.map(x => x.getText()).join('');
         await notu.saveNotes([note]);
     }
 
-    for (let groupStart = 0; groupStart < componentInfos.length; groupStart++) {
-        const startInfo = componentInfos[groupStart];
-        if (!startInfo.processor.componentShowsInlineInParagraph) {
-            components.push(startInfo.processor.create(startInfo, note, save));
+    const ungroupedComponents: Array<NoteComponent> = [];
+    for (const item of xmlData) {
+        ungroupedComponents.push(
+            getComponentFromXmlElement(item, componentProcessors, textComponentFactory, note, save)
+        );
+    }
+
+    for (let groupStart = 0; groupStart < ungroupedComponents.length; groupStart++) {
+        const startComp = ungroupedComponents[groupStart];
+        if (!startComp.displaysInline) {
+            components.push(startComp);
             continue;
         }
-        for (let groupEnd = groupStart; groupEnd <= componentInfos.length; groupEnd++) {
-            const endInfo = componentInfos[groupEnd];
-            if (!endInfo || !endInfo.processor.componentShowsInlineInParagraph) {
-                const groupedInfos = componentInfos.slice(groupStart, groupEnd);
-                const groupedComponents = groupedInfos.map(x => x.processor.create(x, note, save));
-                components.push(groupIntoParagraph(groupedComponents));
+        for (let groupEnd = groupStart; groupEnd <= ungroupedComponents.length; groupEnd++) {
+            const endComp = ungroupedComponents[groupEnd];
+            if (!endComp || !endComp.displaysInline) {
+                const groupedComps = ungroupedComponents.slice(groupStart, groupEnd);
+                components.push(paragraphComponentFactory(groupedComps));
                 groupStart = groupEnd - 1;
                 break;
             }
@@ -89,26 +77,21 @@ export function splitNoteTextIntoComponents(
     return components;
 }
 
-function recursiveSplitNoteText(
-    text: string,
-    note: Note,
-    componentProcessors: Array<NoteComponentProcessor>,
-    defaultProcessor: NoteComponentProcessor
-): Array<NoteComponentInfo> {
-    let componentInfo: NoteComponentInfo = null;
-    for (const processor of componentProcessors) {
-        componentInfo = processor.identify(text);
-        if (!!componentInfo)
-            break;
-    }
-    if (!componentInfo)
-        return [new NoteComponentInfo(text, 0, defaultProcessor)];
 
-    const output: Array<NoteComponentInfo> = [];
-    if (componentInfo.start > 0)
-        output.push(...recursiveSplitNoteText(text.substring(0, componentInfo.start), note, componentProcessors, defaultProcessor));
-    output.push(componentInfo);
-    if (componentInfo.end < text.length)
-        output.push(...recursiveSplitNoteText(text.substring(componentInfo.end), note, componentProcessors, defaultProcessor));
-    return output;
+function getComponentFromXmlElement(
+    element: string | NoteXmlElement,
+    componentProcessors: Array<NoteComponentProcessor>,
+    textComponentFactory: (text: string) => NoteComponent,
+    note: Note,
+    save: () => Promise<void>
+) {
+    if (typeof element === 'string')
+        return textComponentFactory(element);
+
+    for (const processor of componentProcessors) {
+        if (processor.tagName == element.tag) {
+            return processor.create(element, note, save);
+        }
+    }
+    return textComponentFactory(element.text);
 }

@@ -2,7 +2,8 @@ export class NoteXmlElement {
     tag: string;
     children: Array<any> = [];
     attributes: any;
-    length: number;
+    text: string;
+    get length(): number { return this.text.length; }
 }
 
 
@@ -58,7 +59,7 @@ function parseXmlElement(text: string, startIndex: number): NoteXmlElement | str
     const output = parseXmlOpeningTag(text, startIndex + 1, openEnd - Number(isSelfClosing));
 
     if (isSelfClosing) {
-        output.length = openEnd + 1 - startIndex;
+        output.text = text.substring(startIndex, openEnd + 1);
         return output;
     }
 
@@ -73,8 +74,8 @@ function parseXmlElement(text: string, startIndex: number): NoteXmlElement | str
     if (output.tag != closeTagName)
         return text.substring(startIndex);
 
-    output.length = closeEnd + 1 - startIndex;
     output.children = children;
+    output.text = text.substring(startIndex, closeEnd + 1);
     return output;
 }
 
