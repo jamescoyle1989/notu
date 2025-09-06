@@ -29,8 +29,7 @@ export interface NoteComponentProcessor {
         data: NoteXmlElement,
         note: Note,
         save: () => Promise<void>,
-        componentProcessors: Array<NoteComponentProcessor>,
-        textComponentFactory: (text: string) => NoteComponent
+        childComponentFactory: (childElement: NoteXmlElement) => NoteComponent
     ): NoteComponent;
 }
 
@@ -92,7 +91,12 @@ function getComponentFromXmlElement(
 
     for (const processor of componentProcessors) {
         if (processor.tagName == element.tag) {
-            return processor.create(element, note, save, componentProcessors, textComponentFactory);
+            return processor.create(
+                element,
+                note,
+                save,
+                childElement => getComponentFromXmlElement(childElement, componentProcessors, textComponentFactory, note, save)
+            );
         }
     }
     return textComponentFactory(element.text);
