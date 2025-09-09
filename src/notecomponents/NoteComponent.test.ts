@@ -1,34 +1,34 @@
 import { expect, test } from 'vitest';
 import { NoteComponent, NoteComponentProcessor, splitNoteTextIntoComponents } from './NoteComponent';
 import Note from '../models/Note';
-import { NoteXmlElement } from './XmlParser';
+import { NmlElement } from './NmlParser';
 
 
 class NoteTest1 implements NoteComponent {
-    getText(): string { return '<|Test1/|>'; }
+    getText(): string { return '<Test1/>'; }
 
     get typeInfo(): string { return 'NoteTest1'; }
 
     get displaysInline(): boolean { return false; }
 }
 
-class Test1Processor implements NoteComponentProcessor {
+class Test1Processor implements NoteComponentProcessor {q
     get displayName(): string { return 'Test 1'; }
 
     get tagName(): string { return 'Test1'; }
 
     newComponentText(contentText: string): string {
-        return `<|Test1|>${contentText}<|/Test1|>`;
+        return `<Test1>${contentText}</Test1>`;
     }
 
-    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): NoteTest1 {
+    create(data: NmlElement, note: Note, save: () => Promise<void>): NoteTest1 {
         return new NoteTest1();
     }
 }
 
 
 class NoteTest2 implements NoteComponent {
-    getText(): string { return '<|Test2/|>'; }
+    getText(): string { return '<Test2/>'; }
 
     get typeInfo(): string { return 'NoteTest2'; }
 
@@ -41,17 +41,17 @@ class Test2Processor implements NoteComponentProcessor {
     get tagName(): string { return 'Test2'; }
 
     newComponentText(contentText: string): string {
-        return `<|Test2|>${contentText}<|/Test2|>`;
+        return `<Test2>${contentText}</Test2>`;
     }
 
-    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): NoteTest2 {
+    create(data: NmlElement, note: Note, save: () => Promise<void>): NoteTest2 {
         return new NoteTest2();
     }
 }
 
 
 class InlineTest implements NoteComponent {
-    getText(): string { return '<|Inline/|>'; }
+    getText(): string { return '<Inline/>'; }
 
     get typeInfo(): string { return 'InlineTest'; }
 
@@ -64,10 +64,10 @@ class InlineTestProcessor implements NoteComponentProcessor {
     get tagName(): string { return 'Inline'; }
 
     newComponentText(contentText: string): string {
-        return `<|Inline|>${contentText}<|/Inline|>`;
+        return `<Inline>${contentText}</Inline>`;
     }
 
-    create(data: NoteXmlElement, note: Note, save: () => Promise<void>): InlineTest {
+    create(data: NmlElement, note: Note, save: () => Promise<void>): InlineTest {
         return new InlineTest();
     }
 }
@@ -108,7 +108,7 @@ function groupComponents(components: Array<NoteComponent>): NoteComponent {
 
 
 test('splitNoteTextIntoComponents returns components array correctly', () => {
-    const note = new Note('<|Test1/|><|Test1/|><|Test2/|>');
+    const note = new Note('<Test1/><Test1/><Test2/>');
 
     const components = splitNoteTextIntoComponents(
         note,
@@ -119,13 +119,13 @@ test('splitNoteTextIntoComponents returns components array correctly', () => {
     );
 
     expect(components.length).toBe(3);
-    expect(components[0].getText()).toBe('<|Test1/|>');
-    expect(components[1].getText()).toBe('<|Test1/|>');
-    expect(components[2].getText()).toBe('<|Test2/|>');
+    expect(components[0].getText()).toBe('<Test1/>');
+    expect(components[1].getText()).toBe('<Test1/>');
+    expect(components[2].getText()).toBe('<Test2/>');
 });
 
 test('splitNoteTextIntoComponents can correctly handle default text', () => {
-    const note = new Note('I am some text <|Test2/|>');
+    const note = new Note('I am some text <Test2/>');
 
     const components = splitNoteTextIntoComponents(
         note,
@@ -137,11 +137,11 @@ test('splitNoteTextIntoComponents can correctly handle default text', () => {
 
     expect(components.length).toBe(2);
     expect(components[0].getText()).toBe('I am some text ');
-    expect(components[1].getText()).toBe('<|Test2/|>');
+    expect(components[1].getText()).toBe('<Test2/>');
 });
 
 test('splitNoteTextIntoComponents can correctly group inline components', () => {
-    const note = new Note('I am some <|Inline/|> text <|Test1/|>');
+    const note = new Note('I am some <Inline/> text <Test1/>');
 
     const components = splitNoteTextIntoComponents(
         note,
@@ -155,7 +155,7 @@ test('splitNoteTextIntoComponents can correctly group inline components', () => 
     const paragraph = components[0] as Paragraph;
     expect(paragraph.children.length).toBe(3);
     expect(paragraph.children[0].getText()).toBe('I am some ');
-    expect(paragraph.children[1].getText()).toBe('<|Inline/|>');
+    expect(paragraph.children[1].getText()).toBe('<Inline/>');
     expect(paragraph.children[2].getText()).toBe(' text ');
-    expect(components[1].getText()).toBe('<|Test1/|>');
+    expect(components[1].getText()).toBe('<Test1/>');
 });

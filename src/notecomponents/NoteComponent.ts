@@ -1,6 +1,6 @@
 import Note from '../models/Note';
 import { Notu } from '../services/Notu';
-import { NoteXmlElement, parseNoteXml } from './XmlParser';
+import { NmlElement, parseNml } from './NmlParser';
 
 /** The base interface that all note components must implement */
 export interface NoteComponent {
@@ -26,10 +26,10 @@ export interface NoteComponentProcessor {
 
     /** Accepts a function which converts a NoteComponentInfo object into an actual NoteComponent that can be rendered */
     create(
-        data: NoteXmlElement,
+        data: NmlElement,
         note: Note,
         save: () => Promise<void>,
-        childComponentFactory: (childElement: NoteXmlElement) => NoteComponent
+        childComponentFactory: (childElement: string | NmlElement) => NoteComponent
     ): NoteComponent;
 }
 
@@ -43,7 +43,7 @@ export function splitNoteTextIntoComponents(
     paragraphComponentFactory: (components: Array<NoteComponent>) => NoteComponent
 ): Array<NoteComponent> {
 
-    const xmlData = parseNoteXml(note.text);
+    const xmlData = parseNml(note.text);
     
     const components: Array<NoteComponent> = [];
     async function save(): Promise<void> {
@@ -80,7 +80,7 @@ export function splitNoteTextIntoComponents(
 
 
 function getComponentFromXmlElement(
-    element: string | NoteXmlElement,
+    element: string | NmlElement,
     componentProcessors: Array<NoteComponentProcessor>,
     textComponentFactory: (text: string) => NoteComponent,
     note: Note,
@@ -99,5 +99,5 @@ function getComponentFromXmlElement(
             );
         }
     }
-    return textComponentFactory(element.text);
+    return textComponentFactory(element.fullText);
 }
