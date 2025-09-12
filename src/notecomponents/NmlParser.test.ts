@@ -93,7 +93,6 @@ test('parseNml can handle syntax error on element', () => {
 
 test('parseNml correctly handles failure in child sibling element', () => {
     const result = parseNml('<Parent><Child1></Child1></Child2/><Child3/></Parent>');
-    console.log(result);
 
     expect(result.length).toBe(5);
     expect(result[0]).toBe('<Parent>');
@@ -105,4 +104,22 @@ test('parseNml correctly handles failure in child sibling element', () => {
     expect(child3.openText).toBe('<Child3/>');
     expect(child3.isSelfClosing).toBe(true);
     expect(result[4]).toBe('</Parent>');
+});
+
+
+test('parseNml correctly handles flag attribute', () => {
+    const result = parseNml('<Parent isNice></Parent>');
+
+    expect(result.length).toBe(1);
+    const parent = result[0] as NmlElement;
+    expect(parent.attributes['isNice']).toBe(true);
+});
+
+
+test('parseNml correctly handles escape in attribute value', () => {
+    const result = parseNml('<Test value="Hi /"James/""></Test>');
+
+    expect(result.length).toBe(1);
+    const test = result[0] as NmlElement;
+    expect(test.attributes['value']).toBe('Hi "James"');
 });
