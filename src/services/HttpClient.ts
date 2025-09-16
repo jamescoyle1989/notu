@@ -1,6 +1,7 @@
 'use strict';
 
 import Note from '../models/Note';
+import Page from '../models/Page';
 import Space from '../models/Space';
 import Tag from '../models/Tag';
 
@@ -19,6 +20,12 @@ export interface NotuClient {
     saveNotes(notes: Array<Note>): Promise<Array<any>>;
 
     customJob(name: string, data: any): Promise<any>;
+
+    getPages(): Promise<Array<any>>;
+    
+    getPage(id: number): Promise<any>;
+    
+    savePage(page: Page): Promise<any>;
 }
 
 
@@ -150,6 +157,40 @@ export default class NotuHttpClient implements NotuClient {
             {
                 method: 'POST',
                 body: JSON.stringify({ name, data, clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        this._validateResponseStatus(response);
+        return await response.json();
+    }
+
+    async getPages(): Promise<Array<any>> {
+        const response = await this._fetch(this.url + '/pages',
+            {
+                method: 'GET',
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        this._validateResponseStatus(response);
+        return await response.json();
+    }
+    
+    async getPage(id: number): Promise<any> {
+        const response = await this._fetch(this.url + `/pages/${id}`,
+            {
+                method: 'GET',
+                headers: { Authorization: 'Bearer ' + this.token }
+            }
+        );
+        this._validateResponseStatus(response);
+        return await response.json();
+    }
+    
+    async savePage(page: Page): Promise<any> {
+        const response = await this._fetch(this.url + '/pages',
+            {
+                method: 'POST',
+                body: JSON.stringify(page),
                 headers: { Authorization: 'Bearer ' + this.token }
             }
         );

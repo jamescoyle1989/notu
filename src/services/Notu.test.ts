@@ -3,6 +3,7 @@ import { Notu } from './Notu';
 import { NotuClient } from './HttpClient';
 import { Note, NotuCache, Space, Tag } from '..';
 import { newNote, newSpace, testCacheFetcher } from '../TestHelpers';
+import Page from '../models/Page';
 
 class MockClient implements NotuClient {
     log: Array<string> = [];
@@ -52,6 +53,21 @@ class MockClient implements NotuClient {
     customJob(name: string, data: any): Promise<any> {
         this.log.push(`customJob(${name})`);
         return Promise.resolve(null);
+    }
+
+    getPages(): Promise<Array<any>> {
+        this.log.push(`getPages()`);
+        return Promise.resolve([]);
+    }
+
+    getPage(id: number): Promise<any> {
+        this.log.push(`getPage(${id})`);
+        return Promise.resolve(null);
+    }
+
+    savePage(page: Page): Promise<any> {
+        this.log.push('savePage');
+        return Promise.resolve(JSON.parse(JSON.stringify(page)));
     }
 }
 

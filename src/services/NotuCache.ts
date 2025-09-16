@@ -1,6 +1,7 @@
 'use strict';
 
 import Note from '../models/Note';
+import Page from '../models/Page';
 import Space from '../models/Space';
 import SpaceLink from '../models/SpaceLink';
 import Tag from '../models/Tag';
@@ -126,6 +127,19 @@ export class NotuCache {
         }
 
         return note;
+    }
+
+
+    pageFromJSON(pageData: any): Page {
+        const page = new Page();
+        page.id = pageData.id;
+        page.name = pageData.name;
+        page.order = pageData.order;
+        page.group = pageData.group;
+        page.space = this.getSpace(pageData.spaceId);
+        page.query = pageData.query;
+        page.state = pageData.state;
+        return page;
     }
 
 

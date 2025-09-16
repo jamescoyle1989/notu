@@ -1,6 +1,7 @@
 'use strict';
 
 import { Note, Space, Tag } from '..';
+import Page from '../models/Page';
 import { NotuClient } from './HttpClient';
 import { NotuCache } from './NotuCache';
 
@@ -83,6 +84,24 @@ export class Notu {
     }
 
     async customJob(name: string, data: any): Promise<any> {
-        return await this.client.customJob(name, data);
+        return await this.client.customJob(name, data)
+        
+    }
+
+    async getPages(): Promise<Array<Page>> {
+        const pagesData = await this.client.getPages();
+        return pagesData.map(x => this.cache.pageFromJSON(x));
+    }
+
+    async getPage(id: number): Promise<Page> {
+        return this.cache.pageFromJSON(
+            await this.client.getPage(id)
+        );
+    }
+
+    async savePage(page: Page): Promise<Page> {
+        return this.cache.pageFromJSON(
+            await this.client.savePage(page)
+        );
     }
 }
