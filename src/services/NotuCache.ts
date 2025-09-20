@@ -160,6 +160,14 @@ export class NotuCache {
         return undefined;
     }
 
+    getSpaceByInternalName(name: string): Space {
+        for (const space of this._spaces.values()) {
+            if (space.internalName == name)
+                return space;
+        }
+        return undefined;
+    }
+
     spaceSaved(spaceData: any): Space {
         const space = this.spaceFromJSON(spaceData);
         if (space.state == 'DELETED')

@@ -39,6 +39,10 @@ export class Notu {
         return this.cache.getSpaceByName(name);
     }
 
+    getSpaceByInternalName(name: string): Space {
+        return this.cache.getSpaceByInternalName(name);
+    }
+
     async saveSpace(space: Space): Promise<Space> {
         const spaceData = await this.client.saveSpace(space);
         return this.cache.spaceSaved(spaceData);
