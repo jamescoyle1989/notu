@@ -97,7 +97,6 @@ export class NotuCache {
         tag.id = tagData.id;
         tag.space = this._spaces.get(tagData.spaceId);
         tag.color = tagData.color;
-        tag.availability = tagData.availability;
         tag.isInternal = tagData.isInternal;
         tag.state = tagData.state;
         if (!!this._tags)
@@ -179,7 +178,7 @@ export class NotuCache {
 
 
 
-    getTags(space: number | Space = null, includeOtherSpacePublics: boolean = false, includeOtherSpaceCommons: boolean = false): Array<Tag> {
+    getTags(space: number | Space = null): Array<Tag> {
         if (space == null)
             return Array.from(this._tags.values());
 
@@ -190,14 +189,7 @@ export class NotuCache {
             spaceObj = space;
         
         return Array.from(this._tags.values())
-            .filter(x => {
-                if (x.space.id == spaceObj.id)
-                    return true;
-                if (x.isPublic && includeOtherSpacePublics)
-                    return true;
-                if (x.isCommon && includeOtherSpaceCommons)
-                    return true;
-            });
+            .filter(x => x.space.id == spaceObj.id);
     }
 
     getTag(id: number): Tag {

@@ -73,40 +73,6 @@ export default class Tag extends ModelWithState<Tag> {
     }
 
 
-    private _availability: number = 0;
-    get availability(): number { return this._availability; }
-    set availability(value: number) {
-        if (!this.isNew && value < this.availability)
-            throw Error('Cannot change a tag to private once its already been saved.');
-        if (value != this._availability) {
-            this._availability = value;
-            if (this.isClean)
-                this.dirty();
-        }
-    }
-
-    get isPrivate(): boolean { return this._availability == 0; }
-
-    get isCommon(): boolean { return this._availability == 1; }
-
-    get isPublic(): boolean { return this.availability == 2; }
-
-    asPrivate(): Tag {
-        this.availability = 0;
-        return this;
-    }
-
-    asCommon(): Tag {
-        this.availability = 1;
-        return this;
-    }
-
-    asPublic(): Tag {
-        this.availability = 2;
-        return this;
-    }
-
-
     private _isInternal: boolean = false;
     get isInternal(): boolean { return this._isInternal; }
     set isInternal(value: boolean) {
@@ -149,7 +115,6 @@ export default class Tag extends ModelWithState<Tag> {
         const output = new Tag(this.name);
         output.color = this.color;
         output.space = this.space;
-        output.availability = this.availability;
         output.isInternal = this.isInternal;
         output.links = this.links.slice();
         return output;
@@ -179,7 +144,6 @@ export default class Tag extends ModelWithState<Tag> {
             name: this.name,
             spaceId: this.space?.id,
             color: this.color,
-            availability: this.availability,
             isInternal: this.isInternal,
             links: this.links.map(x => x.id)
         };

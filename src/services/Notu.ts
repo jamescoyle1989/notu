@@ -48,8 +48,8 @@ export class Notu {
         return this.cache.spaceSaved(spaceData);
     }
 
-    getTags(space: number | Space = null, includeOtherSpacePublics: boolean = false, includeOtherSpaceCommons: boolean = false): Array<Tag> {
-        return this.cache.getTags(space, includeOtherSpacePublics, includeOtherSpaceCommons);
+    getTags(space: number | Space = null): Array<Tag> {
+        return this.cache.getTags(space);
     }
 
     getTag(id: number): Tag {
