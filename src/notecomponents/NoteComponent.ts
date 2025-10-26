@@ -58,8 +58,8 @@ export function splitNoteTextIntoComponents(
 
     function displaysInline(comp: NoteComponent): boolean {
         return (
-            (forEdit && comp.displaysInline) ||
-            (!forEdit && comp.displaysInlineForEdit)
+            (!forEdit && comp.displaysInline) ||
+            (forEdit && comp.displaysInlineForEdit)
         );
     }
 
