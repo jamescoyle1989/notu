@@ -10,6 +10,12 @@ class NoteTest1 implements NoteComponent {
     get typeInfo(): string { return 'NoteTest1'; }
 
     get displaysInline(): boolean { return false; }
+
+    get displaysInlineForEdit(): boolean { return false; }
+
+    getThisPlusAllChildComponents(): Array<NoteComponent> {
+        return [this];
+    }
 }
 
 class Test1Processor implements NoteComponentProcessor {q
@@ -33,6 +39,12 @@ class NoteTest2 implements NoteComponent {
     get typeInfo(): string { return 'NoteTest2'; }
 
     get displaysInline(): boolean { return false; }
+
+    get displaysInlineForEdit(): boolean { return false; }
+
+    getThisPlusAllChildComponents(): Array<NoteComponent> {
+        return [this];
+    }
 }
 
 class Test2Processor implements NoteComponentProcessor {
@@ -56,6 +68,12 @@ class InlineTest implements NoteComponent {
     get typeInfo(): string { return 'InlineTest'; }
 
     get displaysInline(): boolean { return true; }
+
+    get displaysInlineForEdit(): boolean { return true; }
+
+    getThisPlusAllChildComponents(): Array<NoteComponent> {
+        return [this];
+    }
 }
 
 class InlineTestProcessor implements NoteComponentProcessor {
@@ -85,6 +103,12 @@ class Text implements NoteComponent {
     get typeInfo(): string { return 'Text'; }
 
     get displaysInline(): boolean { return true; }
+
+    get displaysInlineForEdit(): boolean { return true; }
+
+    getThisPlusAllChildComponents(): Array<NoteComponent> {
+        return [this];
+    }
 }
 
 
@@ -100,6 +124,12 @@ class Paragraph implements NoteComponent {
     get typeInfo(): string { return 'Paragraph'; }
 
     get displaysInline(): boolean { return false; }
+
+    get displaysInlineForEdit(): boolean { return false; }
+
+    getThisPlusAllChildComponents(): Array<NoteComponent> {
+        return [this, ...this.children];
+    }
 }
 
 function groupComponents(components: Array<NoteComponent>): NoteComponent {
@@ -113,6 +143,7 @@ test('splitNoteTextIntoComponents returns components array correctly', () => {
     const components = splitNoteTextIntoComponents(
         note,
         null,
+        false,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
         text => new Text(text),
         groupComponents
@@ -130,6 +161,7 @@ test('splitNoteTextIntoComponents can correctly handle default text', () => {
     const components = splitNoteTextIntoComponents(
         note,
         null,
+        false,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
         text => new Text(text),
         groupComponents
@@ -146,6 +178,7 @@ test('splitNoteTextIntoComponents can correctly group inline components', () => 
     const components = splitNoteTextIntoComponents(
         note,
         null,
+        false,
         [new Test1Processor(), new Test2Processor(), new InlineTestProcessor()],
         text => new Text(text),
         groupComponents

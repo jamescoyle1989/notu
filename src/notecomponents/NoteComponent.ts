@@ -12,6 +12,10 @@ export interface NoteComponent {
     get typeInfo(): string;
 
     get displaysInline(): boolean;
+
+    get displaysInlineForEdit(): boolean;
+
+    getThisPlusAllChildComponents(): Array<NoteComponent>
 }
 
 
@@ -38,6 +42,7 @@ export interface NoteComponentProcessor {
 export function splitNoteTextIntoComponents(
     note: Note,
     notu: Notu,
+    forEdit: boolean,
     componentProcessors: Array<NoteComponentProcessor>,
     textComponentFactory: (text: string) => NoteComponent,
     paragraphComponentFactory: (components: Array<NoteComponent>) => NoteComponent
@@ -51,6 +56,13 @@ export function splitNoteTextIntoComponents(
         await notu.saveNotes([note]);
     }
 
+    function displaysInline(comp: NoteComponent): boolean {
+        return (
+            (forEdit && comp.displaysInline) ||
+            (!forEdit && comp.displaysInlineForEdit)
+        );
+    }
+
     const ungroupedComponents: Array<NoteComponent> = [];
     for (const item of xmlData) {
         ungroupedComponents.push(
@@ -60,13 +72,13 @@ export function splitNoteTextIntoComponents(
 
     for (let groupStart = 0; groupStart < ungroupedComponents.length; groupStart++) {
         const startComp = ungroupedComponents[groupStart];
-        if (!startComp.displaysInline) {
+        if (!displaysInline(startComp)) {
             components.push(startComp);
             continue;
         }
         for (let groupEnd = groupStart; groupEnd <= ungroupedComponents.length; groupEnd++) {
             const endComp = ungroupedComponents[groupEnd];
-            if (!endComp || !endComp.displaysInline) {
+            if (!endComp || !displaysInline(endComp)) {
                 const groupedComps = ungroupedComponents.slice(groupStart, groupEnd);
                 components.push(paragraphComponentFactory(groupedComps));
                 groupStart = groupEnd - 1;
