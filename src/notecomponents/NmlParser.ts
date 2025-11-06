@@ -225,7 +225,7 @@ export function parseNmlElement(wd: NmlParserWorkingData): void {
                 wd.addTextUpTo(attributeValueStartIndex);
                 return;
             }
-            newElement.attributes[attributeName] = attributeValue.replace(/\/"/g, '"');
+            newElement.attributes[attributeName] = attributeValue.replace(/\\"/g, '"');
             index = attributeValueStartIndex + attributeValue.length + 1;
         }
         else {
@@ -242,13 +242,13 @@ export function parseAttributeValue(wd: NmlParserWorkingData, startIndex: number
         const nextIndex = wd.text.indexOf('"', currentIndex);
         if (nextIndex == -1)
             return null;
-        if (!isSlash(wd.text.charCodeAt(nextIndex - 1)))
+        if (!isEscapeCharacter(wd.text.charCodeAt(nextIndex - 1)))
             return wd.text.substring(startIndex, nextIndex);
         currentIndex = nextIndex + 1;
     }
 }
 
 
-function isSlash(charCode: number) {
-    return charCode == 47;
+function isEscapeCharacter(charCode: number) {
+    return charCode == 92;  //Backslash
 }

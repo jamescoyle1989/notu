@@ -117,7 +117,7 @@ test('parseNml correctly handles flag attribute', () => {
 
 
 test('parseNml correctly handles escape in attribute value', () => {
-    const result = parseNml('<Test value="Hi /"James/""></Test>');
+    const result = parseNml('<Test value="Hi \\"James\\""></Test>');
 
     expect(result.length).toBe(1);
     const test = result[0] as NmlElement;
