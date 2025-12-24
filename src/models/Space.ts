@@ -1,7 +1,6 @@
 'use strict';
 
 import ModelWithState from './ModelWithState';
-import SpaceLink from './SpaceLink';
 
 
 export default class Space extends ModelWithState<Space> {
@@ -66,54 +65,6 @@ export default class Space extends ModelWithState<Space> {
     }
 
 
-    private _settings: any;
-    get settings(): any { return this._settings; }
-    set settings(value: any) {
-        this._settings = value;
-        if (this.isClean)
-            this.dirty();
-    }
-    withSettings(settings: any): Space {
-        this.settings = settings;
-        return this;
-    }
-
-
-    private _links: Array<SpaceLink> = [];
-    get links(): Array<SpaceLink> { return this._links.filter(x => !x.isDeleted); }
-    get linksPendingDeletion(): Array<SpaceLink> { return this._links.filter(x => x.isDeleted); }
-
-    addLink(link: SpaceLink): Space {
-        if (link.isDeleted)
-            throw Error('Cannot add a link marked as deleted to a space');
-        if (link.isNew)
-            throw Error('Cannot add a link that hasn\'t yet been saved to a space');
-        let existing = this._links.find(x => x.name == link.name);
-        if (!!existing) {
-            if (existing.isDeleted) {
-                existing.dirty();
-                return this;
-            }
-            else
-                throw Error('The space already contains a link with this name');
-        }
-        this._links.push(link);
-        return this;
-    }
-
-    removeLink(name: string): Space {
-        const link = this._links.find(x => x.name == name);
-        if (!link)
-            return this;
-
-        if (link.isNew)
-            this._links = this._links.filter(x => x !== link);
-        else
-            link.delete();
-        return this;
-    }
-
-
     constructor(name: string = '') {
         super();
         this._name = name;
@@ -127,9 +78,6 @@ export default class Space extends ModelWithState<Space> {
         output.internalName = this.internalName;
         output.version = this.version;
         output.useCommonSpace = this.useCommonSpace;
-        if (!!this.settings)
-            output._settings = JSON.parse(JSON.stringify(this.settings));
-        output._links = this.links.map(x => x.duplicate());
         output.state = this.state;
         return output;
     }
@@ -140,9 +88,6 @@ export default class Space extends ModelWithState<Space> {
         output.internalName = this.internalName;
         output.version = this.version;
         output.useCommonSpace = this.useCommonSpace;
-        if (!!this.settings)
-            output._settings = JSON.parse(JSON.stringify(this.settings));
-        output._links = this.links.map(x => x.duplicateAsNew());
         return output;
     }
 
@@ -166,9 +111,7 @@ export default class Space extends ModelWithState<Space> {
             name: this.name,
             internalName: this.internalName,
             version: this.version,
-            useCommonSpace: this.useCommonSpace,
-            settings: this.settings,
-            links: this._links.map(x => x.toJSON())
+            useCommonSpace: this.useCommonSpace
         }
     }
 }

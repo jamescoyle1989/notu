@@ -9,7 +9,6 @@ import NoteTag from './models/NoteTag';
 import Page from './models/Page';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping} from './services/QueryParser';
 import Space from './models/Space';
-import SpaceLink from './models/SpaceLink';
 import Tag from './models/Tag';
 
 export {
@@ -24,6 +23,5 @@ export {
     Page,
     parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping,
     Space,
-    SpaceLink,
     Tag
 };

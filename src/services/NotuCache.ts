@@ -3,7 +3,6 @@
 import Note from '../models/Note';
 import Page from '../models/Page';
 import Space from '../models/Space';
-import SpaceLink from '../models/SpaceLink';
 import Tag from '../models/Tag';
 import { NotuCacheFetcher } from './HttpCacheFetcher';
 
@@ -40,8 +39,6 @@ export class NotuCache {
             spaceData.space = space;
         }
         this._spaces = allSpaces;
-        for (const spaceData of spacesData)
-            this._populateSpaceLinks(spaceData.space, spaceData);
     }
 
     spaceFromJSON(spaceData: any): Space {
@@ -50,21 +47,8 @@ export class NotuCache {
         space.id = spaceData.id;
         space.version = spaceData.version;
         space.useCommonSpace = spaceData.useCommonSpace;
-        space.settings = spaceData.settings;
         space.state = spaceData.state;
-        if (!!this._spaces)
-            this._populateSpaceLinks(space, spaceData);
         return space;
-    }
-
-    private _populateSpaceLinks(space: Space, spaceData: any) {
-        for (const linkData of spaceData.links) {
-            const link = new SpaceLink();
-            link.name = linkData.name;
-            link.toSpace = this._spaces.get(linkData.toSpaceId);
-            link.clean();
-            space.addLink(link);
-        }
     }
 
 

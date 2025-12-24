@@ -15,26 +15,6 @@ test('spaceFromJSON correctly sets up properties', () => {
     expect(space.state).toBe('CLEAN');
 });
 
-test('spaceFromJSON populates settings if present', async () => {
-    const cache = new NotuCache(testCacheFetcher());
-    await cache.populate();
-    const spaceData = {id: 1, name: 'Tasks', version: '2.0.0', settings: {mainQuery: `#Tag1 AND #Tag2`}, links: []};
-    const space = cache.spaceFromJSON(spaceData);
-    expect(space.settings.mainQuery).toBe(`#Tag1 AND #Tag2`);
-});
-
-test('spaceFromJSON populates links if present', async () => {
-    const cache = new NotuCache(testCacheFetcher());
-    await cache.populate();
-    const spaceData = {id: 11, name: 'Jobs', version: '1.2.3', links: [{name: 'To Space1', toSpaceId: 1}, {name: 'To Space2', toSpaceId: 2}]}
-    const space = cache.spaceFromJSON(spaceData);
-    expect(space.links.length).toBe(2);
-    expect(space.links[0].name).toBe('To Space1');
-    expect(space.links[0].toSpace.name).toBe('Space 1');
-    expect(space.links[1].name).toBe('To Space2');
-    expect(space.links[1].toSpace.name).toBe('Space 2');
-});
-
 test('noteFromJSON pulls ownTag from cache if state is clean', async () => {
     const cache = new NotuCache(testCacheFetcher());
     await cache.populate();
