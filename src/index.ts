@@ -6,7 +6,6 @@ import Note from './models/Note';
 import { splitNoteTextIntoComponents } from './notecomponents/NoteComponent';
 import { parseNml, NmlElement } from './notecomponents/NmlParser';
 import NoteTag from './models/NoteTag';
-import Page from './models/Page';
 import parseQuery, {ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping} from './services/QueryParser';
 import Space from './models/Space';
 import Tag from './models/Tag';
@@ -20,7 +19,6 @@ export {
     splitNoteTextIntoComponents,
     parseNml, NmlElement,
     NoteTag,
-    Page,
     parseQuery, ParsedQuery, ParsedTag, ParsedTagFilter, ParsedGrouping,
     Space,
     Tag
