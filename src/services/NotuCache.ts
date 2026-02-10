@@ -101,6 +101,7 @@ export class NotuCache {
             .in(this.getSpace(noteData.spaceId));
         note.id = noteData.id;
         note.state = noteData.state;
+        note.group = noteData.grouping;
 
         for (const ntData of noteData.tags) {
             const nt = note.addTag(this.getTag(ntData.tagId));
