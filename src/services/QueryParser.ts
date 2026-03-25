@@ -6,6 +6,19 @@ export class ParsedQuery {
     order: string = null;
     groupings: Array<ParsedGrouping> = [];
     tags: Array<ParsedTag> = [];
+
+    compose(): string {
+        let output = '';
+        if (!!this.where)
+            output = this.where;
+        if (!!this.order)
+            output += ` ORDER BY ${this.order}`;
+        if (!!this.groupings && this.groupings.length > 0)
+            output += ` GROUP BY ${this.groupings.map(x => x.compose()).join(', ')}`;
+        for (let i = 0; i < this.tags.length; i++)
+            output = output.replace(`{tag${i}}`, this.tags[i].compose());
+        return output.trimStart();
+    }
 }
 
 export class ParsedTag {
@@ -13,16 +26,51 @@ export class ParsedTag {
     name: string = null;
     searchDepths: Array<number> = [];
     filter: ParsedTagFilter = null;
+
+    compose(): string {
+        const maxDepth = this.searchDepths.reduce((a, b) => Math.max(a, b), 0);
+
+        let hasZeroSearchDepth = false;
+        let prefixArray = new Array(maxDepth).fill('_');
+        for (const searchDepth of this.searchDepths) {
+            if (searchDepth == 0)
+                hasZeroSearchDepth = true;
+            prefixArray[searchDepth - 1] = '#';
+        }
+
+        let output = `${hasZeroSearchDepth ? '@' : ''}${prefixArray.join('')}`;
+        let fullName = this.name;
+        if (!!this.space)
+            fullName = `${this.space}.${fullName}`;
+        const requiresBrackets = fullName.includes(' ');
+        output += `${requiresBrackets ? '[' : ''}${fullName}${requiresBrackets ? ']' : ''}`;
+
+        if (!!this.filter)
+            output += this.filter.compose();
+
+        return output;
+    }
 }
 
 export class ParsedTagFilter {
     pattern: string = null;
     exps: Array<string> = [];
+
+    compose(): string {
+        let output = `{${this.pattern}}`;
+        for (let i = 0; i < this.exps.length; i++)
+            output = output.replace(`{exp${i}}`, `.${this.exps[i]}`);
+        return output;
+    }
 }
 
 export class ParsedGrouping {
     criteria: string;
     name: string;
+
+    compose(): string {
+        return `${this.criteria} AS '${this.name}'`;
+    }
 }
 
 

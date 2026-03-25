@@ -143,3 +143,41 @@ test('grouping works correctly', () => {
     expect(result.tags[2].filter.exps).toHaveLength(1);
     expect(result.tags[2].filter.exps[0]).toBe(`start`);
 });
+
+
+
+test('compose should rebuild grouped query correctly', () => {
+    const query = `#Test GROUP BY #Pinned AS 'Pinned', #Scheduled{.start} AS 'Scheduled FORMAT(DESC yyyy-MMM-dd)', 1 AS 'Other'`;
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
+
+test('compose should rebuild ordered query correctly', () => {
+    const query = `_#Tasks.Setup AND #General.Finished ORDER BY #General.Finished{(.date)::date} DESC`;
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
+
+test('compose should rebuild query with complex tag criteria correctly', () => {
+    const query = '#Person{.height.meters > 1.8 AND .weight[0] < 80} OR #Dog';
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
+
+test('compose should rebuild query with square brackets correctly', () => {
+    const query = '#Space1.Tag1 AND #[Space 2.Tag 2]';
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
+
+test('compose should rebuild query with multiple depth levels correctly', () => {
+    const query = '#Test AND @Info OR @_#Me';
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
+
+test('compose should rebuild just ordered query correctly', () => {
+    const query = 'ORDER BY @Price DESC';
+    const result = parseQuery(query).compose();
+    expect(result).toBe(query);
+});
